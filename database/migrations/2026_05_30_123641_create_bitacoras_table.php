@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('ip', 45)->nullable();
             $table->string('accion', 200);
             $table->timestamp('fecha_hora')->useCurrent();
-            $table->foreignId('id_usuario')->constrained('users')->onDelete('restrict');
+            $table->foreignId('id_usuario')->constrained('usuario')->onDelete('restrict');
         });
     }
 
