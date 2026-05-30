@@ -19,11 +19,22 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'user_name',
         'password',
+        'email',
+        'id_perfil',
+        'registro_personal',
     ];
-
+    
+    public function perfil()
+    {
+        return $this->belongsTo(Perfil::class, 'id_perfil', 'id');
+    }
+    public function personal()
+    {
+        return $this->belongsTo(Personal::class, 'registro_personal', 'registro');
+    }
+    
     /**
      * The attributes that should be hidden for serialization.
      *

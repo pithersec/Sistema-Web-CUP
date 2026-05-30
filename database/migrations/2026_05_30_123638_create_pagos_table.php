@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pagos', function (Blueprint $table) {
+        Schema::create('pago', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->decimal('monto', 10, 2);
+            $table->date('fecha');
+            $table->string('concepto', 200)->nullable();
+            $table->string('estado', 30)->default('pendiente');
+            $table->string('referencia_pasarela', 200)->nullable();
         });
     }
 
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pagos');
+        Schema::dropIfExists('pago');
     }
 };

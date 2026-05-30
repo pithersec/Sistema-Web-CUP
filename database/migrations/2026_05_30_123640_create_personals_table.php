@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('personals', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('personal', function (Blueprint $table) {
+            $table->string('registro', 20)->primary(); // Código de registro de trabajador (PK)
+            $table->string('ci', 20);
+            
+            $table->foreign('ci')->references('ci')->on('datos_personales')->onDelete('cascade');
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('personals');
+        Schema::dropIfExists('personal');
     }
 };

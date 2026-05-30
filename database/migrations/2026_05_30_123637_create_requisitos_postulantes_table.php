@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requisitos_postulantes', function (Blueprint $table) {
+        Schema::create('requisitos_postulante', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->boolean('titulo_original')->default(false);
+            $table->boolean('titulo_copia')->default(false);
+            $table->boolean('fotocopia_carnet')->default(false);
+            $table->boolean('formulario')->default(false);
+            $table->boolean('comprobante')->default(false);
+            $table->boolean('libreta')->default(false);
         });
     }
 
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requisitos_postulantes');
+        Schema::dropIfExists('requisitos_postulante');
     }
 };

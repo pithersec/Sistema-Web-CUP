@@ -6,5 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class DatosPersonales extends Model
 {
-    //
+    protected $table = 'datos_personales'; // Especifica el nombre de la tabla
+    protected $primaryKey = 'ci'; // Especifica la clave primaria
+    public $incrementing = false; // Indica que la clave primaria no es auto-incrementable
+    protected $keyType = 'string'; // Especifica el tipo de la clave primaria
+
+    protected $fillable = [
+        'ci',
+        'nombre',
+        'apellido',
+        'genero',
+        'telefono',
+        'correo',
+        'fecha_nac',
+        'direccion'
+    ];
 }

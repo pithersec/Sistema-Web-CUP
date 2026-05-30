@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bitacoras', function (Blueprint $table) {
+        Schema::create('bitacora', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('ip', 45)->nullable();
+            $table->string('accion', 200);
+            $table->timestamp('fecha_hora')->useCurrent();
+            $table->foreignId('id_usuario')->constrained('users')->onDelete('restrict');
         });
     }
 
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bitacoras');
+        Schema::dropIfExists('bitacora');
     }
 };

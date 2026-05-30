@@ -11,9 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('examens', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('examen', function (Blueprint $table) {
+            $table->id(); // ID estándar para facilitar las operaciones de Eloquent
+            $table->string('codigo_postulante', 20);
+            $table->integer('nro_examen');
+            $table->decimal('ponderacion', 5, 2);
+            $table->decimal('nota', 5, 2)->nullable();
+            $table->date('fecha')->nullable();
+            $table->foreignId('id_materia')->constrained('materia')->onDelete('restrict');
+
+            // Llave foránea String hacia Postulante
+            $table->foreign('codigo_postulante')->references('codigo')->on('postulante')->onDelete('cascade');
+
+            // Regla de negocio: Un postulante no puede repetir el mismo número de examen (ej. Examen #1)
+            $table->unique(['codigo_postulante', 'nro_examen']);
         });
     }
 
@@ -22,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('examens');
+        Schema::dropIfExists('examen');
     }
 };

@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('datos_personales', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('ci', 20)->primary(); // Definido como llave primaria string (Cédula de Identidad)
+            $table->string('nombre', 100);
+            $table->string('apellido', 100);
+            $table->enum('genero', ['m', 'f'])->nullable();
+            $table->string('telefono', 20)->nullable();
+            $table->string('correo', 150)->nullable();
+            $table->date('fecha_nac')->nullable();
+            $table->string('direccion', 200)->nullable();
         });
     }
 

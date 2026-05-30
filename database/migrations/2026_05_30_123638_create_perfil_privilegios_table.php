@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('perfil_privilegios', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('perfil_privilegio', function (Blueprint $table) {
+            $table->foreignId('id_perfil')->constrained('perfil')->onDelete('cascade');
+            $table->foreignId('id_privilegio')->constrained('privilegio')->onDelete('cascade');
+            $table->primary(['id_perfil', 'id_privilegio']); // Compuesta
         });
     }
 
@@ -22,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('perfil_privilegios');
+        Schema::dropIfExists('perfil_privilegio');
     }
 };

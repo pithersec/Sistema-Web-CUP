@@ -11,9 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grupos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('grupo', function (Blueprint $table) {
+            $table->id(); // SERIAL PRIMARY KEY
+            $table->string('aula', 10)->nullable();
+            $table->string('turno', 10)->nullable();
+            $table->string('horario', 100)->nullable();
+            $table->integer('total_ins')->default(0);
+            $table->string('codigo_gestion', 20);
+            
+            // Llave foránea que apunta a la gestión académica
+            $table->foreign('codigo_gestion')->references('codigo')->on('gestion')->onDelete('restrict');
         });
     }
 
@@ -22,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grupos');
+        Schema::dropIfExists('grupo');
     }
 };

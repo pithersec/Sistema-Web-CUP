@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('carrera_gestions', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('carrera_gestion', function (Blueprint $table) {
+            $table->string('codigo_carrera', 20);
+            $table->string('codigo_gestion', 20);
+            $table->integer('cupos')->default(0);
+            
+            $table->primary(['codigo_carrera', 'codigo_gestion']);
+            
+            $table->foreign('codigo_carrera')->references('codigo')->on('carrera')->onDelete('cascade');
+            $table->foreign('codigo_gestion')->references('codigo')->on('gestion')->onDelete('cascade');
         });
     }
 
@@ -22,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('carrera_gestions');
+        Schema::dropIfExists('carrera_gestion');
     }
 };

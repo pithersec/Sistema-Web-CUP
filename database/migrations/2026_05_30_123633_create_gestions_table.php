@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gestions', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('gestion', function (Blueprint $table) {
+            $table->string('codigo', 20)->primary(); // PK Personalizada tipo String
+            $table->date('fecha_ini');
+            $table->date('fecha_fin');
         });
     }
 
@@ -22,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gestions');
+        Schema::dropIfExists('gestion');
     }
 };

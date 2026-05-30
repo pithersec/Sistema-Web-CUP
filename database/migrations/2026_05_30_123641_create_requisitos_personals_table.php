@@ -11,9 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requisitos_personals', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('requisitos_personal', function (Blueprint $table) {
+            $table->id(); // Aunque sea compuesta la PK en el DDL original, agregamos ID para facilitar Eloquent
+            $table->string('registro_personal', 20);
+            $table->string('area', 20)->nullable();
+            $table->string('nivel_grado', 20)->nullable();
+            $table->string('nivel_exp', 20)->nullable();
+            $table->string('maestria', 50);
+            $table->string('doctorado', 50);
+            $table->string('diplomado', 50);
+
+            $table->foreign('registro_personal')->references('registro')->on('personal')->onDelete('cascade');
         });
     }
 
@@ -22,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requisitos_personals');
+        Schema::dropIfExists('requisitos_personal');
     }
 };

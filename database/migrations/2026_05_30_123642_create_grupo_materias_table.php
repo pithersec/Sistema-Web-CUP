@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grupo_materias', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('grupo_materia', function (Blueprint $table) {
+            $table->foreignId('id_materia')->constrained('materia')->onDelete('cascade');
+            $table->foreignId('id_grupo')->constrained('grupo')->onDelete('cascade');
+            $table->string('horario', 100)->nullable();
+            $table->string('registro_personal', 20)->nullable();
+
+            $table->primary(['id_materia', 'id_grupo']);
+            $table->foreign('registro_personal')->references('registro')->on('personal')->onDelete('set null');
         });
     }
 
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grupo_materias');
+        Schema::dropIfExists('grupo_materia');
     }
 };

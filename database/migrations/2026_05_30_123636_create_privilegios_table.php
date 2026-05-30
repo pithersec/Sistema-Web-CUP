@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('privilegios', function (Blueprint $table) {
+        Schema::create('privilegio', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('nombre', 80);
         });
     }
 
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('privilegios');
+        Schema::dropIfExists('privilegio');
     }
 };
