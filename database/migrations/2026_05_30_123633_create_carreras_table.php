@@ -15,10 +15,10 @@ return new class extends Migration
             $table->string('codigo', 10)->primary(); // PK String
             $table->string('plan', 5)->nullable();
             $table->string('nombre', 100);
-            $table->string('modalidad', 10)->nullable();
-            $table->string('nivel', 20)->nullable();
-            $table->string('tipo', 50)->nullable();
-            $table->string('duracion',20)->nullable();
+            $table->enum('modalidad', ['presencial', 'virtual'])->nullable();
+            $table->enum('nivel', ['licenciatura', 'tecnico_superior', 'tecnico_medio'])->nullable();
+            $table->enum('tipo', ['semestral', 'anual'])->nullable();
+            $table->unsignedTinyInteger('duracion')->nullable();
         });
     }
 

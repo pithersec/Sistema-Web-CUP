@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('grupo', function (Blueprint $table) {
             $table->id(); // SERIAL PRIMARY KEY
             $table->string('aula', 10)->nullable();
-            $table->string('turno', 10)->nullable();
+            $table->enum('turno', ['mañana', 'tarde', 'noche'])->nullable();
             $table->string('horario', 100)->nullable();
-            $table->integer('total_ins')->default(0);
+            $table->unsignedSmallInteger('total_ins')->default(0);
             $table->string('codigo_gestion', 20);
             
             // Llave foránea que apunta a la gestión académica

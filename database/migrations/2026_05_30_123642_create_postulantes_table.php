@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('postulante', function (Blueprint $table) {
             $table->string('codigo', 20)->primary(); // PK del Postulante
-            $table->string('ci', 20);
+            $table->string('ci', 11);
             $table->string('procedencia', 100)->nullable();
             $table->string('telefono_2', 20)->nullable();
             $table->date('plazo')->nullable();

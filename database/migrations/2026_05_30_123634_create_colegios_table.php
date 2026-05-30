@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id(); // Genera automáticamente un BIGSERIAL PRIMARY KEY
             $table->string('cie', 20);
             $table->string('nombre', 150);
-            $table->string('tipo', 50)->nullable();
-            $table->string('turno', 20)->nullable();
+            $table->enum('tipo', ['fiscal', 'particular', 'convenio', 'privado', 'extranjero'])->nullable();
+            $table->enum('turno', ['mañana', 'tarde', 'noche'])->nullable();
             $table->string('pais', 80)->nullable();
             $table->string('departamento', 80)->nullable();
             $table->string('provincia', 80)->nullable();

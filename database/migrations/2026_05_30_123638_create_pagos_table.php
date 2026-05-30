@@ -16,7 +16,7 @@ return new class extends Migration
             $table->decimal('monto', 10, 2);
             $table->date('fecha');
             $table->string('concepto', 200)->nullable();
-            $table->string('estado', 30)->default('pendiente');
+            $table->enum('estado', ['pendiente', 'completado', 'rechazado', 'anulado'])->default('pendiente');
             $table->string('referencia_pasarela', 200)->nullable();
         });
     }

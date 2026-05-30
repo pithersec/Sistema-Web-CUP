@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('personal', function (Blueprint $table) {
             $table->string('registro', 20)->primary(); // Código de registro de trabajador (PK)
-            $table->string('ci', 20);
+            $table->boolean('estado')->default(true); // Estado del trabajador (activo/inactivo)
+            $table->string('ci', 11);
             
             $table->foreign('ci')->references('ci')->on('datos_personales')->onDelete('cascade');
         });

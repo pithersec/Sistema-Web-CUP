@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('carrera_gestion', function (Blueprint $table) {
             $table->string('codigo_carrera', 20);
             $table->string('codigo_gestion', 20);
-            $table->integer('cupos')->default(0);
+            $table->unsignedSmallInteger('cupos')->default(0);
             
             $table->primary(['codigo_carrera', 'codigo_gestion']);
             
