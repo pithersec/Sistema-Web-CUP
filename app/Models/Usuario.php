@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,16 +9,19 @@ use Illuminate\Notifications\Notifiable;
 
 class Usuario extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+public $timestamps = false;
+    protected $table = 'usuario'; // Tu tabla personalizada
 
-    protected $table = 'usuario'; // Especificar el nombre de la tabla personalizada
+    // 1. SI TU LLAVE PRIMARIA EN LA BASE DE DATOS NO SE LLAMA 'id', CAMBIA ESTO:
+    // protected $primaryKey = 'id_usuario'; 
+    // Si se llama 'id', déjala así:
+    protected $primaryKey = 'id'; 
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // 2. Si tu ID es un texto/string (ej: 'USR-01'), descomenta la línea de abajo:
+    // public $incrementing = false;
+    // protected $keyType = 'string';
+
     protected $fillable = [
         'user_name',
         'clave',
@@ -32,26 +34,17 @@ class Usuario extends Authenticatable
     {
         return $this->belongsTo(Perfil::class, 'id_perfil', 'id');
     }
+
     public function personal()
     {
         return $this->belongsTo(Personal::class, 'registro_personal', 'registro');
     }
     
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'clave',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -61,13 +54,11 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Reemplazar el método nativo de Laravel para que valide con 'clave' en lugar de 'password'
+     * ATENCIÓN: Este método es OBLIGATORIO para decirle a Laravel 
+     * que use la columna 'clave' en lugar de 'password'
      */
     public function getAuthPassword()
     {
         return $this->clave;
     }
-
-
-
 }

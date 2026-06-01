@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class RequisitosPostulante extends Model
 {
     protected $table = 'requisitos_postulante';
-
+public $timestamps = false;
     protected $fillable = [
         'titulo_original',
         'titulo_copia',

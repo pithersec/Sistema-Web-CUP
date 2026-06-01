@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Personal extends Model
 {
+    public $timestamps = false;
     protected $table = 'personal';
     protected $primaryKey = 'registro';
     public $incrementing = false;

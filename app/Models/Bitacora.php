@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bitacora extends Model
 {
+    public $timestamps = false;
     protected $table = 'bitacora'; // Especifica el nombre de la tabla
 
     protected $fillable = [

@@ -18,22 +18,25 @@ class UsuarioController extends Controller
     public function enviarCredenciales(Request $request)
     {
         $credentials = $request->validate([
-            'usuario' => 'required|string', 
-            'clave'   => 'required|string', 
+            'user_name' => 'required|string', 
+            'password'  => 'required|string', 
         ]);
 
-        $user = Usuario::where('user_name', $credentials['usuario'])->first();
+        $user = Usuario::where('user_name', $credentials['user_name'])->first();
 
-        if (!$user || !Hash::check($credentials['clave'], $user->clave)) {
-            return redirect()->back()->withInput()->withErrors(['login_error' => 'Credenciales incorrectas. Verifique su usuario y contraseña.']);
+        // Verificación manual estricta usando 'clave'
+        if (!$user || !Hash::check($credentials['password'], $user->clave)) {
+            return redirect()->back()->withInput()->withErrors(['login_error' => 'Credenciales incorrectas.']);
         }
 
-        Auth::login($user);
+        // FORZAR LOGUEO DIRECTO POR ID (Esto evita que guarde NULL en las sesiones)
+        Auth::loginUsingId($user->id);
+
         $perfil = $user->perfil; 
 
         Bitacora::create([
             'ip'         => $request->ip(),
-            'accion'     => "Inicio de sesión exitoso. Usuario: {$user->user_name} con Perfil: {$perfil->nombre}.",
+            'accion'     => "Inicio de sesión exitoso. Usuario: {$user->user_name}",
             'fecha_hora' => now(),
             'id_usuario' => $user->id
         ]);

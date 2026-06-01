@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Carrera extends Model
 {
+    public $timestamps = false;
     protected $table = 'carrera';
     protected $primaryKey = 'codigo';
     public $incrementing = false; // Indica que la PK no es un entero autoincremental

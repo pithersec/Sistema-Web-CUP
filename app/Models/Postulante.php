@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Postulante extends Model
 {
+    public $timestamps = false;
     protected $table = 'postulante'; // Especifica el nombre de la tabla
     protected $primaryKey = 'codigo'; // Especifica la clave primaria
     public $incrementing = false; // Indica que la clave primaria no es auto-incremental

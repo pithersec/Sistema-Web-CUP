@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Examen extends Model
 {
+    public $timestamps = false;
     protected $table = 'examen'; // Especifica el nombre de la tabla
     protected $fillable = [
         'codigo_postulante',

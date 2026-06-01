@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class RequisitosPersonal extends Model
 {
     protected $table = 'requisitos_personal';
-
+public $timestamps = false;
     protected $fillable = [
         'registro_personal',
         'area',

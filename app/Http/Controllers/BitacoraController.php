@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 class BitacoraController extends Controller
 {
+    
     /**
      * 1 y 2. listarEventos() / filtrarEventos() [ADAPTADO PARA WEB]
      * Recupera el historial de auditoría permitiendo búsquedas avanzadas por múltiples criterios.
