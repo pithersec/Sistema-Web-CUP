@@ -20,4 +20,14 @@ class Carrera extends Model
         'tipo',
         'duracion',
     ];
+
+    public function gestiones()
+    {
+        return $this->belongsToMany(Gestion::class, 'carrera_gestion', 'codigo_carrera', 'id_gestion')
+                    ->withPivot('cupos')
+                    ->withTimestamps();
+    }
+
+
+
 }

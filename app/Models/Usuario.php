@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class Usuario extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'user_name',
-        'password',
+        'clave',
         'email',
         'id_perfil',
         'registro_personal',
@@ -43,7 +43,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'clave',
         'remember_token',
     ];
 
@@ -56,7 +56,18 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'clave' => 'hashed',
         ];
     }
+
+    /**
+     * Reemplazar el método nativo de Laravel para que valide con 'clave' en lugar de 'password'
+     */
+    public function getAuthPassword()
+    {
+        return $this->clave;
+    }
+
+
+
 }

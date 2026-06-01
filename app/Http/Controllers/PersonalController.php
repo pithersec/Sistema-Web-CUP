@@ -3,63 +3,176 @@
 namespace App\Http\Controllers;
 
 use App\Models\Personal;
+use App\Models\DatosPersonales;
+use App\Models\Bitacora;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PersonalController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * 1. listarDocentes() [MODIFICADO PARA HOJAS BLADE]
+     * Obtiene el personal docente uniendo sus datos civiles y aplicando filtros dinámicos.
      */
-    public function index()
+    public function listarDocentes(Request $request)
     {
-        //
+        // Capturar los filtros desde la URL (Toolbar)
+        $filtro = $request->input('filtro');
+        $estado = $request->input('estado');
+
+        $query = Personal::with('datosPersonales');
+
+        // Aplicar buscador predictivo (CI, Registro, Nombre o Apellido)
+        if (!empty($filtro)) {
+            $query->where(function($q) use ($filtro) {
+                $q->where('registro', 'LIKE', "%{$filtro}%")
+                  ->orWhere('estado', 'LIKE', "%{$filtro}%")
+                  ->orWhereHas('datosPersonales', function($subQ) use ($filtro) {
+                      $subQ->where('nombre', 'LIKE', "%{$filtro}%")
+                           ->orWhere('apellido', 'LIKE', "%{$filtro}%")
+                           ->orWhere('ci', 'LIKE', "%{$filtro}%");
+                  });
+            });
+        }
+
+        // Aplicar selector por Estado Administrativo
+        if (!empty($estado) && $estado !== 'Todos los estados') {
+            $query->where('estado', $estado);
+        }
+
+        // Conteo total basándose en los filtros aplicados
+        $totalDocentes = $query->count();
+
+        // Paginación nativa adaptada al diseño (5 por página)
+        $docentes = $query->paginate(5)->withQueryString();
+
+        // Retornar la vista Blade inyectando todas las variables calculadas
+        return view('admin.docentes', compact('docentes', 'totalDocentes', 'filtro', 'estado'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * 2. guardarDocente() [MODIFICADO EL RETORNO]
+     * Registra en cadena los DatosPersonales, Personal y escribe en Bitácora.
      */
-    public function create()
+    public function guardarDocente(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'ci'        => 'required|string|max:20|unique:datos_personales,ci',
+            'nombre'    => 'required|string|max:100',
+            'apellido'  => 'required|string|max:100',
+            'genero'    => 'nullable|string|max:10',
+            'telefono'  => 'nullable|string|max:20',
+            'correo'    => 'nullable|email|max:150',
+            'fecha_nac' => 'nullable|date',
+            'direccion' => 'nullable|string|max:200',
+            'registro'  => 'required|string|max:20|unique:personal,registro',
+            'estado'    => 'required|string|max:20' 
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $datos = DatosPersonales::create([
+                'ci'        => $validated['ci'],
+                'nombre'    => $validated['nombre'],
+                'apellido'  => $validated['apellido'],
+                'genero'    => $validated['genero'],
+                'telefono'  => $validated['telefono'],
+                'correo'    => $validated['correo'],
+                'fecha_nac' => $validated['fecha_nac'],
+                'direccion' => $validated['direccion'],
+            ]);
+
+            $docente = Personal::create([
+                'registro' => $validated['registro'],
+                'ci'       => $datos->ci,
+                'estado'   => $validated['estado']
+            ]);
+
+            $user = Auth::user();
+            Bitacora::create([
+                'ip'         => $request->ip(),
+                'accion'     => "Registro de Docente. Administrador: {$user->user_name} creó al docente Registro: {$validated['registro']}.",
+                'fecha_hora' => now(),
+                'id_usuario' => $user->id
+            ]);
+
+            DB::commit();
+            
+            // REDIRECCIÓN WEB: Volver al listado con mensaje flash de éxito
+            return redirect('/admin/docentes')->with('success', 'Docente registrado con éxito.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors(['error' => 'Error al guardar el docente: ' . $e->getMessage()]);
+        }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * 3. actualizarDocente() [MODIFICADO EL RETORNO]
      */
-    public function store(Request $request)
+    public function actualizarDocente(Request $request, $registro)
     {
-        //
+        $docente = Personal::where('registro', $registro)->firstOrFail();
+
+        $validated = $request->validate([
+            'nombre'    => 'required|string|max:100',
+            'apellido'  => 'required|string|max:100',
+            'telefono'  => 'nullable|string|max:20',
+            'correo'    => 'nullable|email|max:150',
+            'direccion' => 'nullable|string|max:200',
+            'estado'    => 'required|string|max:20'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $docente->datosPersonales()->update([
+                'nombre'    => $validated['nombre'],
+                'apellido'  => $validated['apellido'],
+                'telefono'  => $validated['telefono'],
+                'correo'    => $validated['correo'],
+                'direccion' => $validated['direccion'],
+            ]);
+
+            $docente->update([
+                'estado' => $validated['estado']
+            ]);
+
+            $user = Auth::user();
+            Bitacora::create([
+                'ip'         => $request->ip(),
+                'accion'     => "Modificación de Docente. Administrador: {$user->user_name} editó al docente Registro: {$registro}.",
+                'fecha_hora' => now(),
+                'id_usuario' => $user->id
+            ]);
+
+            DB::commit();
+            return redirect('/admin/docentes')->with('success', 'Datos del docente modificados correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Error al actualizar el docente: ' . $e->getMessage()]);
+        }
     }
 
     /**
-     * Display the specified resource.
+     * 4. desactivarDocente() [MODIFICADO EL RETORNO]
+     * Cambia el estado del docente a 'Inactivo' de manera lógica (Baja administrativa)
      */
-    public function show(Personal $personal)
+    public function desactivarDocente(Request $request, $registro)
     {
-        //
-    }
+        $docente = Personal::where('registro', $registro)->firstOrFail();
+        
+        $docente->update(['estado' => 'Inactivo']);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Personal $personal)
-    {
-        //
-    }
+        $user = Auth::user();
+        Bitacora::create([
+            'ip'         => $request->ip(),
+            'accion'     => "Desactivación de Docente. Administrador: {$user->user_name} dio de baja al docente Registro: {$registro}.",
+            'fecha_hora' => now(),
+            'id_usuario' => $user->id
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Personal $personal)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Personal $personal)
-    {
-        //
+        return redirect()->back()->with('success', 'El docente ha sido inactivado en el sistema.');
     }
 }

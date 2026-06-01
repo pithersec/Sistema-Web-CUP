@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('usuario', function (Blueprint $table) {
             $table->id(); // Mantener id numérico estándar de Laravel
             $table->string('user_name', 80)->unique();
-            $table->string('password'); // Laravel usa "password" nativamente para sus Auth Drivers
+            $table->string('clave'); // Laravel usa "password" nativamente para sus Auth Drivers
             $table->string('email', 150)->nullable()->unique();
             $table->foreignId('id_perfil')->constrained('perfil')->onDelete('restrict');
             $table->string('registro_personal', 20)->unique();
