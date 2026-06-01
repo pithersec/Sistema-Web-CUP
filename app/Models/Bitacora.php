@@ -10,9 +10,10 @@ class Bitacora extends Model
     protected $table = 'bitacora'; // Especifica el nombre de la tabla
 
     protected $fillable = [
+        'ip',
         'accion',
-        'fecha',
-        'registro_personal',
+        'fecha_hora',
+        'id_usuario',
     ];
 
     // Relaciones con otras tablas (si es necesario)

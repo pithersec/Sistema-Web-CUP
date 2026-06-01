@@ -60,8 +60,8 @@ class DashboardController extends Controller
         // NUEVO ADICIONAL PARA CU-19: Consulta para la tabla inferior de "Resumen por Carrera"
         // (Ajusta los nombres de las tablas/columnas si varían en tu migración)
         $resumenCarreras = DB::table('carrera')
-            ->leftJoin('carrera_gestion', 'carrera.id', '=', 'carrera_gestion.id_carrera')
-            ->leftJoin('postulante', 'carrera.id', '=', 'postulante.id_carrera')
+            ->leftJoin('carrera_gestion', 'carrera.codigo', '=', 'carrera_gestion.codigo_carrera')
+            ->leftJoin('postulante', 'carrera.codigo', '=', 'postulante.codigo_carrera1')
             ->select(
                 'carrera.nombre as carrera_nombre',
                 DB::raw('COALESCE(carrera_gestion.cupos, 0) as total_cupos'),
@@ -69,7 +69,7 @@ class DashboardController extends Controller
                 // Cuenta cuántos aprobados hay en esta carrera basándose en la columna estado
                 DB::raw('SUM(CASE WHEN postulante.estado = "Aprobado" THEN 1 ELSE 0 END) as total_aprobados')
             )
-            ->groupBy('carrera.id', 'carrera.nombre', 'carrera_gestion.cupos')
+            ->groupBy('carrera.codigo', 'carrera.nombre', 'carrera_gestion.cupos')
             ->get();
 
         // RETORNO MODIFICADO: Ahora renderiza tu vista e inyecta los datos calculados
