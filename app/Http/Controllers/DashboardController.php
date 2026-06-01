@@ -11,15 +11,15 @@ use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
     /**
-     * CU-09 y CU-19: Consultar indicadores estadísticos y visualizar panel (ACTUALIZADO)
-     * Aplica la regla: 3 parciales (30%, 30%, 40%) y nota mínima de 60 en CADA UNO para aprobar.
+     * CU-09 y CU-19: Consultar indicadores estadísticos y visualizar panel.
+     * Mantiene intacta la regla del CUP: 3 parciales y nota mínima de 60 en CADA UNO para aprobar.
      */
-    public function obtenerIndicadores()
+    public function index() // 👈 Cambiado a index para seguir el estándar de Laravel
     {
         $totalPostulantes = Postulante::count();
         $totalGrupos = Grupo::count();
 
-        // [MANTIENE TU LOGICA INTACTA] Evaluación de rendimiento individual
+        // Tu lógica exacta de evaluación de rendimiento individual
         $postulantesConExamenes = Examen::select('codigo_postulante')
             ->selectRaw("COUNT(CASE WHEN nro_examen = 1 THEN 1 END) as tiene_p1")
             ->selectRaw("MIN(CASE WHEN nro_examen = 1 THEN nota END) as nota_p1")
@@ -47,9 +47,7 @@ class DashboardController extends Controller
         $postulantesSinNingunaNota = $totalPostulantes - $postulantesConExamenes->count();
         $totalReprobados += $postulantesSinNingunaNota;
 
-        // ----------------------------------------------------------------------
-        // NUEVO ADICIONAL PARA CU-19: Estructura de KPIs para la vista Blade
-        // ----------------------------------------------------------------------
+        // Estructura de KPIs para la hermosa vista que armamos
         $kpis = [
             'total_inscritos'    => $totalPostulantes,
             'total_aprobados'    => $totalAprobados,
@@ -57,8 +55,7 @@ class DashboardController extends Controller
             'grupos_habilitados' => $totalGrupos
         ];
 
-        // NUEVO ADICIONAL PARA CU-19: Consulta para la tabla inferior de "Resumen por Carrera"
-        // (Ajusta los nombres de las tablas/columnas si varían en tu migración)
+        // Tu consulta real adaptada a tu mapa de Base de Datos del CUP
         $resumenCarreras = DB::table('carrera')
             ->leftJoin('carrera_gestion', 'carrera.codigo', '=', 'carrera_gestion.codigo_carrera')
             ->leftJoin('postulante', 'carrera.codigo', '=', 'postulante.codigo_carrera1')
@@ -66,13 +63,11 @@ class DashboardController extends Controller
                 'carrera.nombre as carrera_nombre',
                 DB::raw('COALESCE(carrera_gestion.cupos, 0) as total_cupos'),
                 DB::raw('COUNT(postulante.codigo) as total_postulantes'),
-                // Cuenta cuántos aprobados hay en esta carrera basándose en la columna estado
                 DB::raw('SUM(CASE WHEN postulante.estado = "Aprobado" THEN 1 ELSE 0 END) as total_aprobados')
             )
             ->groupBy('carrera.codigo', 'carrera.nombre', 'carrera_gestion.cupos')
             ->get();
 
-        // RETORNO MODIFICADO: Ahora renderiza tu vista e inyecta los datos calculados
         return view('dashboard', compact('kpis', 'resumenCarreras'));
     }
 }

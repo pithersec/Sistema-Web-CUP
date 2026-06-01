@@ -18,7 +18,7 @@ class PostulanteController extends Controller
     public function mostrarFormularioPreinscripcion()
     {
         $carreras = Carrera::all(); 
-        return view('preinscripcion', compact('carreras'));
+        return view('preinscripcion.index', compact('carreras'));
     }
 
     /**
@@ -164,7 +164,7 @@ class PostulanteController extends Controller
         // Cargar el catálogo de carreras para llenar el select dinámicamente
         $carreras = Carrera::all();
 
-        return view('admin.postulantes', compact('postulantes', 'totalPostulantes', 'carreras', 'buscar', 'estado', 'carrera'));
+        return view('postulantes.index', compact('postulantes', 'totalPostulantes', 'carreras', 'buscar', 'estado', 'carrera'));
     }
 
     /**

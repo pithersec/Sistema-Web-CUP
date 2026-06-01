@@ -110,3 +110,37 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/bitacora/{id}', [BitacoraController::class, 'obtenerDetalle']);
 
 });
+
+//CU3 - Realizar Preinscripcion
+// 1. Muestra el formulario de preinscripción (Público)
+Route::get('/preinscripcion', [PostulanteController::class, 'mostrarFormularioPreinscripcion']);
+
+// 2. Procesa los datos enviados por el estudiante (Guarda en la BD)
+Route::post('/preinscripcion', [PostulanteController::class, 'registrarPostulante']);
+
+// 3. Pantalla de éxito tras terminar el registro
+Route::get('/preinscripcion/exito', function() {
+    if (!session('success')) return redirect('/preinscripcion');
+    return view('Preinscripcion.exito'); // Apunta a views/Preinscripcion/exito.blade.php
+});
+
+
+
+// Ruta para CARGAR y FILTRAR la planilla de notas (Método GET)
+Route::get('/docente/registrar-notas', [ExamenController::class, 'obtenerGrupoYMaterias']);
+
+// Ruta para GUARDAR las notas masivamente (Método POST)
+Route::post('/docente/registrar-notas', [ExamenController::class, 'registrarNotas']);
+
+
+// Asegúrate de que apunten exactamente al método que tienes en tu controlador
+Route::get('/docente/registrar-notas', [ExamenController::class, 'obtenerGrupoYMaterias']);
+Route::post('/docente/registrar-notas', [ExamenController::class, 'registrarNotas']);
+
+
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+
+
+// Apuntando directo al método index
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

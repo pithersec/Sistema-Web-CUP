@@ -251,6 +251,16 @@
             <div class="divider"></div>
             <p>Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</p>
             <div class="sistema-badge">Sistema CUP</div>
+
+            <!-- ⬇️ BOTONSITO AQUÍ ⬇️------------------------------------------------------------------------- -->
+            <div style="margin-top: 10px;">
+                <a href="{{ url('/preinscripcion') }}"
+                    style="display: inline-block; background: #1a5fa8; color: white; text-decoration: none; padding: 6px 14px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s;">
+                    📋 Preinscripción
+                </a>
+            </div>
+
+
         </div>
 
         <form class="right" action="{{ url('/login') }}" method="POST">
@@ -284,6 +294,24 @@
 
             <p class="footer-text">Acceso restringido · <span>Solo personal autorizado</span></p>
         </form>
+        <!-- Botón para preinscripción
+        <form class="right" action="{{ url('/login') }}" method="POST">
+            @csrf
+            <h2>Iniciar Sesión</h2>
+            <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
+
+            <button type="submit" class="btn-login">Ingresar</button>
+
+            <div style="margin-top: 24px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <p style="color: #5a5a5a; font-size: 13px; margin-bottom: 8px;">¿Eres un nuevo postulante?</p>
+                <a href="{{ url('/preinscripcion') }}"
+                    style="display: inline-block; background: #1a5fa8; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: background 0.2s;">
+                    📝 Iniciar Preinscripción Digital
+                </a>
+            </div>
+-->
+        </form>
+
     </div>
 </body>
 

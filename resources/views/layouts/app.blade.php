@@ -288,6 +288,11 @@
             <a href="{{ url('/admin/usuarios') }}"
                 class="nav-item {{ Request::is('admin/usuarios*') ? 'active' : '' }}"><span class="nav-icon">👤</span>
                 Usuarios</a>
+            <a href="{{ url('/docente/registrar-notas') }}"
+                class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
+                <span class="nav-icon">📝</span>
+                Notas
+            </a>
 
             <div class="nav-label">Sistema</div>
             <a href="{{ url('/admin/bitacora') }}"

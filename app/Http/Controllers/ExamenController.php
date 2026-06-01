@@ -22,12 +22,13 @@ class ExamenController extends Controller
         $registroPersonal = Auth::user()->registro_personal;
 
         // Buscamos en la tabla intermedia grupo_materia las asignaciones del docente
-        $grupos = DB::table('grupo_materia')
-            ->join('grupo', 'grupo_materia.id_grupo', '=', 'grupo.id')
-            ->where('grupo_materia.registro_personal', $registroPersonal)
-            ->select('grupo.id', 'grupo.nombre', 'grupo.turno', 'grupo.aula')
-            ->distinct()
-            ->get();
+$grupos = DB::table('grupo_materia')
+    ->join('grupo', 'grupo_materia.id_grupo', '=', 'grupo.id')
+    ->where('grupo_materia.registro_personal', $registroPersonal)
+    ->select('grupo.id', 'grupo.id as nombre', 'grupo.turno', 'grupo.aula') // 👈 Usamos grupo.id como el nombre visible
+    ->distinct()
+    ->get();
+
 
         $materias = DB::table('grupo_materia')
             ->join('materia', 'grupo_materia.id_materia', '=', 'materia.id')
@@ -46,24 +47,23 @@ class ExamenController extends Controller
         $postulantes = null;
 
         // Si el docente presionó "Cargar", buscamos los postulantes del grupo inyectando su nota actual si existe
-        if ($request->filled('id_grupo') && $request->filled('id_materia') && $request->filled('id_examen')) {
+        // Cambia esto en la línea 51 de tu controlador:
+        if ($request->filled('id_grupo') && $request->filled('id_materia') && $request->filled('nro_examen')) { // 👈 Cambiado id_examen por nro_examen
             $postulantes = Postulante::where('id_grupo', $request->id_grupo)
-                ->with('datosPersonales')
-                ->get()
+                ->get() // Quité el ->with('datosPersonales') si es que tus campos de nombre están directo en la tabla postulantes
                 ->map(function($postulante) use ($request) {
                     // Buscamos si este alumno ya tiene una calificación guardada en este examen y materia
                     $notaGuardada = Examen::where('codigo_postulante', $postulante->codigo)
                         ->where('id_materia', $request->id_materia)
-                        ->where('nro_examen', $request->id_examen)
+                        ->where('nro_examen', $request->nro_examen) // 👈 Cambiado id_examen por nro_examen
                         ->first();
-                    
                     // Inyectamos la nota de forma dinámica para que el Blade la pinte en el value del input
                     $postulante->nota_actual = $notaGuardada ? $notaGuardada->nota : null;
                     return $postulante;
                 });
         }
-
-        return view('docente.notas', compact('grupos', 'materias', 'examenes', 'postulantes'));
+        // Cambia el retorno al final del método (Línea 65) para respetar tu mayúscula:
+        return view('notas.index', compact('grupos', 'materias', 'examenes', 'postulantes')); // 👈 'Notas.index' con N mayúscula
     }
 
     /**
@@ -76,12 +76,12 @@ class ExamenController extends Controller
         $request->validate([
             'id_grupo'   => 'required',
             'id_materia' => 'required|exists:materia,id',
-            'id_examen'  => 'required|integer|between:1,3',
+            'nro_examen'  => 'required|integer|between:1,3',
             'notas'      => 'required|array',
             'notas.*'    => 'nullable|numeric|between:0,100',
         ]);
 
-        $nroExamen = (int)$request->input('id_examen');
+        $nroExamen = (int)$request->input('nro_examen');
         
         // REGLA DE NEGOCIO: Asignar ponderación automática por arquitectura
         $ponderacionCorrecta = ($nroExamen === 3) ? 40 : 30;

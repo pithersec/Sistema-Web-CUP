@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-@define('title', 'Cerrar Sesión - CUP')
 @section('page_title', 'Cerrar Sesión')
 
 @section('content')

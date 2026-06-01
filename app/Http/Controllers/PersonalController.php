@@ -48,7 +48,7 @@ class PersonalController extends Controller
         $docentes = $query->paginate(5)->withQueryString();
 
         // Retornar la vista Blade inyectando todas las variables calculadas
-        return view('admin.docentes', compact('docentes', 'totalDocentes', 'filtro', 'estado'));
+        return view('docentes.index', compact('docentes', 'totalDocentes', 'filtro', 'estado'));
     }
 
     /**

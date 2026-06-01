@@ -173,7 +173,7 @@
         }
 
         .form-group {
-            margin-bottom: 4px;
+            margin-bottom: 12px;
         }
 
         label {
@@ -218,6 +218,7 @@
             letter-spacing: 0.5px;
         }
 
+        /* Cambiamos la grilla a selects para procesar fácilmente el envío en Laravel */
         .footer-buttons {
             display: flex;
             justify-content: flex-end;
@@ -238,6 +239,7 @@
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
+            display: inline-block;
         }
 
         .btn-primary {
@@ -252,20 +254,19 @@
             cursor: pointer;
         }
 
-        .alert-error {
-            background: #fde8e8;
-            border: 1px solid #f8b4b4;
-            color: #9b1c1c;
+        .alert-danger {
+            background: #fadbd8;
+            color: #78281f;
             padding: 12px;
             border-radius: 6px;
+            margin-bottom: 16px;
             font-size: 14px;
-            margin-bottom: 20px;
-            list-style: none;
         }
     </style>
 </head>
 
 <body>
+
     <div class="topbar">
         <div class="topbar-left">
             <div class="logo">CUP</div>
@@ -285,118 +286,114 @@
             <div class="step-line"></div>
             <div class="step pending">
                 <div class="step-circle">2</div>
-                <div class="step-label">Validación Requisitos</div>
-            </div>
-            <div class="step-line"></div>
-            <div class="step pending">
-                <div class="step-circle">3</div>
-                <div class="step-label">Impresión de Registro</div>
+                <div class="step-label">Validación Física</div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2>📋 Datos Personales e Inscripción del Postulante</h2>
+                <h2>📋 Datos Personales del Postulante</h2>
             </div>
-
-            <form class="card-body" action="{{ url('/preinscripcion') }}" method="POST">
-                @csrf
+            <div class="card-body">
 
                 @if ($errors->any())
-                <div class="alert-error">
-                    <strong>Por favor corrige los siguientes errores:</strong>
-                    @foreach ($errors->all() as $error)
-                    <li>• {{ $error }}</li>
-                    @endforeach
+                <div class="alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
                 @endif
 
-                <div class="grid-3">
-                    <div class="form-group">
-                        <label>Cédula de Identidad *</label>
-                        <input type="text" name="ci" placeholder="Ej: 12345678" value="{{ old('ci') }}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre(s) *</label>
-                        <input type="text" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Apellido(s) *</label>
-                        <input type="text" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}"
-                            required />
-                    </div>
-                </div>
+                <form action="{{ url('/preinscripcion') }}" method="POST">
+                    @csrf
 
-                <div class="grid-3" style="margin-top:16px">
-                    <div class="form-group">
-                        <label>Género *</label>
-                        <select name="genero" required>
-                            <option value="M" {{ old('genero')=='M' ? 'selected' : '' }}>Masculino</option>
-                            <option value="F" {{ old('genero')=='F' ? 'selected' : '' }}>Femenino</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Fecha de Nacimiento *</label>
-                        <input type="date" name="fecha_nac" value="{{ old('fecha_nac') }}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono *</label>
-                        <input type="text" name="telefono" placeholder="Ej: 75123456" value="{{ old('telefono') }}"
-                            required />
-                    </div>
-                </div>
-
-                <div class="grid-2" style="margin-top:16px">
-                    <div class="form-group">
-                        <label>Correo Electrónico *</label>
-                        <input type="email" name="correo" placeholder="correo@ejemplo.com" value="{{ old('correo') }}"
-                            required />
-                    </div>
-                    <div class="form-group">
-                        <label>Dirección</label>
-                        <input type="text" name="direccion" placeholder="Dirección" value="{{ old('direccion') }}" />
-                    </div>
-                </div>
-
-                <div class="section-divider">
-                    <h3>🎓 Selección de Carreras (Opciones Obligatorias)</h3>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Primera Opción de Carrera *</label>
-                        <select name="codigo_carrera1" required>
-                            <option value="">-- Seleccionar Carrera --</option>
-                            @foreach($carreras as $carrera)
-                            <option value="{{ $carrera->codigo }}" {{ old('codigo_carrera1')==$carrera->codigo ?
-                                'selected' : '' }}>
-                                {{ $carrera->nombre }} (Plan: {{ $carrera->plan }})
-                            </option>
-                            @endforeach
-                        </select>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Cédula de Identidad *</label>
+                            <input type="text" name="ci" placeholder="Ej: 12345678" value="{{ old('ci') }}" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre(s) *</label>
+                            <input type="text" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}"
+                                required />
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido(s) *</label>
+                            <input type="text" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}"
+                                required />
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Segunda Opción de Carrera *</label>
-                        <select name="codigo_carrera2" required>
-                            <option value="">-- Seleccionar Carrera --</option>
-                            @foreach($carreras as $carrera)
-                            <option value="{{ $carrera->codigo }}" {{ old('codigo_carrera2')==$carrera->codigo ?
-                                'selected' : '' }}>
-                                {{ $carrera->nombre }} (Plan: {{ $carrera->plan }})
-                            </option>
-                            @endforeach
-                        </select>
+                    <div class="grid-3" style="margin-top:16px">
+                        <div class="form-group">
+                            <label>Género *</label>
+                            <select name="genero" required>
+                                <option value="M" {{ old('genero')=='M' ? 'selected' : '' }}>Masculino</option>
+                                <option value="F" {{ old('genero')=='F' ? 'selected' : '' }}>Femenino</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Nacimiento *</label>
+                            <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono / Celular *</label>
+                            <input type="text" name="telefono" placeholder="Ej: 75123456" value="{{ old('telefono') }}"
+                                required />
+                        </div>
                     </div>
-                </div>
 
-                <div class="footer-buttons">
-                    <a href="{{ url('/') }}" class="btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn-primary">Finalizar Preinscripción ✓</button>
-                </div>
-            </form>
+                    <div class="grid-2" style="margin-top:16px">
+                        <div class="form-group">
+                            <label>Correo Electrónico *</label>
+                            <input type="email" name="email" placeholder="correo@ejemplo.com" value="{{ old('email') }}"
+                                required />
+                        </div>
+                        <div class="form-group">
+                            <label>Dirección de Domicilio</label>
+                            <input type="text" name="direccion" placeholder="Ej: Av. Bush 2do Anillo"
+                                value="{{ old('direccion') }}" />
+                        </div>
+                    </div>
+
+                    <div class="section-divider">
+                        <h3>🎓 Selección de Carreras Opcionales</h3>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Primera Opción de Carrera *</label>
+                            <select name="id_carrera_1" required>
+                                <option value="">-- Selecciona una carrera --</option>
+                                @foreach($carreras as $carrera)
+                                <option value="{{ $carrera->id }}">{{ $carrera->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Segunda Opción de Carrera (Opcional)</label>
+                            <select name="id_carrera_2">
+                                <option value="">-- Ninguna --</option>
+                                @foreach($carreras as $carrera)
+                                <option value="{{ $carrera->id }}">{{ $carrera->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="footer-buttons">
+                        <a href="{{ url('/login') }}" class="btn-secondary">Volver al Login</a>
+                        <button type="submit" class="btn-primary">Finalizar Preinscripción ✓</button>
+                    </div>
+                </form>
+
+            </div>
         </div>
     </div>
+
 </body>
 
 </html>

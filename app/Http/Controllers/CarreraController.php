@@ -53,7 +53,7 @@ class CarreraController extends Controller
             $carrera->cupos = $carrera->cupos ?? 0;
         }
 
-        return view('admin.carreras_cupos', compact('gestiones', 'gestion_seleccionada', 'carreras'));
+        return view('carreras.index', compact('gestiones', 'gestion_seleccionada', 'carreras'));
     }
 
     /**
