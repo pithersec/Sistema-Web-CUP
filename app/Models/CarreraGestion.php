@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class CarreraGestion extends Model
 {
     protected $table = 'carrera_gestion';
-    public $incrementing = false;
     public $timestamps = false;
 
     protected $fillable = [

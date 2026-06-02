@@ -27,8 +27,8 @@ return new class extends Migration
             $table->foreignId('id_grupo')->nullable()->constrained('grupo')->onDelete('set null');
             
             // Llaves foráneas que apuntan a Códigos String (Carreras)
-            $table->string('codigo_carrera1', 20)->nullable();
-            $table->string('codigo_carrera2', 20)->nullable();
+            $table->string('codigo_carrera1', 20);
+            $table->string('codigo_carrera2', 20);
             
             // Atributo extra del control de cupos (Lo que definimos al inicio)
             // $table->string('carrera_admitida_id', 20)->nullable();

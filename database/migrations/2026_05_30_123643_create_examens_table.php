@@ -23,8 +23,8 @@ return new class extends Migration
             // Llave foránea String hacia Postulante
             $table->foreign('codigo_postulante')->references('codigo')->on('postulante')->onDelete('cascade');
 
-            // Regla de negocio: Un postulante no puede repetir el mismo número de examen (ej. Examen #1)
-            $table->unique(['codigo_postulante', 'nro_examen']);
+            // Regla de negocio: Un postulante no puede repetir el mismo número de examen en la misma materia
+            $table->unique(['codigo_postulante', 'nro_examen', 'id_materia']);
         });
     }
 

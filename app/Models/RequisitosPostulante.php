@@ -16,4 +16,18 @@ public $timestamps = false;
         'comprobante',
         'libreta',
     ];
+
+    protected $casts = [
+        'titulo_original' => 'boolean',
+        'titulo_copia' => 'boolean',
+        'fotocopia_carnet' => 'boolean',
+        'formulario' => 'boolean',
+        'comprobante' => 'boolean',
+        'libreta' => 'boolean',
+    ];
+
+    public function postulantes()
+    {
+        return $this->hasMany(Postulante::class, 'id_requisitos_postulante');
+    }
 }

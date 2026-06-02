@@ -20,7 +20,7 @@
             Seleccionar Grupo y Materia</h3>
 
         {{-- <form action="{{ url('/docente/grupos-notas') }}" method="GET" class="filters-grid" --}} <form
-            action="{{ url('/docente/registrar-notas') }}" method="GET" class="filters-grid"
+            action="{{ route('notas.index') }}" method="GET" class="filters-grid"
             style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 14px; align-items: end;">
             <div>
                 <label
@@ -98,7 +98,7 @@
                 estudiantes en lista</span>
         </div>
 
-        <form action="{{ url('/docente/registrar-notas') }}" method="POST">
+        <form action="{{ route('notas.registrar') }}" method="POST">
             @csrf
             {{-- Campos ocultos para saber a qué grupo/materia aplicarle las notas al procesar el envío --}}
             <input type="hidden" name="id_grupo" value="{{ request('id_grupo') }}">
@@ -124,8 +124,8 @@
                     <tr>
                         <td style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0;">{{ $index + 1 }}</td>
                         <td style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0;">{{ $pos->ci }}</td>
-                        <td style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0;">{{ $pos->nombre }} {{
-                            $pos->apellido }}
+                        <td style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0;">{{ $pos->datosPersonales->nombre ?? '' }} {{
+                            $pos->datosPersonales->apellido ?? '' }}
                         </td>
                         <td style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0;">
                             <input type="number" name="notas[{{ $pos->codigo }}]" class="nota-input" min="0" max="100"

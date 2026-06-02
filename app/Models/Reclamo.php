@@ -8,6 +8,7 @@ class Reclamo extends Model
 {
     protected $table = 'reclamo'; // Especifica el nombre de la tabla
 public $timestamps = false;
+    protected $casts = ['fecha' => 'datetime'];
     protected $fillable = [
         'descripcion',
         'fecha',

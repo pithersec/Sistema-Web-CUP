@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Carrera;
+use App\Models\CarreraGestion;
 use App\Models\Gestion;
 use App\Models\Bitacora;
 use App\Models\Postulante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CarreraController extends Controller
 {
@@ -59,6 +61,16 @@ class CarreraController extends Controller
      */
     public function guardarMasivo(Request $request)
     {
+        $request->validate([
+            'codigo_gestion' => 'required|string|exists:gestion,codigo',
+            'cupos'           => 'required|array',
+            'cupos.*'         => 'integer|min:0',
+        ]);
+
+        if (!Auth::user()) {
+            return redirect()->route('login');
+        }
+
         $codigo_gestion = $request->input('codigo_gestion'); 
         $cupos_input = $request->input('cupos'); 
 
@@ -103,11 +115,12 @@ class CarreraController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->back()->with('success', 'Todos los cupos se actualizaron correctamente para el periodo académico.');
+            return redirect()->route('carreras.index')->with('success', 'Todos los cupos se actualizaron correctamente para el periodo académico.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Error al procesar la actualización: ' . $e->getMessage());
+            Log::error($e->getMessage());
+            return redirect()->route('carreras.index')->with('error', 'Ocurrió un error. Verifique los datos e intente nuevamente.');
         }
     }
 
@@ -121,6 +134,10 @@ class CarreraController extends Controller
             'codigo_gestion' => 'required|string', 
             'cupos'          => 'required|integer|min:0'
         ]);
+
+        if (!Auth::user()) {
+            return redirect()->route('login');
+        }
 
         DB::beginTransaction();
         try {
@@ -153,11 +170,38 @@ class CarreraController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->back()->with('success', 'Cupos guardados para la carrera seleccionada.');
+            return redirect()->route('carreras.index')->with('success', 'Cupos guardados para la carrera seleccionada.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Error al guardar la fila: ' . $e->getMessage());
+            Log::error($e->getMessage());
+            return redirect()->route('carreras.index')->with('error', 'Ocurrió un error. Verifique los datos e intente nuevamente.');
         }
+    }
+
+    public function guardarCupos(Request $request)
+    {
+        return $this->guardarCuposFila($request);
+    }
+
+    public function actualizarCupos(Request $request, $id_carrera_gestion)
+    {
+        $carreraGestion = CarreraGestion::findOrFail($id_carrera_gestion);
+
+        $validated = $request->validate([
+            'cupos' => 'required|integer|min:0',
+        ]);
+
+        $carreraGestion->update(['cupos' => $validated['cupos']]);
+
+        $user = Auth::user();
+        Bitacora::create([
+            'ip' => $request->ip(),
+            'accion' => "Actualización de Cupos. Administrador: {$user->user_name} actualizó cupos del registro ID: {$id_carrera_gestion}.",
+            'fecha_hora' => now(),
+            'id_usuario' => $user->id
+        ]);
+
+        return redirect()->back()->with('success', 'Cupos actualizados correctamente.');
     }
 }

@@ -18,4 +18,9 @@ class Colegio extends Model
         'departamento',
         'provincia',
     ];
+
+    public function postulantes()
+    {
+        return $this->hasMany(Postulante::class, 'id_colegio');
+    }
 }

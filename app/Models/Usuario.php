@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,17 +9,10 @@ use Illuminate\Notifications\Notifiable;
 class Usuario extends Authenticatable
 {
     use HasFactory, Notifiable;
-public $timestamps = false;
-    protected $table = 'usuario'; // Tu tabla personalizada
 
-    // 1. SI TU LLAVE PRIMARIA EN LA BASE DE DATOS NO SE LLAMA 'id', CAMBIA ESTO:
-    // protected $primaryKey = 'id_usuario'; 
-    // Si se llama 'id', déjala así:
-    protected $primaryKey = 'id'; 
+    protected $table = 'usuario';
 
-    // 2. Si tu ID es un texto/string (ej: 'USR-01'), descomenta la línea de abajo:
-    // public $incrementing = false;
-    // protected $keyType = 'string';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'user_name',
@@ -29,7 +21,23 @@ public $timestamps = false;
         'id_perfil',
         'registro_personal',
     ];
-    
+
+    protected $hidden = [
+        'clave',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'clave' => 'hashed',
+        ];
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->clave;
+    }
+
     public function perfil()
     {
         return $this->belongsTo(Perfil::class, 'id_perfil', 'id');
@@ -39,26 +47,14 @@ public $timestamps = false;
     {
         return $this->belongsTo(Personal::class, 'registro_personal', 'registro');
     }
-    
-    protected $hidden = [
-        'clave',
-        'remember_token',
-    ];
 
-    protected function casts(): array
+    public function bitacoras()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'clave' => 'hashed',
-        ];
+        return $this->hasMany(Bitacora::class, 'id_usuario');
     }
 
-    /**
-     * ATENCIÓN: Este método es OBLIGATORIO para decirle a Laravel 
-     * que use la columna 'clave' en lugar de 'password'
-     */
-    public function getAuthPassword()
+    public function tienePrivilegio(string $privilegioNombre): bool
     {
-        return $this->clave;
+        return $this->perfil?->privilegios?->pluck('nombre')->contains($privilegioNombre) ?? false;
     }
 }

@@ -21,4 +21,14 @@ class Grupo extends Model
     {
         return $this->belongsTo(Gestion::class, 'codigo_gestion', 'codigo');
     }
+
+    public function postulantes()
+    {
+        return $this->hasMany(Postulante::class, 'id_grupo');
+    }
+
+    public function grupoMaterias()
+    {
+        return $this->hasMany(GrupoMateria::class, 'id_grupo');
+    }
 }

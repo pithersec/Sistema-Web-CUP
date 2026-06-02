@@ -272,32 +272,51 @@
         </div>
         <div class="nav-section">
             <div class="nav-label">Principal</div>
-            <a href="{{ url('/dashboard') }}" class="nav-item {{ Request::is('dashboard*') ? 'active' : '' }}"><span
+            <a href="{{ route('dashboard') }}" class="nav-item {{ Request::is('dashboard*') ? 'active' : '' }}"><span
                     class="nav-icon">📊</span> Dashboard</a>
 
-            <div class="nav-label">Gestión</div>
-            <a href="{{ url('/admin/postulantes') }}"
+            @auth
+            @php $user = Auth::user(); @endphp
+
+            @if($user && $user->tienePrivilegio('postulantes.ver'))
+            <a href="{{ route('postulantes.index') }}"
                 class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}"><span
                     class="nav-icon">👥</span> Postulantes</a>
-            <a href="{{ url('/admin/docentes') }}"
+            @endif
+
+            @if($user && $user->tienePrivilegio('docentes.ver'))
+            <a href="{{ route('docentes.index') }}"
                 class="nav-item {{ Request::is('admin/docentes*') ? 'active' : '' }}"><span
                     class="nav-icon">👨‍🏫</span> Docentes</a>
-            <a href="{{ url('/admin/carreras') }}"
+            @endif
+
+            @if($user && $user->tienePrivilegio('carreras.ver'))
+            <a href="{{ route('carreras.index') }}"
                 class="nav-item {{ Request::is('admin/carreras*') ? 'active' : '' }}"><span class="nav-icon">🎓</span>
                 Carreras y Cupos</a>
-            <a href="{{ url('/admin/usuarios') }}"
+            @endif
+
+            @if($user && $user->tienePrivilegio('usuarios.ver'))
+            <a href="{{ route('usuarios.index') }}"
                 class="nav-item {{ Request::is('admin/usuarios*') ? 'active' : '' }}"><span class="nav-icon">👤</span>
                 Usuarios</a>
-            <a href="{{ url('/docente/registrar-notas') }}"
+            @endif
+
+            @if($user && $user->tienePrivilegio('notas.ver'))
+            <a href="{{ route('notas.index') }}"
                 class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
                 <span class="nav-icon">📝</span>
                 Notas
             </a>
+            @endif
 
             <div class="nav-label">Sistema</div>
-            <a href="{{ url('/admin/bitacora') }}"
+            @if($user && $user->tienePrivilegio('bitacora.ver'))
+            <a href="{{ route('bitacora.index') }}"
                 class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}"><span class="nav-icon">📋</span>
                 Bitácora</a>
+            @endif
+            @endauth
             <a href="{{ url('/logout-confirm') }}"
                 class="nav-item {{ Request::is('logout-confirm*') ? 'active' : '' }}"><span class="nav-icon">🚪</span>
                 Cerrar Sesión</a>
@@ -308,8 +327,8 @@
         <div class="topbar">
             <h1>@yield('page_title')</h1>
             <div class="user">
-                <div class="user-avatar">{{ substr(Auth::user()->user_name ?? 'AD', 0, 2) }}</div>
-                {{ Auth::user()->user_name ?? 'Administrador' }}
+                <div class="user-avatar">{{ substr(Auth::user()?->user_name ?? 'AD', 0, 2) }}</div>
+                {{ Auth::user()?->user_name ?? 'Administrador' }}
             </div>
         </div>
 

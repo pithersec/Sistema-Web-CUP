@@ -17,6 +17,8 @@ class Examen extends Model
         'id_materia',
     ];
 
+    protected $casts = ['fecha' => 'date', 'ponderacion' => 'decimal:2', 'nota' => 'decimal:2'];
+
     // Relaciones con otras tablas (si es necesario)
     public function postulante()
     {

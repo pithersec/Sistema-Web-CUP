@@ -8,6 +8,7 @@ use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PersonalController extends Controller
 {
@@ -27,7 +28,6 @@ class PersonalController extends Controller
         if (!empty($filtro)) {
             $query->where(function($q) use ($filtro) {
                 $q->where('registro', 'LIKE', "%{$filtro}%")
-                  ->orWhere('estado', 'LIKE', "%{$filtro}%")
                   ->orWhereHas('datosPersonales', function($subQ) use ($filtro) {
                       $subQ->where('nombre', 'LIKE', "%{$filtro}%")
                            ->orWhere('apellido', 'LIKE', "%{$filtro}%")
@@ -38,7 +38,7 @@ class PersonalController extends Controller
 
         // Aplicar selector por Estado Administrativo
         if (!empty($estado) && $estado !== 'Todos los estados') {
-            $query->where('estado', $estado);
+            $query->where('estado', filter_var($estado, FILTER_VALIDATE_BOOLEAN));
         }
 
         // Conteo total basándose en los filtros aplicados
@@ -67,7 +67,7 @@ class PersonalController extends Controller
             'fecha_nac' => 'nullable|date',
             'direccion' => 'nullable|string|max:200',
             'registro'  => 'required|string|max:20|unique:personal,registro',
-            'estado'    => 'required|string|max:20' 
+'estado'    => 'required'
         ]);
 
         DB::beginTransaction();
@@ -76,17 +76,17 @@ class PersonalController extends Controller
                 'ci'        => $validated['ci'],
                 'nombre'    => $validated['nombre'],
                 'apellido'  => $validated['apellido'],
-                'genero'    => $validated['genero'],
-                'telefono'  => $validated['telefono'],
-                'correo'    => $validated['correo'],
-                'fecha_nac' => $validated['fecha_nac'],
-                'direccion' => $validated['direccion'],
+                'genero'    => $validated['genero'] ?? null,
+                'telefono'  => $validated['telefono'] ?? null,
+                'correo'    => $validated['correo'] ?? null,
+                'fecha_nac' => $validated['fecha_nac'] ?? null,
+                'direccion' => $validated['direccion'] ?? null,
             ]);
 
             $docente = Personal::create([
                 'registro' => $validated['registro'],
                 'ci'       => $datos->ci,
-                'estado'   => $validated['estado']
+                'estado'   => filter_var($validated['estado'], FILTER_VALIDATE_BOOLEAN),
             ]);
 
             $user = Auth::user();
@@ -99,12 +99,12 @@ class PersonalController extends Controller
 
             DB::commit();
             
-            // REDIRECCIÓN WEB: Volver al listado con mensaje flash de éxito
-            return redirect('/admin/docentes')->with('success', 'Docente registrado con éxito.');
+            return redirect()->route('docentes.index')->with('success', 'Docente registrado con éxito.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->withInput()->withErrors(['error' => 'Error al guardar el docente: ' . $e->getMessage()]);
+            Log::error($e->getMessage());
+            return redirect()->back()->withInput()->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
         }
     }
 
@@ -121,7 +121,7 @@ class PersonalController extends Controller
             'telefono'  => 'nullable|string|max:20',
             'correo'    => 'nullable|email|max:150',
             'direccion' => 'nullable|string|max:200',
-            'estado'    => 'required|string|max:20'
+            'estado'    => 'required'
         ]);
 
         DB::beginTransaction();
@@ -129,13 +129,13 @@ class PersonalController extends Controller
             $docente->datosPersonales()->update([
                 'nombre'    => $validated['nombre'],
                 'apellido'  => $validated['apellido'],
-                'telefono'  => $validated['telefono'],
-                'correo'    => $validated['correo'],
-                'direccion' => $validated['direccion'],
+                'telefono'  => $validated['telefono'] ?? null,
+                'correo'    => $validated['correo'] ?? null,
+                'direccion' => $validated['direccion'] ?? null,
             ]);
 
             $docente->update([
-                'estado' => $validated['estado']
+                'estado' => filter_var($validated['estado'], FILTER_VALIDATE_BOOLEAN)
             ]);
 
             $user = Auth::user();
@@ -147,11 +147,12 @@ class PersonalController extends Controller
             ]);
 
             DB::commit();
-            return redirect('/admin/docentes')->with('success', 'Datos del docente modificados correctamente.');
+            return redirect()->route('docentes.index')->with('success', 'Datos del docente modificados correctamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->withErrors(['error' => 'Error al actualizar el docente: ' . $e->getMessage()]);
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
         }
     }
 
@@ -161,18 +162,23 @@ class PersonalController extends Controller
      */
     public function desactivarDocente(Request $request, $registro)
     {
-        $docente = Personal::where('registro', $registro)->firstOrFail();
-        
-        $docente->update(['estado' => 'Inactivo']);
+        try {
+            $docente = Personal::where('registro', $registro)->firstOrFail();
+            
+            $docente->update(['estado' => false]);
 
-        $user = Auth::user();
-        Bitacora::create([
-            'ip'         => $request->ip(),
-            'accion'     => "Desactivación de Docente. Administrador: {$user->user_name} dio de baja al docente Registro: {$registro}.",
-            'fecha_hora' => now(),
-            'id_usuario' => $user->id
-        ]);
+            $user = Auth::user();
+            Bitacora::create([
+                'ip'         => $request->ip(),
+                'accion'     => "Desactivación de Docente. Administrador: {$user->user_name} dio de baja al docente Registro: {$registro}.",
+                'fecha_hora' => now(),
+                'id_usuario' => $user->id
+            ]);
 
-        return redirect()->back()->with('success', 'El docente ha sido inactivado en el sistema.');
+            return redirect()->route('docentes.index')->with('success', 'El docente ha sido inactivado en el sistema.');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route('docentes.index')->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
+        }
     }
 }

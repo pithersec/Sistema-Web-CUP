@@ -16,4 +16,11 @@ class Pago extends Model
         'estado',
         'referencia_pasarela',
     ];
+
+    protected $casts = ['fecha' => 'date', 'monto' => 'decimal:2'];
+
+    public function postulantes()
+    {
+        return $this->hasMany(Postulante::class, 'id_pago');
+    }
 }

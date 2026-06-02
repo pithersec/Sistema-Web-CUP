@@ -8,8 +8,6 @@ class GrupoMateria extends Model
 {
     public $timestamps = false;
     protected $table = 'grupo_materia';
-    public $incrementing = false; // No hay ID autoincremental
-    protected $keyType = 'string'; // Claves foráneas como strings
 
     protected $fillable = [
         'id_materia',

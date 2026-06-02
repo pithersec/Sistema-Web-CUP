@@ -263,7 +263,7 @@
                 @endphp
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($e->fecha_hora)->format('d/m/Y H:i:s') }}</td>
-                    <td><strong>{{ $e->usuario->user_name ?? 'Sistema / Externo' }}</strong></td>
+                    <td><strong>{{ $e->usuario?->user_name ?? 'Sistema / Externo' }}</strong></td>
                     <td>
                         <span class="badge {{ $badgeClass }}">
                             {{ $e->accion }}

@@ -22,4 +22,16 @@ class DatosPersonales extends Model
         'fecha_nac',
         'direccion'
     ];
+
+    protected $casts = ['fecha_nac' => 'date'];
+
+    public function postulantes()
+    {
+        return $this->hasMany(Postulante::class, 'ci', 'ci');
+    }
+
+    public function personal()
+    {
+        return $this->hasOne(Personal::class, 'ci', 'ci');
+    }
 }

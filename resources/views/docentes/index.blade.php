@@ -216,8 +216,8 @@
         <select name="estado" class="filter-select" onchange="document.getElementById('docentesForm').submit();">
             <option value="Todos los estados" {{ $estado=='Todos los estados' ? 'selected' : '' }}>Todos los estados
             </option>
-            <option value="Activo" {{ $estado=='Activo' ? 'selected' : '' }}>Activo</option>
-            <option value="Inactivo" {{ $estado=='Inactivo' ? 'selected' : '' }}>Inactivo</option>
+            <option value="1" {{ $estado=='1' ? 'selected' : '' }}>Activo</option>
+            <option value="0" {{ $estado=='0' ? 'selected' : '' }}>Inactivo</option>
         </select>
     </form>
 
@@ -248,21 +248,21 @@
                     <td>{{ $d->datosPersonales->correo ?? 'Sin Correo' }}</td>
                     <td>{{ $d->datosPersonales->telefono ?? 'S/N' }}</td>
                     <td>
-                        @if(strtolower($d->estado) == 'activo')
+                        @if($d->estado)
                         <span class="badge badge-green">Activo</span>
                         @else
-                        <span class="badge badge-gray">{{ $d->estado }}</span>
+                        <span class="badge badge-gray">Inactivo</span>
                         @endif
                     </td>
                     <td>
                         <div class="actions-cluster">
-                            <a href="{{ url('/admin/docentes/'.$d->registro) }}" class="btn-action btn-view">Ver</a>
-                            <a href="{{ url('/admin/docentes/'.$d->registro.'/edit') }}"
+                            <a href="#" class="btn-action btn-view">Ver</a>
+                            <a href="#"
                                 class="btn-action btn-edit">Editar</a>
 
                             <form action="{{ route('docentes.desactivar', $d->registro) }}" method="POST"
                                 style="display:inline;"
-                                onsubmit="return confirm('¿Está seguro de cambiar a Inactivo al docente con registro {{ $d->registro }}?');">
+                                onsubmit="return confirm('¿Está seguro de cambiar a Inactivo al docente con registro {{ e($d->registro) }}?');">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="btn-action btn-delete">Baja</button>

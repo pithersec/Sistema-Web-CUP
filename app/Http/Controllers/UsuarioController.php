@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use App\Models\Bitacora;
-use App\Models\Personal; // Añadido para la vinculación en listas/formularios
+use App\Models\Perfil;
+use App\Models\Privilegio;
+use App\Models\Personal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UsuarioController extends Controller
 {
@@ -41,7 +44,7 @@ class UsuarioController extends Controller
             'id_usuario' => $user->id
         ]);
 
-        return redirect()->intended('/dashboard');
+        return redirect()->intended(route('dashboard'));
     }
 
     /**
@@ -64,7 +67,7 @@ class UsuarioController extends Controller
             $request->session()->regenerateToken();
         }
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 
     /**
@@ -97,12 +100,20 @@ class UsuarioController extends Controller
 
         // Paginación estructural nativa para la vista
         $usuarios = $query->paginate(5)->withQueryString();
-        $totalUsuarios = $query->count();
+        $totalUsuarios = $usuarios->total();
 
         // Obtener listado de perfiles existentes para renderizar el selector dinámico
         $perfiles = DB::table('perfil')->get();
+        $personales = Personal::with('datosPersonales')->where('estado', true)->get();
 
-        return view('admin.usuarios', compact('usuarios', 'totalUsuarios', 'perfiles', 'filtro', 'perfil_id'));
+        return view('admin.usuarios', compact('usuarios', 'totalUsuarios', 'perfiles', 'personales', 'filtro', 'perfil_id'));
+    }
+
+    public function crearUsuario()
+    {
+        $perfiles = Perfil::all();
+        $personales = Personal::with('datosPersonales')->where('estado', true)->get();
+        return view('admin.usuarios-create', compact('perfiles', 'personales'));
     }
 
     /**
@@ -112,20 +123,23 @@ class UsuarioController extends Controller
     {
         $validated = $request->validate([
             'user_name'         => 'required|string|max:255|unique:usuario,user_name',
-            'email'             => 'required|string|email|max:255|unique:usuario,email',
-            'clave'             => 'required|string|min:6', 
+            'email'             => 'nullable|string|email|max:150|unique:usuario,email',
+            'clave'             => 'required|string|min:6',
             'id_perfil'         => 'required|exists:perfil,id',
-            'registro_personal' => 'nullable|exists:personal,registro'
+            'registro_personal' => 'nullable|string|exists:personal,registro'
         ]);
 
         try {
-            Usuario::create([
+            $data = [
                 'user_name'         => $validated['user_name'],
                 'email'             => $validated['email'],
-                'clave'             => Hash::make($validated['clave']), 
+                'clave'             => $validated['clave'],
                 'id_perfil'         => $validated['id_perfil'],
-                'registro_personal' => $validated['registro_personal']
-            ]);
+            ];
+            if (!empty($validated['registro_personal'])) {
+                $data['registro_personal'] = $validated['registro_personal'];
+            }
+            Usuario::create($data);
 
             $admin = Auth::user();
             Bitacora::create([
@@ -135,10 +149,18 @@ class UsuarioController extends Controller
                 'id_usuario' => $admin->id
             ]);
 
-            return redirect('/admin/usuarios')->with('success', 'Usuario registrado con éxito en la plataforma.');
+            return redirect()->route('usuarios.index')->with('success', 'Usuario registrado con éxito en la plataforma.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->withErrors(['error' => 'No se pudo crear el usuario: ' . $e->getMessage()]);
+            Log::error($e->getMessage());
+            return redirect()->back()->withInput()->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
         }
+    }
+
+    public function editarUsuario($id)
+    {
+        $usuario = Usuario::findOrFail($id);
+        $perfiles = Perfil::all();
+        return view('admin.usuarios-edit', compact('usuario', 'perfiles'));
     }
 
     /**
@@ -150,7 +172,7 @@ class UsuarioController extends Controller
 
         $validated = $request->validate([
             'user_name' => 'required|string|max:255|unique:usuario,user_name,' . $id,
-            'email'     => 'required|string|email|max:255|unique:usuario,email,' . $id,
+            'email'     => 'nullable|string|email|max:150|unique:usuario,email,' . $id,
             'clave'     => 'nullable|string|min:6', 
             'id_perfil' => 'required|exists:perfil,id'
         ]);
@@ -162,7 +184,7 @@ class UsuarioController extends Controller
         ];
 
         if (!empty($validated['clave'])) {
-            $updateData['clave'] = Hash::make($validated['clave']);
+            $updateData['clave'] = $validated['clave'];
         }
 
         $usuario->update($updateData);
@@ -175,7 +197,7 @@ class UsuarioController extends Controller
             'id_usuario' => $admin->id
         ]);
 
-        return redirect('/admin/usuarios')->with('success', 'Los datos del usuario han sido actualizados.');
+        return redirect()->route('usuarios.index')->with('success', 'Los datos del usuario han sido actualizados.');
     }
 
     /**
@@ -196,6 +218,13 @@ class UsuarioController extends Controller
             'id_usuario' => $admin->id
         ]);
 
-        return redirect('/admin/usuarios')->with('success', "La cuenta de {$nombreAfectado} fue removida físicamente.");
+        return redirect()->route('usuarios.index')->with('success', "La cuenta de {$nombreAfectado} fue removida físicamente.");
+    }
+
+    public function gestionarPerfiles()
+    {
+        $perfiles = Perfil::with('privilegios')->get();
+        $privilegios = Privilegio::all();
+        return view('admin.perfiles', compact('perfiles', 'privilegios'));
     }
 }
