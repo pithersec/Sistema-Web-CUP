@@ -19,35 +19,10 @@ class DashboardController extends Controller
         $totalPostulantes = Postulante::count();
         $totalGrupos = Grupo::count();
 
-        // Tu lógica exacta de evaluación de rendimiento individual
-        $postulantesConExamenes = Examen::select('codigo_postulante')
-            ->selectRaw("COUNT(CASE WHEN nro_examen = 1 THEN 1 END) as tiene_p1")
-            ->selectRaw("MIN(CASE WHEN nro_examen = 1 THEN nota END) as nota_p1")
-            ->selectRaw("COUNT(CASE WHEN nro_examen = 2 THEN 1 END) as tiene_p2")
-            ->selectRaw("MIN(CASE WHEN nro_examen = 2 THEN nota END) as nota_p2")
-            ->selectRaw("COUNT(CASE WHEN nro_examen = 3 THEN 1 END) as tiene_pf")
-            ->selectRaw("MIN(CASE WHEN nro_examen = 3 THEN nota END) as nota_pf")
-            ->groupBy('codigo_postulante')
-            ->get();
+        // KPIs: reemplaza la lógica de exámenes por conteo de estado
+        $totalAprobados  = Postulante::where('estado', 'aprobado')->count();
+        $totalReprobados = Postulante::where('estado', 'reprobado')->count();
 
-        $totalAprobados = 0;
-        $totalReprobados = 0;
-
-        foreach ($postulantesConExamenes as $registro) {
-            if ($registro->tiene_p1 > 0 && $registro->nota_p1 >= 60 &&
-                $registro->tiene_p2 > 0 && $registro->nota_p2 >= 60 &&
-                $registro->tiene_pf > 0 && $registro->nota_pf >= 60) {
-                
-                $totalAprobados++;
-            } else {
-                $totalReprobados++;
-            }
-        }
-
-        $postulantesSinNingunaNota = $totalPostulantes - $postulantesConExamenes->count();
-        $totalReprobados += $postulantesSinNingunaNota;
-
-        // Estructura de KPIs para la hermosa vista que armamos
         $kpis = [
             'total_inscritos'    => $totalPostulantes,
             'total_aprobados'    => $totalAprobados,
@@ -63,7 +38,7 @@ class DashboardController extends Controller
                 'carrera.nombre as carrera_nombre',
                 DB::raw('COALESCE(carrera_gestion.cupos, 0) as total_cupos'),
                 DB::raw('COUNT(postulante.codigo) as total_postulantes'),
-                DB::raw('SUM(CASE WHEN postulante.estado = "Aprobado" THEN 1 ELSE 0 END) as total_aprobados')
+                DB::raw("SUM(CASE WHEN postulante.estado = 'aprobado' THEN 1 ELSE 0 END) as total_aprobados")
             )
             ->groupBy('carrera.codigo', 'carrera.nombre', 'carrera_gestion.cupos')
             ->get();
