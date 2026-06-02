@@ -3,27 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bitacora;
-use App\Models\User;
+use App\Models\Usuario; // CORREGIDO: Importar tu modelo personalizado
 use Illuminate\Http\Request;
 
 class BitacoraController extends Controller
 {
-    
     /**
-     * 1 y 2. listarEventos() / filtrarEventos() [ADAPTADO PARA WEB]
-     * Recupera el historial de auditoría permitiendo búsquedas avanzadas por múltiples criterios.
+     * CU-19: listarEventos() / filtrarEventos()
      */
     public function listarEventos(Request $request)
     {
-        // 1. Iniciamos la consulta cargando la relación con el usuario
         $query = Bitacora::with('usuario');
 
-        // Capture de parámetros desde la barra de herramientas de la vista
+        // Capture de parámetros desde los inputs de la vista
         $fechaBusqueda = $request->input('filtroFecha');
         $usuarioBusqueda = $request->input('filtroUsuario');
         $tipoAccion = $request->input('filtroAccion');
 
-        // Filtro por Fecha (AÑO-MES-DÍA)
+        // Filtro por Fecha
         if (!empty($fechaBusqueda)) {
             $query->whereDate('fecha_hora', $fechaBusqueda);
         }
@@ -33,9 +30,8 @@ class BitacoraController extends Controller
             $query->where('id_usuario', $usuarioBusqueda);
         }
 
-        // Filtro por Tipo de Acción usando cláusulas LIKE descriptivas
+        // Filtro por Tipo de Acción inteligente
         if (!empty($tipoAccion) && $tipoAccion !== 'Todas las acciones') {
-            // Adaptación inteligente para mapear selecciones con cadenas reales en tu bitácora
             if ($tipoAccion === 'Inicio de sesión') {
                 $query->where('accion', 'LIKE', '%Inicio de sesión%');
             } elseif ($tipoAccion === 'Cierre de sesión') {
@@ -54,14 +50,12 @@ class BitacoraController extends Controller
             }
         }
 
-        // 2. Ordenar cronológicamente de forma descendente y paginar de 15 en 15 registros
+        // Paginación y conteo corregido de forma nativa
         $eventos = $query->orderBy('fecha_hora', 'desc')->paginate(15)->withQueryString();
-        
-        // Contador global de registros que cumplen los filtros actuales
-        $totalEventos = $query->count();
+        $totalEventos = $eventos->total(); // <--- SOLUCIÓN: Extrae el total real directamente del paginador
 
-        // 3. Obtener todos los operadores del sistema para poblar el selector de filtros
-        $usuarios = User::orderBy('user_name', 'asc')->get();
+        // Obtener todos los operadores reales de tu tabla 'usuario'
+        $usuarios = Usuario::orderBy('user_name', 'asc')->get();
 
         return view('admin.bitacora', compact(
             'eventos', 
@@ -71,14 +65,5 @@ class BitacoraController extends Controller
             'usuarioBusqueda', 
             'tipoAccion'
         ));
-    }
-
-    /**
-     * 3. obtenerDetalle() [OPCIONAL - PARA MODALES DE AUDITORÍA DETALLADA]
-     */
-    public function obtenerDetalle($id)
-    {
-        $evento = Bitacora::with('usuario')->findOrFail($id);
-        return response()->json($evento, 200);
     }
 }

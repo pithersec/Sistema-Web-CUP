@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Carrera;
+use App\Models\Gestion;
 use App\Models\Bitacora;
+use App\Models\Postulante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,22 +13,21 @@ use Illuminate\Support\Facades\DB;
 class CarreraController extends Controller
 {
     /**
-     * 1. listarCarreras() [ADAPTADO PARA WEB]
+     * 1. listarCarreras()
      * Muestra la matriz de carreras, sus cupos asignados por gestión y calcula la ocupación real.
      */
     public function listarCarreras(Request $request)
     {
-        // 1. Obtener todas las gestiones para el selector superior
-        $gestiones = DB::table('gestion')->orderBy('codigo', 'desc')->get();
+        // 1. Obtener todas las gestiones para el selector superior usando el Modelo
+        $gestiones = Gestion::orderBy('codigo', 'desc')->get();
 
-        // 2. Determinar la gestión seleccionada (por defecto la primera que encuentre)
+        // 2. Determinar la gestión seleccionada (por defecto la primera)
         $gestion_seleccionada = $request->input('codigo_gestion');
         if (empty($gestion_seleccionada) && $gestiones->isNotEmpty()) {
             $gestion_seleccionada = $gestiones->first()->codigo;
         }
 
-        // 3. Obtener las carreras y cruzar con la tabla intermedia 'carrera_gestion'
-        // Además, calculamos cuántos postulantes ya están inscritos/admitidos en esa carrera para esa gestión
+        // 3. Obtener las carreras y cruzar con 'carrera_gestion' usando la columna física 'codigo_gestion'
         $carreras = DB::table('carrera')
             ->leftJoin('carrera_gestion', function($join) use ($gestion_seleccionada) {
                 $join->on('carrera.codigo', '=', 'carrera_gestion.codigo_carrera')
@@ -36,20 +37,17 @@ class CarreraController extends Controller
                 'carrera.codigo',
                 'carrera.nombre',
                 'carrera.modalidad',
-                'carrera_gestion.id as carrera_gestion_id',
                 'carrera_gestion.cupos'
             )->get();
 
-        // 4. Calcular dinámicamente los inscritos por carrera para armar las barras de progreso
+        // 4. Calcular los inscritos cruzando con la tabla 'grupo' para validar la gestión correcta
         foreach ($carreras as $carrera) {
-            // Contamos postulantes asociados a este código de carrera y gestión
-            // Asumiendo que tu tabla postulantes tiene 'codigo_carrera' y 'codigo_gestion'
             $carrera->ocupados = DB::table('postulante')
-                ->where('codigo_carrera', $carrera->codigo)
-                ->where('codigo_gestion', $gestion_seleccionada)
+                ->join('grupo', 'postulante.id_grupo', '=', 'grupo.id') // Unimos con grupo para llegar a la gestión
+                ->where('postulante.codigo_carrera1', $carrera->codigo)
+                ->where('grupo.codigo_gestion', $gestion_seleccionada)  // Filtramos por la gestión del grupo
                 ->count();
                 
-            // Si no tiene cupos asignados en la intermedia, por defecto es 0
             $carrera->cupos = $carrera->cupos ?? 0;
         }
 
@@ -57,13 +55,12 @@ class CarreraController extends Controller
     }
 
     /**
-     * 2. guardarMasivo() [NUEVO MÉTODO PARA EL BOTÓN PRINCIPAL DE LA VISTA]
-     * Procesa todas las filas de cupos enviadas en el formulario simultáneamente.
+     * 2. guardarMasivo()
      */
     public function guardarMasivo(Request $request)
     {
-        $codigo_gestion = $request->input('codigo_gestion');
-        $cupos_input = $request->input('cupos'); // Array asociativo [codigo_carrera => cantidad_cupos]
+        $codigo_gestion = $request->input('codigo_gestion'); 
+        $cupos_input = $request->input('cupos'); 
 
         if (empty($cupos_input)) {
             return redirect()->back()->with('error', 'No hay datos de cupos para procesar.');
@@ -74,21 +71,19 @@ class CarreraController extends Controller
             $user = Auth::user();
 
             foreach ($cupos_input as $codigo_carrera => $cupos) {
-                $cupos = max(0, intval($cupos)); // Validar que sea un entero positivo o cero
+                $cupos = max(0, intval($cupos)); 
 
-                // Verificar si ya existe la relación en la tabla intermedia
                 $existe = DB::table('carrera_gestion')
                     ->where('codigo_carrera', $codigo_carrera)
                     ->where('codigo_gestion', $codigo_gestion)
-                    ->first();
+                    ->exists();
 
                 if ($existe) {
-                    // Actualizar cupos existentes
                     DB::table('carrera_gestion')
-                        ->where('id', $existe->id)
+                        ->where('codigo_carrera', $codigo_carrera)
+                        ->where('codigo_gestion', $codigo_gestion)
                         ->update(['cupos' => $cupos]);
                 } else {
-                    // Insertar nueva asignación si es mayor a cero
                     if ($cupos > 0) {
                         DB::table('carrera_gestion')->insert([
                             'codigo_carrera' => $codigo_carrera,
@@ -99,10 +94,10 @@ class CarreraController extends Controller
                 }
             }
 
-            // Registrar en Bitácora el cambio global
+            // Registro en Bitácora con los campos exactos de tu modelo
             Bitacora::create([
                 'ip'         => $request->ip(),
-                'accion'     => "Actualización Masiva de Cupos. Administrador: {$user->user_name} actualizó los parámetros de oferta académica para la Gestión ID: {$codigo_gestion}.",
+                'accion'     => "Actualización Masiva de Cupos. Administrador: {$user->user_name} actualizó los parámetros de oferta académica para la Gestión: {$codigo_gestion}.",
                 'fecha_hora' => now(),
                 'id_usuario' => $user->id
             ]);
@@ -117,13 +112,13 @@ class CarreraController extends Controller
     }
 
     /**
-     * 3. guardarCuposFila() [MÉTODO PARA CADA BOTÓN INDIVIDUAL DE FILA]
+     * 3. guardarCuposFila()
      */
     public function guardarCuposFila(Request $request)
     {
         $validated = $request->validate([
             'codigo_carrera' => 'required|string',
-            'codigo_gestion' => 'required|integer',
+            'codigo_gestion' => 'required|string', 
             'cupos'          => 'required|integer|min:0'
         ]);
 
@@ -132,11 +127,12 @@ class CarreraController extends Controller
             $existe = DB::table('carrera_gestion')
                 ->where('codigo_carrera', $validated['codigo_carrera'])
                 ->where('codigo_gestion', $validated['codigo_gestion'])
-                ->first();
+                ->exists();
 
             if ($existe) {
                 DB::table('carrera_gestion')
-                    ->where('id', $existe->id)
+                    ->where('codigo_carrera', $validated['codigo_carrera'])
+                    ->where('codigo_gestion', $validated['codigo_gestion'])
                     ->update(['cupos' => $validated['cupos']]);
                 $accion = "Modificación de Cupos";
             } else {

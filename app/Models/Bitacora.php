@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Bitacora extends Model
 {
     public $timestamps = false;
-    protected $table = 'bitacora'; // Especifica el nombre de la tabla
+    protected $table = 'bitacora'; 
 
     protected $fillable = [
         'ip',
@@ -16,7 +16,12 @@ class Bitacora extends Model
         'id_usuario',
     ];
 
-    // Relaciones con otras tablas (si es necesario)
+    // Relación con el usuario que ejecutó la acción
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'id');
+    }
+
     public function personal()
     {
         return $this->belongsTo(Personal::class, 'registro_personal', 'registro');

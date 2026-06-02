@@ -16,9 +16,11 @@ use App\Http\Controllers\BitacoraController;
 |--------------------------------------------------------------------------
 */
 
+// Cambia esto de la línea 19 a la 21:
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
+
 
 // CU-01: Autenticar Usuario (Login)
 Route::get('/login', function () {
@@ -144,3 +146,62 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
 
 // Apuntando directo al método index
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+
+
+
+// Ruta para mostrar la tabla con filtros
+Route::get('/admin/postulantes', [PostulanteController::class, 'listarPostulantes'])->name('postulantes.index');
+
+// Ruta específica para procesar el botón "Baja"
+Route::post('/admin/postulantes/{codigo}/baja', [PostulanteController::class, 'darBaja'])->name('postulantes.baja');
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+    // Listado principal con filtros
+    Route::get('/admin/docentes', [PersonalController::class, 'listarDocentes'])->name('docentes.index');
+
+    // Desactivación o baja lógica (se usa PATCH porque actualiza un campo específico del modelo)
+    Route::patch('/admin/docentes/{registro}/desactivar', [PersonalController::class, 'desactivarDocente'])->name('docentes.desactivar');
+    
+    // Las rutas complementarias para guardar y actualizar (vistas auxiliares)
+    Route::post('/admin/docentes/guardar', [PersonalController::class, 'guardarDocente'])->name('docentes.guardar');
+    Route::put('/admin/docentes/{registro}/actualizar', [PersonalController::class, 'actualizarDocente'])->name('docentes.actualizar');
+});
+
+
+
+Route::middleware(['auth'])->group(function () {
+    // 1. Mostrar la matriz filtrada por gestión
+    Route::get('/admin/carreras-cupos', [CarreraController::class, 'listarCarreras'])->name('carreras.index');
+
+    // 2. Acción del botón masivo inferior (Guardar Cambios)
+    Route::post('/admin/carreras-cupos/masivo', [CarreraController::class, 'guardarMasivo'])->name('carreras.guardarMasivo');
+
+    // 3. Acción del botón "Guardar" de cada fila individual
+    Route::post('/admin/carreras-cupos/fila', [CarreraController::class, 'guardarCuposFila'])->name('carreras.guardarFila');
+});
+
+
+
+Route::middleware(['auth'])->group(function () {
+    // Listar usuarios con filtros
+    Route::get('/admin/usuarios', [UsuarioController::class, 'listarUsuarios'])->name('usuarios.index');
+
+    // Procesar envío de nueva cuenta
+    Route::post('/admin/usuarios/guardar', [UsuarioController::class, 'guardarUsuario'])->name('usuarios.store');
+
+    // Procesar actualización de cuenta existente
+    Route::put('/admin/usuarios/{id}/actualizar', [UsuarioController::class, 'actualizarUsuario'])->name('usuarios.update');
+
+    // Eliminar registro físico por ID (Usa DELETE)
+    Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'eliminarUsuario'])->name('usuarios.destroy');
+});
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/bitacora', [BitacoraController::class, 'listarEventos'])->name('bitacora.index');
+});
