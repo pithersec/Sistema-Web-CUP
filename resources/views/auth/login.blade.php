@@ -31,7 +31,7 @@
             justify-content: center;
             /* RECOMENDACIÓN: Mueve tu imagen ficct_.jfif a la carpeta public/img/ */
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-            url('{{ asset(' img/ficct_.jfif') }}');
+            url('{{ asset('img/ficct_.jfif') }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;

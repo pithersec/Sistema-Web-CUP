@@ -9,6 +9,7 @@ use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ExamenController extends Controller
 {
@@ -20,6 +21,10 @@ class ExamenController extends Controller
     {
         // El usuario logueado está amarrado a 'personal' por su 'registro_personal'
         $registroPersonal = Auth::user()->registro_personal;
+
+        if (empty($registroPersonal)) {
+            abort(403, 'Su usuario no tiene un registro de personal asignado.');
+        }
 
         // Buscamos en la tabla intermedia grupo_materia las asignaciones del docente
 $grupos = DB::table('grupo_materia')
@@ -74,7 +79,7 @@ $grupos = DB::table('grupo_materia')
     {
         // Validamos la metadata de la planilla y el arreglo de calificaciones entrantes
         $request->validate([
-            'id_grupo'   => 'required',
+            'id_grupo'   => 'required|integer|exists:grupo,id',
             'id_materia' => 'required|exists:materia,id',
             'nro_examen'  => 'required|integer|between:1,3',
             'notas'      => 'required|array',
@@ -132,9 +137,16 @@ $grupos = DB::table('grupo_materia')
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage());
             return redirect()->back()->withInput()->withErrors([
-                'error' => 'Ocurrió un error inesperado al resguardar el lote de calificaciones: ' . $e->getMessage()
+                'error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.'
             ]);
         }
+    }
+
+    public function obtenerPostulantes($id_grupo)
+    {
+        $postulantes = Postulante::where('id_grupo', $id_grupo)->get();
+        return response()->json($postulantes);
     }
 }

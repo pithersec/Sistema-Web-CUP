@@ -259,8 +259,8 @@
                 @forelse($postulantes as $p)
                 <tr>
                     <td><strong>{{ $p->ci }}</strong></td>
-                    <td>{{ $p->nombre }} {{ $p->apellido }}</td>
-                    <td>{{ $p->telefono ?? 'S/N' }}</td>
+                    <td>{{ $p->datosPersonales->nombre ?? 'N/A' }} {{ $p->datosPersonales->apellido ?? 'N/A' }}</td>
+                    <td>{{ $p->telefono_2 ?? ($p->datosPersonales->telefono ?? 'S/N') }}</td>
                     <td>{{ $p->procedencia }}</td>
                     <td>
                         @if($p->estado == 'Aprobado')
@@ -275,16 +275,15 @@
                     </td>
                     <td>
                         <div class="actions-cluster">
-                            <a href="{{ url('/admin/postulantes/'.$p->codigo) }}" class="btn-action btn-view"
+                            <a href="#" class="btn-action btn-view"
                                 style="text-decoration: none;">Ver</a>
-                            <a href="{{ url('/admin/postulantes/'.$p->codigo.'/edit') }}" class="btn-action btn-edit"
+                            <a href="#" class="btn-action btn-edit"
                                 style="text-decoration: none;">Editar</a>
 
                             <form action="{{ route('postulantes.baja', $p->codigo) }}" method="POST"
                                 style="display:inline;"
-                                onsubmit="return confirm('¿Está seguro de dar de baja al postulante con código {{ $p->codigo }}?');">
+                                onsubmit="return confirm('¿Está seguro de dar de baja al postulante con código {{ e($p->codigo) }}?');">
                                 @csrf
-                                @method('POST')
                                 <button type="submit" class="btn-action btn-delete">Baja</button>
                             </form>
                         </div>

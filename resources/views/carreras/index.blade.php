@@ -321,7 +321,7 @@
                         <td>
                             <div class="actions">
                                 <button type="button" class="btn-action btn-save"
-                                    onclick="guardarFilaIndividual('{{ $c->codigo }}')">
+                                    onclick="guardarFilaIndividual('{{ e($c->codigo) }}')">
                                     Guardar
                                 </button>
                             </div>

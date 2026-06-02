@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('perfil_privilegio', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('id_perfil')->constrained('perfil')->onDelete('cascade');
             $table->foreignId('id_privilegio')->constrained('privilegio')->onDelete('cascade');
-            $table->primary(['id_perfil', 'id_privilegio']); // Compuesta
+            $table->unique(['id_perfil', 'id_privilegio']);
         });
     }
 

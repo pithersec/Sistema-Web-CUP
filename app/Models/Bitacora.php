@@ -16,14 +16,20 @@ class Bitacora extends Model
         'id_usuario',
     ];
 
-    // Relación con el usuario que ejecutó la acción
+    protected $casts = ['fecha_hora' => 'datetime'];
+
+    public function getCreatedAtColumn()
+    {
+        return 'fecha_hora';
+    }
+
+    public function getUpdatedAtColumn()
+    {
+        return null;
+    }
+
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario', 'id');
-    }
-
-    public function personal()
-    {
-        return $this->belongsTo(Personal::class, 'registro_personal', 'registro');
     }
 }

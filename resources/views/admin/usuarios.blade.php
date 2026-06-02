@@ -235,7 +235,7 @@
 <div class="usuarios-wrapper">
     <div class="tabs">
         <a href="{{ route('usuarios.index') }}" class="tab active">👤 Usuarios</a>
-        <a href="#" class="tab">🔑 Perfiles y Privilegios</a>
+        <a href="{{ route('perfiles.index') }}" class="tab">🔑 Perfiles y Privilegios</a>
     </div>
 
     <form action="{{ route('usuarios.index') }}" method="GET" class="toolbar-form" id="usuariosForm">
@@ -258,7 +258,12 @@
     <div class="table-card">
         <div class="table-header">
             <h2>Listado de Usuarios</h2>
-            <span class="total-badge">{{ $totalUsuarios }} usuarios registrados</span>
+            <div style="display:flex;gap:10px;align-items:center;">
+                @can('usuarios.crear')
+                <a href="{{ route('usuarios.create') }}" class="btn-action" style="background:#0d3b6e;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">+ Nuevo Usuario</a>
+                @endcan
+                <span class="total-badge">{{ $totalUsuarios }} usuarios registrados</span>
+            </div>
         </div>
 
         <table class="custom-table">
@@ -299,13 +304,13 @@
                     </td>
                     <td>
                         <div class="actions-cluster">
-                            <a href="{{ url('/admin/usuarios/'.$u->id.'/edit') }}"
+                            <a href="{{ route('usuarios.edit', $u->id) }}"
                                 class="btn-action btn-edit">Editar</a>
-                            <a href="{{ url('/admin/usuarios/'.$u->id.'/permisos') }}"
+                            <a href="{{ route('perfiles.index') }}"
                                 class="btn-action btn-perfiles">Perfil</a>
 
                             <form action="{{ route('usuarios.destroy', $u->id) }}" method="POST" style="display:inline;"
-                                onsubmit="return confirm('¿Está completamente seguro de eliminar permanentemente la cuenta de {{ $u->user_name }}?');">
+                                onsubmit="return confirm('¿Está completamente seguro de eliminar permanentemente la cuenta de {{ e($u->user_name) }}?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-action btn-delete">Eliminar</button>

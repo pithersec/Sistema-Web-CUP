@@ -11,6 +11,7 @@ class Postulante extends Model
     protected $primaryKey = 'codigo'; // Especifica la clave primaria
     public $incrementing = false; // Indica que la clave primaria no es auto-incremental
     protected $keyType = 'string'; // Especifica el tipo de la clave primaria
+    protected $casts = ['plazo' => 'date'];
 
     protected $fillable = [
         'codigo',
@@ -56,5 +57,15 @@ class Postulante extends Model
     public function datosPersonales()
     {
         return $this->belongsTo(DatosPersonales::class, 'ci', 'ci');
+    }
+
+    public function examenes()
+    {
+        return $this->hasMany(Examen::class, 'codigo_postulante', 'codigo');
+    }
+
+    public function reclamos()
+    {
+        return $this->hasMany(Reclamo::class, 'codigo_postulante', 'codigo');
     }
 }

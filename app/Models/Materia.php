@@ -14,4 +14,14 @@ class Materia extends Model
         'nombre',
         'duracion',
     ];
+
+    public function examenes()
+    {
+        return $this->hasMany(Examen::class, 'id_materia');
+    }
+
+    public function grupoMaterias()
+    {
+        return $this->hasMany(GrupoMateria::class, 'id_materia');
+    }
 }
