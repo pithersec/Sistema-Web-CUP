@@ -41,6 +41,16 @@ class DatosPersonalesSeeder extends Seeder
                 'fecha_nac' => '1978-11-30',
                 'direccion' => 'Urb. Las Palmas, C/ 4'
             ],
+            [
+                'ci' => '1234567',
+                'nombre' => 'Sistema',
+                'apellido' => 'FICCT',
+                'genero' => 'm',
+                'telefono' => '70000000',
+                'correo' => 'sistema@ficct.uagrm.edu.bo',
+                'fecha_nac' => '1990-01-01',
+                'direccion' => 'FICCT UAGRM'
+            ],
         ]);
     }
 }
