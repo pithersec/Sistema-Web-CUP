@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('tipo', ['semestral', 'anual'])->nullable();
             $table->unsignedTinyInteger('duracion')->nullable();
             $table->primary(['codigo', 'plan', 'modalidad']);
+            $table->unique(['codigo', 'plan', 'modalidad']);
         });
     }
 
