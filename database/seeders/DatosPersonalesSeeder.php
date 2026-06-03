@@ -41,40 +41,6 @@ class DatosPersonalesSeeder extends Seeder
                 'fecha_nac' => '1978-11-30',
                 'direccion' => 'Urb. Las Palmas, C/ 4'
             ],
-
-            // Postulantes Gestión 2025 (Históricos)
-            [
-                'ci' => '9000001',
-                'nombre' => 'Juan Pablo',
-                'apellido' => 'Mendoza Ortiz',
-                'genero' => 'm',
-                'telefono' => '75011111',
-                'correo' => 'juan.mendoza@gmail.com',
-                'fecha_nac' => '2006-01-15',
-                'direccion' => 'Plan 3000, Av. Paurito'
-            ],
-            [
-                'ci' => '9000002',
-                'nombre' => 'María René',
-                'apellido' => 'Cuéllar Justiniano',
-                'genero' => 'f',
-                'telefono' => '76022222',
-                'correo' => 'maria.cuellar@hotmail.com',
-                'fecha_nac' => '2006-05-20',
-                'direccion' => 'Villa Primero de Mayo, C/ 3'
-            ],
-
-            // Postulantes Gestión 2026 (Actuales)
-            [
-                'ci' => '9000003',
-                'nombre' => 'Luis Fernando',
-                'apellido' => 'Gómez Torrico',
-                'genero' => 'm',
-                'telefono' => '77033333',
-                'correo' => 'luis.gomez.t@gmail.com',
-                'fecha_nac' => '2007-02-10',
-                'direccion' => 'Av. Banzer, 4to Anillo'
-            ],
         ]);
     }
 }

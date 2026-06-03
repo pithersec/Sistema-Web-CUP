@@ -20,8 +20,6 @@ class DatabaseSeeder extends Seeder
             GestionSeeder::class,
             ColegioSeeder::class,
             MateriaSeeder::class,
-            RequisitosPostulanteSeeder::class,
-            PagoSeeder::class,
 
             // 2. Tablas Dependientes Nivel 1 (Relaciones Directas)
             PerfilPrivilegioSeeder::class,

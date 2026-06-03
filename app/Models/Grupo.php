@@ -8,13 +8,12 @@ class Grupo extends Model
 {
     protected $table = 'grupo';
     public $timestamps = false;
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
-        'aula',
-        'turno',
-        'horario',
-        'total_ins',
-        'codigo_gestion',
+        'id', 'aula', 'turno', 'horario', 'total_ins', 'codigo_gestion',
     ];
 
     public function gestion()

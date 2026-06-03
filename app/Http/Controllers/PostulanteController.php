@@ -42,9 +42,6 @@ class PostulanteController extends Controller
             'procedencia'      => 'nullable|string|max:100',
             'telefono_2'       => 'nullable|string|max:20',
             'gestion_egreso'   => 'nullable|string|max:20',
-            
-            'codigo_carrera1'  => 'required|exists:carrera,codigo',
-            'codigo_carrera2'  => 'required|exists:carrera,codigo|different:codigo_carrera1',
         ]);
 
         // Iniciamos la transacción para asegurar atomicidad
@@ -86,8 +83,6 @@ class PostulanteController extends Controller
                 'estado'                   => 'preinscrito',
                 'gestion_egreso'           => $validated['gestion_egreso'] ?? date('Y'),
                 'id_requisitos_postulante' => $requisitos->id,
-                'codigo_carrera1'          => $validated['codigo_carrera1'],
-                'codigo_carrera2'          => $validated['codigo_carrera2'],
                 'id_colegio'               => null,
                 'id_pago'                  => null,
                 'id_grupo'                 => null,
@@ -130,7 +125,6 @@ class PostulanteController extends Controller
                 'postulante.ci',
                 'postulante.procedencia',
                 'postulante.estado',
-                'postulante.codigo_carrera1',
                 'datos_personales.nombre',
                 'datos_personales.apellido',
                 'datos_personales.telefono'
@@ -140,8 +134,8 @@ class PostulanteController extends Controller
         if (!empty($buscar)) {
             $query->where(function ($q) use ($buscar) {
                 $q->where('postulante.ci', 'LIKE', "%{$buscar}%")
-                  ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
-                  ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%");
+                    ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
+                    ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%");
             });
         }
 
@@ -152,7 +146,12 @@ class PostulanteController extends Controller
 
         // Filtro 3: Selector por Carrera
         if (!empty($carrera) && $carrera !== 'Todas las carreras') {
-            $query->where('postulante.codigo_carrera1', $carrera);
+            $query->whereExists(function($q) use ($carrera) {
+                $q->select(DB::raw(1))
+                ->from('postulante_carrera')
+                ->whereColumn('postulante_carrera.codigo_postulante', 'postulante.codigo')
+                ->where('postulante_carrera.codigo_carrera', $carrera);
+            });
         }
 
         // Obtener el conteo total con filtros aplicados antes de paginar
@@ -178,9 +177,4 @@ class PostulanteController extends Controller
 
         return redirect()->back()->with('success', 'El postulante ha sido dado de baja correctamente.');
     }
-
-
-
-
-
 }
