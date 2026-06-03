@@ -13,6 +13,7 @@ class MateriaSeeder extends Seeder
             ['id' => 1, 'nombre' => 'Matemáticas', 'duracion' => '40 horas'],
             ['id' => 2, 'nombre' => 'Física', 'duracion' => '40 horas'],
             ['id' => 3, 'nombre' => 'Química', 'duracion' => '30 horas'],
+            ['id' => 4, 'nombre' => 'Computación', 'duracion' => '30 horas'],
         ]);
     }
 }

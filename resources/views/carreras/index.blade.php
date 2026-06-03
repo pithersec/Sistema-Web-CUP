@@ -306,8 +306,9 @@
                         <td>{{ $c->nombre }}</td>
                         <td>{{ $c->modalidad }}</td>
                         <td>
-                            <input type="number" name="cupos[{{ $c->codigo }}]"
-                                class="cupos-input row-input-{{ $c->codigo }}" value="{{ $c->cupos }}" min="0" />
+                            <input type="number" name="cupos[{{ $c->codigo }}|{{ $c->plan }}|{{ $c->modalidad }}]"
+                                class="cupos-input row-input-{{ $c->codigo }}-{{ $c->plan }}-{{ $c->modalidad }}" 
+                                value="{{ $c->cupos }}" min="0" />
                         </td>
                         <td>
                             <div class="cupos-bar">
@@ -321,7 +322,7 @@
                         <td>
                             <div class="actions">
                                 <button type="button" class="btn-action btn-save"
-                                    onclick="guardarFilaIndividual('{{ e($c->codigo) }}')">
+                                    onclick="guardarFilaIndividual('{{ $c->codigo }}', '{{ $c->plan }}', '{{ $c->modalidad }}')">
                                     Guardar
                                 </button>
                             </div>
@@ -349,16 +350,20 @@
 <form id="individualRowForm" action="{{ route('carreras.guardarFila') }}" method="POST" style="display: none;">
     @csrf
     <input type="hidden" name="codigo_carrera" id="ind_codigo_carrera">
+    <input type="hidden" name="plan_carrera" id="ind_plan_carrera">
+    <input type="hidden" name="modalidad_carrera" id="ind_modalidad_carrera">
     <input type="hidden" name="codigo_gestion" id="ind_codigo_gestion" value="{{ $gestion_seleccionada }}">
     <input type="hidden" name="cupos" id="ind_cupos">
 </form>
 
 <script>
     // Sincroniza el input de la fila elegida hacia el formulario auxiliar y lo envía
-    function guardarFilaIndividual(codigoCarrera) {
-        const inputValor = document.querySelector('.row-input-' + codigoCarrera).value;
+    function guardarFilaIndividual(codigoCarrera, planCarrera, modalidadCarrera) {
+        const inputValor = document.querySelector('.row-input-' + codigoCarrera + '-' + planCarrera + '-' + modalidadCarrera).value;
         
         document.getElementById('ind_codigo_carrera').value = codigoCarrera;
+        document.getElementById('ind_plan_carrera').value = planCarrera;
+        document.getElementById('ind_modalidad_carrera').value = modalidadCarrera;
         document.getElementById('ind_cupos').value = inputValor;
         
         if(confirm('¿Desea actualizar los cupos individuales para esta carrera?')) {

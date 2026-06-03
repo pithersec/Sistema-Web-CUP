@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('carrera', function (Blueprint $table) {
-            $table->string('codigo', 10)->primary(); // PK String
-            $table->string('plan', 5)->nullable();
+            $table->string('codigo', 20);
+            $table->string('plan', 50);
             $table->string('nombre', 100);
-            $table->enum('modalidad', ['presencial', 'virtual'])->nullable();
+            $table->enum('modalidad', ['presencial', 'virtual']);
             $table->enum('nivel', ['licenciatura', 'tecnico_superior', 'tecnico_medio'])->nullable();
             $table->enum('tipo', ['semestral', 'anual'])->nullable();
             $table->unsignedTinyInteger('duracion')->nullable();
+            $table->primary(['codigo', 'plan', 'modalidad']);
         });
     }
 

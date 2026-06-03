@@ -8,38 +8,26 @@ class Carrera extends Model
 {
     public $timestamps = false;
     protected $table = 'carrera';
-    protected $primaryKey = 'codigo';
-    public $incrementing = false; // Indica que la PK no es un entero autoincremental
-    protected $keyType = 'string';
-    
+    public $incrementing = false;
+    protected $primaryKey = null; // PK compuesta, Eloquent no la maneja nativamente
+
     protected $fillable = [
-        'codigo',
-        'plan',
-        'nombre',
-        'modalidad',
-        'nivel',
-        'tipo',
-        'duracion',
+        'codigo', 'plan', 'nombre', 'modalidad', 'nivel', 'tipo', 'duracion',
     ];
 
     public function gestiones()
     {
-        return $this->belongsToMany(Gestion::class, 'carrera_gestion', 'codigo_carrera', 'codigo_gestion')
-                    ->withPivot('cupos', 'id');
+        return $this->belongsToMany(Gestion::class, 'carrera_gestion', 
+            ['codigo_carrera', 'plan_carrera', 'modalidad_carrera'],
+            'codigo_gestion'
+        )->withPivot('cupos');
     }
 
-    public function carreraGestiones()
+    public function postulantes()
     {
-        return $this->hasMany(CarreraGestion::class, 'codigo_carrera', 'codigo');
-    }
-
-    public function postulantes1()
-    {
-        return $this->hasMany(Postulante::class, 'codigo_carrera1', 'codigo');
-    }
-
-    public function postulantes2()
-    {
-        return $this->hasMany(Postulante::class, 'codigo_carrera2', 'codigo');
+        return $this->belongsToMany(Postulante::class, 'postulante_carrera',
+            ['codigo_carrera', 'plan_carrera', 'modalidad_carrera'],
+            'codigo_postulante'
+        )->withPivot('opcion');
     }
 }

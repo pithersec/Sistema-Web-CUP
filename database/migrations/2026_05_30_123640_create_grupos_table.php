@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grupo', function (Blueprint $table) {
-            $table->id(); // SERIAL PRIMARY KEY
+            $table->string('id', 10)->primary();
             $table->string('aula', 10)->nullable();
             $table->enum('turno', ['mañana', 'tarde', 'noche'])->nullable();
             $table->string('horario', 100)->nullable();
             $table->unsignedSmallInteger('total_ins')->default(0);
             $table->string('codigo_gestion', 20);
-            
-            // Llave foránea que apunta a la gestión académica
-            $table->foreign('codigo_gestion')->references('codigo')->on('gestion')->onDelete('restrict');
+
+            $table->foreign('codigo_gestion')->references('codigo')->on('gestion')
+                ->onUpdate('cascade')->onDelete('restrict');
         });
     }
 

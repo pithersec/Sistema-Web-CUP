@@ -11,23 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('carrera_gestion', function (Blueprint $table) {
-            $table->id();
+        Schema::create('postulante_carrera', function (Blueprint $table) {
+            $table->string('codigo_postulante', 20);
             $table->string('codigo_carrera', 20);
             $table->string('plan_carrera', 50);
             $table->string('modalidad_carrera', 50);
-            $table->string('codigo_gestion', 20);
-            $table->unsignedSmallInteger('cupos')->default(0);
+            $table->unsignedSmallInteger('opcion');
 
-            $table->primary(['codigo_carrera', 'plan_carrera', 'modalidad_carrera', 'codigo_gestion']);
+            $table->primary(['codigo_postulante', 'codigo_carrera', 'plan_carrera', 'modalidad_carrera']);
+
+            $table->foreign('codigo_postulante')
+                ->references('codigo')->on('postulante')
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign(['codigo_carrera', 'plan_carrera', 'modalidad_carrera'])
                 ->references(['codigo', 'plan', 'modalidad'])
-                ->on('carrera')->onUpdate('cascade')->onDelete('cascade');
-
-            $table->foreign('codigo_gestion')
-                ->references('codigo')->on('gestion')
-                ->onUpdate('cascade')->onDelete('cascade');
+                ->on('carrera')->onUpdate('cascade')->onDelete('restrict');
         });
     }
 
@@ -36,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('carrera_gestion');
+        Schema::dropIfExists('postulante_carrera');
     }
 };

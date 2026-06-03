@@ -12,32 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('postulante', function (Blueprint $table) {
-            $table->string('codigo', 20)->primary(); // PK del Postulante
-            $table->string('ci', 11);
+            $table->string('codigo', 20)->primary();
+            $table->string('ci', 20);
             $table->string('procedencia', 100)->nullable();
             $table->string('telefono_2', 20)->nullable();
             $table->date('plazo')->nullable();
             $table->string('estado', 30)->default('preinscrito');
             $table->string('gestion_egreso', 20)->nullable();
-            
-            // Llaves foráneas con IDs enteros
-            $table->foreignId('id_requisitos_postulante')->nullable()->constrained('requisitos_postulante')->onDelete('set null');
-            $table->foreignId('id_colegio')->nullable()->constrained('colegio')->onDelete('restrict');
-            $table->foreignId('id_pago')->nullable()->constrained('pago')->onDelete('set null');
-            $table->foreignId('id_grupo')->nullable()->constrained('grupo')->onDelete('set null');
-            
-            // Llaves foráneas que apuntan a Códigos String (Carreras)
-            $table->string('codigo_carrera1', 20);
-            $table->string('codigo_carrera2', 20);
-            
-            // Atributo extra del control de cupos (Lo que definimos al inicio)
-            // $table->string('carrera_admitida_id', 20)->nullable();
+            $table->string('id_grupo', 10)->nullable();
 
-            // Restricciones de relaciones String
-            $table->foreign('ci')->references('ci')->on('datos_personales')->onDelete('cascade');
-            $table->foreign('codigo_carrera1')->references('codigo')->on('carrera')->onDelete('restrict');
-            $table->foreign('codigo_carrera2')->references('codigo')->on('carrera')->onDelete('restrict');
-            // $table->foreign('carrera_admitida_id')->references('codigo')->on('carrera')->onDelete('restrict');
+            $table->foreignId('id_requisitos_postulante')->nullable()->constrained('requisitos_postulante')->onUpdate('cascade')->onDelete('set null');
+            $table->foreignId('id_colegio')->nullable()->constrained('colegio')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreignId('id_pago')->nullable()->constrained('pago')->onUpdate('cascade')->onDelete('set null');
+
+            $table->foreign('id_grupo')->references('id')->on('grupo')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('ci')->references('ci')->on('datos_personales')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

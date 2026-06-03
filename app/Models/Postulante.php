@@ -7,29 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 class Postulante extends Model
 {
     public $timestamps = false;
-    protected $table = 'postulante'; // Especifica el nombre de la tabla
-    protected $primaryKey = 'codigo'; // Especifica la clave primaria
-    public $incrementing = false; // Indica que la clave primaria no es auto-incremental
-    protected $keyType = 'string'; // Especifica el tipo de la clave primaria
-    protected $casts = ['plazo' => 'date'];
+    protected $table = 'postulante';
+    protected $primaryKey = 'codigo';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'codigo',
-        'ci',
-        'procedencia',
-        'telefono_2',
-        'plazo',
-        'estado',
-        'gestion_egreso',
-        'id_requisitos_postulante',
-        'id_colegio',
-        'id_pago',
-        'id_grupo',
-        'codigo_carrera1',
-        'codigo_carrera2',
+        'codigo', 'ci', 'procedencia', 'telefono_2', 'plazo',
+        'estado', 'gestion_egreso', 'id_requisitos_postulante',
+        'id_colegio', 'id_pago', 'id_grupo',
     ];
 
-    // Relaciones con otras tablas (si es necesario)
+    public function carreras()
+    {
+        return $this->belongsToMany(Carrera::class, 'postulante_carrera',
+            'codigo_postulante',
+            ['codigo_carrera', 'plan_carrera', 'modalidad_carrera']
+        )->withPivot('opcion');
+    }
+
     public function requisitosPostulante()
     {
         return $this->belongsTo(RequisitosPostulante::class, 'id_requisitos_postulante');
@@ -45,14 +41,6 @@ class Postulante extends Model
     public function grupo()
     {
         return $this->belongsTo(Grupo::class, 'id_grupo');
-    }
-    public function carrera1()
-    {
-        return $this->belongsTo(Carrera::class, 'codigo_carrera1', 'codigo');
-    }
-    public function carrera2()
-    {
-        return $this->belongsTo(Carrera::class, 'codigo_carrera2', 'codigo');
     }
     public function datosPersonales()
     {

@@ -39,9 +39,13 @@ class PostulanteController extends Controller
             'correo'           => 'required|email|max:150',
             'direccion'        => 'required|string|max:200',
             'telefono'         => 'nullable|string|max:20',
-            'codigo_carrera1'  => 'required|exists:carrera,codigo',
-            'codigo_carrera2'  => 'required|exists:carrera,codigo|different:codigo_carrera1',
+            'correo'           => 'nullable|email|max:150',
+            'fecha_nac'        => 'nullable|date',
+            'direccion'        => 'nullable|string|max:200',
+            
+            // Los agregamos como opcionales por si la vista no los envía en el paso 1
             'procedencia'      => 'nullable|string|max:100',
+            'telefono_2'       => 'nullable|string|max:20',
             'gestion_egreso'   => 'nullable|string|max:20',
         ]);
 
@@ -84,8 +88,6 @@ class PostulanteController extends Controller
                 'estado'                   => 'preinscrito',
                 'gestion_egreso'           => $validated['gestion_egreso'] ?? date('Y'),
                 'id_requisitos_postulante' => $requisitos->id,
-                'codigo_carrera1'          => $validated['codigo_carrera1'],
-                'codigo_carrera2'          => $validated['codigo_carrera2'] ?? null,
                 'id_colegio'               => null,
                 'id_pago'                  => null,
                 'id_grupo'                 => null,
@@ -119,15 +121,24 @@ class PostulanteController extends Controller
         $estado = $request->input('estado');
         $carrera = $request->input('carrera');
 
-        $query = Postulante::with('datosPersonales');
+        // Construir la consulta uniendo la tabla pivote de datos personales
+        $query = DB::table('postulante')
+            ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
+            ->select(
+                'postulante.codigo',
+                'postulante.ci',
+                'postulante.procedencia',
+                'postulante.estado',
+                'datos_personales.nombre',
+                'datos_personales.apellido',
+                'datos_personales.telefono'
+            );
 
         if (!empty($buscar)) {
             $query->where(function ($q) use ($buscar) {
-                $q->where('ci', 'LIKE', "%{$buscar}%")
-                  ->orWhereHas('datosPersonales', function($subQ) use ($buscar) {
-                      $subQ->where('nombre', 'LIKE', "%{$buscar}%")
-                           ->orWhere('apellido', 'LIKE', "%{$buscar}%");
-                  });
+                $q->where('postulante.ci', 'LIKE', "%{$buscar}%")
+                    ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
+                    ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%");
             });
         }
 
@@ -136,7 +147,12 @@ class PostulanteController extends Controller
         }
 
         if (!empty($carrera) && $carrera !== 'Todas las carreras') {
-            $query->where('codigo_carrera1', $carrera);
+            $query->whereExists(function($q) use ($carrera) {
+                $q->select(DB::raw(1))
+                ->from('postulante_carrera')
+                ->whereColumn('postulante_carrera.codigo_postulante', 'postulante.codigo')
+                ->where('postulante_carrera.codigo_carrera', $carrera);
+            });
         }
 
         $postulantes = $query->paginate(5)->withQueryString();
@@ -165,56 +181,5 @@ public function darBaja($codigo)
         }
 
         return redirect()->back()->with('success', 'El postulante ha sido dado de baja correctamente.');
-    }
-
-    public function desactivarPostulante($codigo)
-    {
-        try {
-            $postulante = Postulante::where('codigo', $codigo)->firstOrFail();
-            $postulante->update(['estado' => 'Inactivo']);
-
-            if (auth()->check()) {
-                Bitacora::create([
-                    'ip' => request()->ip(),
-                    'accion' => "Desactivación de Postulante. Usuario: " . auth()->user()->user_name . " desactivó al postulante: {$codigo}.",
-                    'fecha_hora' => now(),
-                    'id_usuario' => auth()->id()
-                ]);
-            }
-
-            return redirect()->route('postulantes.index')->with('success', 'El postulante ha sido desactivado correctamente.');
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->route('postulantes.index')->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
-        }
-    }
-
-    public function actualizarPostulante(Request $request, $codigo)
-    {
-        try {
-            $postulante = Postulante::where('codigo', $codigo)->firstOrFail();
-
-            $validated = $request->validate([
-                'estado' => 'nullable|string|max:30',
-                'codigo_carrera1' => 'nullable|exists:carrera,codigo',
-                'codigo_carrera2' => 'nullable|exists:carrera,codigo',
-            ]);
-
-            $postulante->update(array_filter($validated, fn($v) => !is_null($v)));
-
-            if (auth()->check()) {
-                Bitacora::create([
-                    'ip' => request()->ip(),
-                    'accion' => "Actualización de Postulante. Usuario: " . auth()->user()->user_name . " actualizó al postulante: {$codigo}.",
-                    'fecha_hora' => now(),
-                    'id_usuario' => auth()->id()
-                ]);
-            }
-
-            return redirect()->route('postulantes.index')->with('success', 'Datos del postulante actualizados correctamente.');
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->route('postulantes.index')->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
-        }
     }
 }
