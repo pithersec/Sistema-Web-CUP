@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,8 +21,9 @@ return new class extends Migration
             $table->enum('tipo', ['semestral', 'anual'])->nullable();
             $table->unsignedTinyInteger('duracion')->nullable();
             $table->primary(['codigo', 'plan', 'modalidad']);
-            $table->unique(['codigo', 'plan', 'modalidad']);
         });
+
+        DB::statement('ALTER TABLE carrera ADD CONSTRAINT carrera_codigo_plan_modalidad_unique UNIQUE (codigo, plan, modalidad)');
     }
 
     /**
