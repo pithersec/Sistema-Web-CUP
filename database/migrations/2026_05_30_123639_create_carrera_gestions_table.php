@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('carrera_gestion', function (Blueprint $table) {
-            $table->id();
             $table->string('codigo_carrera', 20);
             $table->string('plan_carrera', 50);
             $table->string('modalidad_carrera', 50);
@@ -21,7 +20,7 @@ return new class extends Migration
 
             $table->primary(['codigo_carrera', 'plan_carrera', 'modalidad_carrera', 'codigo_gestion']);
 
-            $table->foreign(['codigo_carrera', 'plan_carrera', 'modalidad_carrera'])
+            $table->foreign(['codigo_carrera', 'plan_carrera', 'modalidad_carrera'], 'fk_cg_carrera')
                 ->references(['codigo', 'plan', 'modalidad'])
                 ->on('carrera')->onUpdate('cascade')->onDelete('cascade');
 
