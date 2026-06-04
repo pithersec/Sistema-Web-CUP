@@ -31,8 +31,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            justify-content: flex-start;
-            padding-top: 40px;
+            justify-content: center;
+            padding-top: 40px 16px;
             background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
                 url('{{ asset('img/ficct_.jfif') }}');
             background-size: cover;
@@ -219,7 +219,7 @@
 
         /* Footer */
         .footer {
-            position: fixed;
+            position: relative;
             bottom: 16px;
             color: rgba(255, 255, 255, 0.4);
             font-size: 11px;
