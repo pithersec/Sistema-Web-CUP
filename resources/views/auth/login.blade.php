@@ -39,7 +39,8 @@
 
         .container {
             display: flex;
-            width: 820px;
+            width: 100%;
+            max-width: 820px;
             min-height: 500px;
             border-radius: 12px;
             overflow: hidden;
@@ -233,20 +234,118 @@
             font-size: 14px;
             margin-bottom: 20px;
         }
+
+        .logo-img {
+            width: 210px;
+            height: 210px;
+        }
+
+        .btn-volver-wrap {
+            position: fixed;
+            top: 20px;
+            left: 28px;
+            z-index: 10;
+        }
+
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 1.5px solid rgba(255,255,255,0.35);
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        @media (max-width: 980px) {
+            body {
+                align-items: center;
+                justify-content: center;
+                padding: 20px 16px;
+                flex-direction: column;
+            }
+        
+            .container {
+                flex-direction: column !important; 
+                min-height: unset;
+                border-radius: 12px;
+                box-shadow: none;
+                width: 100%;
+            }
+        
+            .left {
+                width: 100%;
+                min-height: 70px;
+                padding: 16px 20px;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 14px;
+                text-align: left;
+            }
+        
+            .left::before,
+            .left::after {
+                display: none;
+            }
+        
+            .logo-circle {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+        
+            .logo-circle img {
+                width: 60px;
+                height: 60px;
+            }
+        
+            .left h1 {
+                font-size: 13px;
+            }
+        
+            .left p {
+                font-size: 12px;
+            }
+        
+            .divider,
+            .sistema-badge {
+                display: none;
+            }
+        
+            .right {
+                padding: 28px 20px;
+                justify-content: flex-start;
+            }
+
+            .logo-img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .btn-volver {
+                font-size: 15px;
+                padding: 12px 22px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div style="position: fixed; top: 20px; left: 28px;">
-        <a href="{{ url('/') }}" style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border: 1.5px solid rgba(255,255,255,0.35); border-radius: 20px; backdrop-filter: blur(6px); background: rgba(255,255,255,0.08);">
-            ← Volver
-        </a>
+    <div class="btn-volver-wrap">
+        <a href="{{ url('/') }}" class="btn-volver">← Volver</a>
     </div>
     
     <div class="container">
         <div class="left">
             <div class="logo-circle">
-                <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" style="width: 210px; height: 210px; object-fit: contain;">
+                <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" class="logo-img" style="object-fit: contain;">
             </div>
             <h1>Universidad Autónoma Gabriel René Moreno</h1>
             <div class="divider"></div>

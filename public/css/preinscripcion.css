@@ -70,3 +70,55 @@ body {
 .topbar-spacer {
     min-width: 100px;
 }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 600px) {
+
+    /* Topbar: ocultar título, solo escudo + botón volver */
+    .topbar {
+        padding: 0 14px;
+        height: auto;
+        min-height: 60px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .topbar-left h1 {
+        font-size: 13px;
+    }
+
+    .topbar-left p {
+        display: none;
+    }
+
+    .topbar-spacer {
+        display: none;
+    }
+
+    /* Grids → columna única */
+    .grid-2,
+    .grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Botón submit full width */
+    .footer-buttons {
+        flex-direction: column;
+    }
+
+    .footer-buttons .btn-primary {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Card padding reducido */
+    .card-body {
+        padding: 16px;
+    }
+
+    /* Contenedor sin margen lateral excesivo */
+    .container {
+        padding: 0 12px;
+        margin: 16px auto;
+    }
+}

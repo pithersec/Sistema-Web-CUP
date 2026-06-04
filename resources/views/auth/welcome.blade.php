@@ -31,6 +31,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            justify-content: flex-start;
+            padding-top: 40px;
             background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
                 url('{{ asset('img/ficct_.jfif') }}');
             background-size: cover;
@@ -222,6 +224,37 @@
             color: rgba(255, 255, 255, 0.4);
             font-size: 11px;
             letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 600px) {
+            .footer {
+                position: relative;
+                bottom: auto;
+                margin-top: 24px;
+                padding: 12px 0 20px;
+            }
+        
+            .acceso-personal {
+                position: relative;
+                top: auto;
+                right: auto;
+                text-align: center;
+                margin-bottom: 16px;
+            }
+        
+            .hero h2 {
+                font-size: 20px;
+            }
+        
+            .cards {
+                flex-direction: column;
+                align-items: center;
+            }
+        
+            .card {
+                width: 100%;
+                max-width: 340px;
+            }
         }
     </style>
 </head>
