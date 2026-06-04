@@ -16,8 +16,8 @@ use App\Http\Controllers\BitacoraController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    return view('auth.welcome');
+})->name('welcome');
 
 Route::get('/login', function () {
     return view('auth.login');

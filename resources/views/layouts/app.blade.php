@@ -47,30 +47,15 @@
             border-bottom: 3px solid var(--rojo);
         }
 
-        .sidebar-header .logo {
-            width: 48px;
-            height: 48px;
-            background: var(--rojo);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-            font-family: 'Merriweather', serif;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-        }
-
         .sidebar-header h3 {
             color: white;
-            font-size: 13px;
+            font-size: 16px;
             line-height: 1.3;
         }
 
         .sidebar-header p {
             color: rgba(255, 255, 255, 0.6);
-            font-size: 11px;
+            font-size: 14px;
             margin-top: 2px;
         }
 
@@ -266,7 +251,7 @@
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="logo">CUP</div>
+            <img src="{{ asset('img/Escudo_FICCT.png') }}" alt="FICCT" style="width: 140px; height: 140px; object-fit: contain; margin: 0 auto 8px; display: block;">
             <h3>Sistema de Admisión</h3>
             <p>FICCT · UAGRM</p>
         </div>

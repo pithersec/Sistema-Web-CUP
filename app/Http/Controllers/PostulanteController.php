@@ -36,12 +36,11 @@ class PostulanteController extends Controller
             'apellido'         => 'required|string|max:100',
             'genero'           => 'required|in:m,f',
             'fecha_nac'        => 'required|date',
-            'correo'           => 'required|email|max:150',
+            'correo'           => 'required|email|unique:datos_personales,correo|max:150',
             'direccion'        => 'required|string|max:200',
             'telefono'         => 'nullable|string|max:20',
-            'correo'           => 'nullable|email|max:150',
-            'fecha_nac'        => 'nullable|date',
-            'direccion'        => 'nullable|string|max:200',
+            'codigo_carrera1'  => 'required|string',
+            'codigo_carrera2'  => 'required|string|different:codigo_carrera1',
             
             // Los agregamos como opcionales por si la vista no los envía en el paso 1
             'procedencia'      => 'nullable|string|max:100',
@@ -92,6 +91,32 @@ class PostulanteController extends Controller
                 'id_pago'                  => null,
                 'id_grupo'                 => null,
             ]);
+
+            // 5. Guardar carreras en postulante_carrera
+            $carrera1 = $request->input('codigo_carrera1');
+            $carrera2 = $request->input('codigo_carrera2');
+
+            if ($carrera1) {
+                [$codigo1, $plan1, $modalidad1] = explode('|', $carrera1);
+                DB::table('postulante_carrera')->insert([
+                    'codigo_postulante' => $postulante->codigo,
+                    'codigo_carrera'    => $codigo1,
+                    'plan_carrera'      => $plan1,
+                    'modalidad_carrera' => $modalidad1,
+                    'opcion'            => 1,
+                ]);
+            }
+
+            if ($carrera2) {
+                [$codigo2, $plan2, $modalidad2] = explode('|', $carrera2);
+                DB::table('postulante_carrera')->insert([
+                    'codigo_postulante' => $postulante->codigo,
+                    'codigo_carrera'    => $codigo2,
+                    'plan_carrera'      => $plan2,
+                    'modalidad_carrera' => $modalidad2,
+                    'opcion'            => 2,
+                ]);
+            }
 
             // Consolidamos los cambios en la Base de Datos
             DB::commit();

@@ -59,16 +59,20 @@ class DashboardController extends Controller
             $resumenCarreras = DB::table('carrera')
                 ->leftJoin('carrera_gestion', function ($join) use ($gestionCodigo) {
                     $join->on('carrera.codigo', '=', 'carrera_gestion.codigo_carrera')
-                         ->where('carrera_gestion.codigo_gestion', '=', $gestionCodigo);
+                        ->where('carrera_gestion.codigo_gestion', '=', $gestionCodigo);
                 })
-                ->leftJoin('postulante', 'carrera.codigo', '=', 'postulante.codigo_carrera1')
+                ->leftJoin('postulante_carrera', function ($join) {
+                    $join->on('carrera.codigo', '=', 'postulante_carrera.codigo_carrera')
+                        ->where('postulante_carrera.opcion', '=', 1);
+                })
+                ->leftJoin('postulante', 'postulante_carrera.codigo_postulante', '=', 'postulante.codigo')
                 ->select(
                     'carrera.codigo',
                     'carrera.nombre as carrera_nombre',
                     'carrera.modalidad',
                     DB::raw('COALESCE(carrera_gestion.cupos, 0) as total_cupos'),
                     DB::raw('COUNT(postulante.codigo) as total_postulantes'),
-                    DB::raw("SUM(CASE WHEN postulante.estado = 'Aprobado' THEN 1 ELSE 0 END) as total_aprobados")
+                    DB::raw("SUM(CASE WHEN postulante.estado = 'aprobado' THEN 1 ELSE 0 END) as total_aprobados")
                 )
                 ->groupBy('carrera.codigo', 'carrera.nombre', 'carrera.modalidad', 'carrera_gestion.cupos')
                 ->get();

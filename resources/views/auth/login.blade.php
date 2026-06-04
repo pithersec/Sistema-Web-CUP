@@ -82,32 +82,25 @@
         }
 
         .logo-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--rojo);
+            width: 210px;
+            height: 210px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            font-family: 'Merriweather', serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         .left h1 {
             font-family: 'Merriweather', serif;
             color: white;
-            font-size: 18px;
+            font-size: 22px;
             line-height: 1.4;
             margin-bottom: 8px;
         }
 
         .left p {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 13px;
+            font-size: 16px;
             line-height: 1.6;
         }
 
@@ -124,7 +117,7 @@
             border-radius: 20px;
             padding: 6px 16px;
             color: white;
-            font-size: 11px;
+            font-size: 13px;
             letter-spacing: 1px;
             text-transform: uppercase;
             margin-top: 16px;
@@ -244,23 +237,21 @@
 </head>
 
 <body>
+    <div style="position: fixed; top: 20px; left: 28px;">
+        <a href="{{ url('/') }}" style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border: 1.5px solid rgba(255,255,255,0.35); border-radius: 20px; backdrop-filter: blur(6px); background: rgba(255,255,255,0.08);">
+            ← Volver
+        </a>
+    </div>
+    
     <div class="container">
         <div class="left">
-            <div class="logo-circle">FICCT</div>
+            <div class="logo-circle">
+                <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" style="width: 210px; height: 210px; object-fit: contain;">
+            </div>
             <h1>Universidad Autónoma Gabriel René Moreno</h1>
             <div class="divider"></div>
             <p>Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</p>
-            <div class="sistema-badge">Sistema CUP</div>
-
-            <!-- ⬇️ BOTONSITO AQUÍ ⬇️------------------------------------------------------------------------- -->
-            <div style="margin-top: 10px;">
-                <a href="{{ url('/preinscripcion') }}"
-                    style="display: inline-block; background: #1a5fa8; color: white; text-decoration: none; padding: 6px 14px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s;">
-                    📋 Preinscripción
-                </a>
-            </div>
-
-
+            <div class="sistema-badge">Sistema de Admisión</div>
         </div>
 
         <form class="right" action="{{ url('/login') }}" method="POST">
@@ -294,25 +285,6 @@
 
             <p class="footer-text">Acceso restringido · <span>Solo personal autorizado</span></p>
         </form>
-        <!-- Botón para preinscripción
-        <form class="right" action="{{ url('/login') }}" method="POST">
-            @csrf
-            <h2>Iniciar Sesión</h2>
-            <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
-
-            <button type="submit" class="btn-login">Ingresar</button>
-
-            <div style="margin-top: 24px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-                <p style="color: #5a5a5a; font-size: 13px; margin-bottom: 8px;">¿Eres un nuevo postulante?</p>
-                <a href="{{ url('/preinscripcion') }}"
-                    style="display: inline-block; background: #1a5fa8; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: background 0.2s;">
-                    📝 Iniciar Preinscripción Digital
-                </a>
-            </div>
--->
-        </form>
-
     </div>
 </body>
-
 </html>
