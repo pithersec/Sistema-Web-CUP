@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CUP FICCT - Iniciar Sesión</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;600&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --azul: #0d3b6e;
@@ -29,27 +25,57 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            /* RECOMENDACIÓN: Mueve tu imagen ficct_.jfif a la carpeta public/img/ */
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-            url('{{ asset('img/ficct_.jfif') }}');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                url('{{ asset("img/ficct_.jfif") }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            padding: 24px 16px;
         }
 
-        .container {
+        .btn-volver-wrap {
+            position: fixed;
+            top: 20px;
+            left: 28px;
+            z-index: 10;
+        }
+
+        .btn-volver {
             display: flex;
-            width: 100%;
-            max-width: 820px;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 1.5px solid rgba(255,255,255,0.35);
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+            background: rgba(255,255,255,0.08);
+            transition: all 0.2s;
+        }
+
+        .btn-volver:hover {
+            background: rgba(255,255,255,0.18);
+            color: white;
+        }
+
+        /* ── DESKTOP: tarjeta de dos columnas ── */
+        .login-card {
+            display: flex;
+            width: 820px;
+            max-width: 100%;
             min-height: 500px;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.4);
         }
 
         .left {
             background: var(--azul-claro);
             width: 340px;
+            flex-shrink: 0;
             padding: 48px 40px;
             display: flex;
             flex-direction: column;
@@ -63,33 +89,30 @@
         .left::before {
             content: '';
             position: absolute;
-            width: 280px;
-            height: 280px;
+            width: 280px; height: 280px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            top: -80px;
-            right: -80px;
+            border: 2px solid rgba(255,255,255,0.1);
+            top: -80px; right: -80px;
         }
 
         .left::after {
             content: '';
             position: absolute;
-            width: 200px;
-            height: 200px;
+            width: 200px; height: 200px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.08);
-            bottom: -60px;
-            left: -60px;
+            border: 2px solid rgba(255,255,255,0.08);
+            bottom: -60px; left: -60px;
         }
 
         .logo-circle {
-            width: 210px;
-            height: 210px;
+            width: 210px; height: 210px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
         }
+
+        .logo-img { width: 210px; height: 210px; object-fit: contain; }
 
         .left h1 {
             font-family: 'Merriweather', serif;
@@ -100,21 +123,20 @@
         }
 
         .left p {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255,255,255,0.7);
             font-size: 16px;
             line-height: 1.6;
         }
 
         .divider {
-            width: 40px;
-            height: 2px;
+            width: 40px; height: 2px;
             background: var(--rojo);
             margin: 20px auto;
         }
 
         .sistema-badge {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px;
             padding: 6px 16px;
             color: white;
@@ -146,9 +168,7 @@
             margin-bottom: 36px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
 
         label {
             display: block;
@@ -166,16 +186,14 @@
             border: 1.5px solid var(--gris-claro);
             border-radius: 6px;
             font-family: 'Source Sans 3', sans-serif;
-            font-size: 15px;
+            font-size: 16px;
             color: #333;
             background: white;
             outline: none;
             transition: border-color 0.2s;
         }
 
-        input:focus {
-            border-color: var(--celeste);
-        }
+        input:focus { border-color: var(--celeste); }
 
         .forgot {
             text-align: right;
@@ -183,15 +201,8 @@
             margin-bottom: 20px;
         }
 
-        .forgot a {
-            font-size: 12px;
-            color: var(--celeste);
-            text-decoration: none;
-        }
-
-        .forgot a:hover {
-            text-decoration: underline;
-        }
+        .forgot a { font-size: 12px; color: var(--celeste); text-decoration: none; }
+        .forgot a:hover { text-decoration: underline; }
 
         .btn {
             width: 100%;
@@ -204,13 +215,10 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            letter-spacing: 0.5px;
             transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: var(--azul-claro);
-        }
+        .btn:hover { background: var(--azul-claro); }
 
         .footer-text {
             text-align: center;
@@ -219,12 +227,8 @@
             margin-top: 24px;
         }
 
-        .footer-text span {
-            color: var(--rojo);
-            font-weight: 600;
-        }
+        .footer-text span { color: var(--rojo); font-weight: 600; }
 
-        /* Alertas de error */
         .alert-error {
             background: #fde8e8;
             border: 1px solid #f8b4b4;
@@ -235,122 +239,90 @@
             margin-bottom: 20px;
         }
 
-        .logo-img {
-            width: 210px;
-            height: 210px;
-        }
+        /* ── MOBILE: tarjeta simple, mismo estilo que welcome ── */
+        @media (max-width: 700px) {
+            body { padding: 24px 16px; }
 
-        .btn-volver-wrap {
-            position: fixed;
-            top: 20px;
-            left: 28px;
-            z-index: 10;
-        }
+            .btn-volver-wrap { top: 12px; left: 12px; }
 
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 8px 16px;
-            border: 1.5px solid rgba(255,255,255,0.35);
-            border-radius: 20px;
-            backdrop-filter: blur(6px);
-            background: rgba(255,255,255,0.08);
-        }
+            /* Ocultar panel izquierdo */
+            .left { display: none; }
 
-        @media (max-width: 980px) {
-            body {
-                align-items: center;
-                justify-content: center;
-                padding: 20px 16px;
+            .login-card {
+                width: 100%;
+                max-width: 420px;
+                min-height: unset;
+                border-radius: 14px;
                 flex-direction: column;
             }
-        
-            .container {
-                flex-direction: column !important; 
-                min-height: unset;
-                border-radius: 12px;
-                box-shadow: none;
-                width: 100%;
-            }
-        
-            .left {
-                width: 100%;
-                min-height: 70px;
-                padding: 16px 20px;
-                flex-direction: row;
-                justify-content: flex-start;
+
+            /* Header compacto como card-header del diseño mobile */
+            .left-mobile-header {
+                display: flex !important;
+                background: var(--azul-claro);
+                padding: 18px 20px;
                 align-items: center;
-                gap: 14px;
-                text-align: left;
+                gap: 12px;
+                border-bottom: 3px solid var(--rojo);
             }
-        
-            .left::before,
-            .left::after {
-                display: none;
-            }
-        
-            .logo-circle {
-                width: 60px;
-                height: 60px;
-                margin-bottom: 0;
+
+            .left-mobile-header img {
+                width: 44px; height: 44px;
+                object-fit: contain;
                 flex-shrink: 0;
             }
-        
-            .logo-circle img {
-                width: 60px;
-                height: 60px;
-            }
-        
-            .left h1 {
-                font-size: 13px;
-            }
-        
-            .left p {
+
+            .left-mobile-header h3 {
+                font-family: 'Merriweather', serif;
+                color: white;
                 font-size: 12px;
+                line-height: 1.4;
             }
-        
-            .divider,
-            .sistema-badge {
-                display: none;
+
+            .left-mobile-header p {
+                color: rgba(255,255,255,0.65);
+                font-size: 10px;
+                margin-top: 2px;
             }
-        
+
             .right {
                 padding: 28px 20px;
                 justify-content: flex-start;
             }
 
-            .logo-img {
-                width: 60px;
-                height: 60px;
-            }
-
-            .btn-volver {
-                font-size: 15px;
-                padding: 12px 22px;
-            }
+            .right h2 { font-size: 22px; }
         }
+
+        /* El header mobile está oculto en desktop */
+        .left-mobile-header { display: none; }
     </style>
 </head>
-
 <body>
+
     <div class="btn-volver-wrap">
         <a href="{{ url('/') }}" class="btn-volver">← Volver</a>
     </div>
-    
-    <div class="container">
+
+    <div class="login-card">
+
+        {{-- Panel izquierdo — solo desktop --}}
         <div class="left">
             <div class="logo-circle">
-                <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" class="logo-img" style="object-fit: contain;">
+                <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" class="logo-img">
             </div>
             <h1>Universidad Autónoma Gabriel René Moreno</h1>
             <div class="divider"></div>
             <p>Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</p>
             <div class="sistema-badge">Sistema de Admisión</div>
+        </div>
+
+        {{-- Header compacto — solo mobile --}}
+        <div class="left-mobile-header">
+            <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT">
+            <div>
+                <h3>Universidad Autónoma Gabriel René Moreno</h3>
+                <p>Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</p>
+            </div>
         </div>
 
         <form class="right" action="{{ url('/login') }}" method="POST">
@@ -360,15 +332,13 @@
             <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
 
             @if ($errors->any())
-            <div class="alert-error">
-                Usuario o contraseña incorrectos.
-            </div>
+            <div class="alert-error">Usuario o contraseña incorrectos.</div>
             @endif
 
             <div class="form-group">
                 <label>Usuario</label>
-                <input type="text" name="user_name" placeholder="Nombre de usuario" value="{{ old('user_name') }}"
-                    required autofocus />
+                <input type="text" name="user_name" placeholder="Nombre de usuario"
+                    value="{{ old('user_name') }}" required autofocus />
             </div>
 
             <div class="form-group">
@@ -385,5 +355,6 @@
             <p class="footer-text">Acceso restringido · <span>Solo personal autorizado</span></p>
         </form>
     </div>
+
 </body>
-</html>
+</html> 
