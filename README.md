@@ -158,6 +158,6 @@ php artisan config:clear && php artisan cache:clear && php artisan route:clear
 ## Notas
 
 - El `.env` nunca se sube al repositorio — cada desarrollador crea el suyo desde `.env.example`
-- En **producción** (Railway): `SESSION_SECURE_COOKIE=true` y `SESSION_SAME_SITE=lax` son obligatorios para que funcione en dispositivos móviles.
+- En producción (Railway): `SESSION_SECURE_COOKIE=true`, `SESSION_SAME_SITE=lax` y `$middleware->trustProxies(at: '*')` en `bootstrap/app.php` son obligatorios para HTTPS y compatibilidad con dispositivos móviles.
 - Rama de producción: `master`
 - Rama Victor: `victor` | Rama Pither: `pither`
