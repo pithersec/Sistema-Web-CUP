@@ -92,7 +92,7 @@
     .kpi-card:nth-child(2) { border-top-color: #2c038b; }
     .kpi-card:nth-child(2) .kpi-value { color: #2c038b; }
 
-    .kpi-card:nth-child(3) { border-top-color: #27ae60; }
+    .kpi-card:nth-child(3) { border-top-color: #2793ae; }
     .kpi-card:nth-child(3) .kpi-value { color: #27ae60; }
 
     .kpi-card:nth-child(4) { border-top-color: #c0392b; }
@@ -175,13 +175,14 @@
     .badge-yellow { background: #fef3c7; color: #92400e; }
     .badge-red    { background: #fde8e8; color: #c0392b; }
     .badge-blue   { background: #dceeff; color: #1a5fa8; }
-    .badge-purple { background: #ede9fe; color: #6d28d9; }
-    .badge-gray   { background: #f1f5f9; color: #5a5a5a; }
 
     .tasa-wrap { display: flex; align-items: center; gap: 8px; }
     .tasa-bar-bg { flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; min-width: 50px; }
     .tasa-bar-fill { height: 6px; border-radius: 3px; background: #27ae60; }
     .tasa-text { font-size: 12px; color: #5a5a5a; white-space: nowrap; }
+
+    .badge-presencial { background: #dbeafe; color: #1D4ED8; }
+    .badge-virtual    { background: #cffafe; color: #036d80; }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -270,9 +271,9 @@
                         <td><strong>{{ $carrera->carrera_nombre }}</strong></td>
                         <td>
                             @if($carrera->modalidad === 'virtual')
-                                <span class="badge badge-purple">Virtual</span>
+                                <span class="badge badge-virtual">Virtual</span>
                             @else
-                                <span class="badge badge-gray">Presencial</span>
+                                <span class="badge badge-presencial">Presencial</span>
                             @endif
                         </td>
                         <td>{{ $carrera->total_cupos }}</td>
