@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CUP FICCT - Iniciar Sesión</title>
+    <title>CUP FICCT - Recuperar Contraseña</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;600&display=swap');
 
@@ -61,7 +61,6 @@
             color: white;
         }
 
-        /* ── DESKTOP: tarjeta de dos columnas ── */
         .login-card {
             display: flex;
             width: 820px;
@@ -155,17 +154,29 @@
             justify-content: center;
         }
 
+        .icon-wrap {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: #e8f0fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+
         .right h2 {
             font-family: 'Merriweather', serif;
             color: var(--azul);
-            font-size: 26px;
-            margin-bottom: 6px;
+            font-size: 24px;
+            margin-bottom: 8px;
         }
 
         .right .subtitle {
             color: var(--gris);
             font-size: 14px;
-            margin-bottom: 36px;
+            line-height: 1.6;
+            margin-bottom: 32px;
         }
 
         .form-group { margin-bottom: 20px; }
@@ -195,15 +206,6 @@
 
         input:focus { border-color: var(--celeste); }
 
-        .forgot {
-            text-align: right;
-            margin-top: -12px;
-            margin-bottom: 20px;
-        }
-
-        .forgot a { font-size: 12px; color: var(--celeste); text-decoration: none; }
-        .forgot a:hover { text-decoration: underline; }
-
         .btn {
             width: 100%;
             padding: 14px;
@@ -220,32 +222,38 @@
 
         .btn:hover { background: var(--azul-claro); }
 
-        .footer-text {
+        .back-login {
             text-align: center;
-            font-size: 12px;
+            margin-top: 20px;
+            font-size: 13px;
             color: var(--gris);
-            margin-top: 24px;
         }
 
-        .footer-text span { color: var(--rojo); font-weight: 600; }
+        .back-login a {
+            color: var(--celeste);
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-        .alert-error {
-            background: #fde8e8;
-            border: 1px solid #f8b4b4;
-            color: #9b1c1c;
-            padding: 12px;
+        .back-login a:hover { text-decoration: underline; }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+            padding: 14px 16px;
             border-radius: 6px;
             font-size: 14px;
             margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        /* ── MOBILE: tarjeta simple, mismo estilo que welcome ── */
+        /* Mobile */
+        .left-mobile-header { display: none; }
+
         @media (max-width: 700px) {
             body { padding: 24px 16px; }
-
             .btn-volver-wrap { top: 12px; left: 12px; }
-
-            /* Ocultar panel izquierdo */
             .left { display: none; }
 
             .login-card {
@@ -256,7 +264,6 @@
                 flex-direction: column;
             }
 
-            /* Header compacto como card-header del diseño mobile */
             .left-mobile-header {
                 display: flex !important;
                 background: var(--azul-claro);
@@ -290,22 +297,18 @@
                 justify-content: flex-start;
             }
 
-            .right h2 { font-size: 22px; }
+            .right h2 { font-size: 20px; }
         }
-
-        /* El header mobile está oculto en desktop */
-        .left-mobile-header { display: none; }
     </style>
 </head>
 <body>
 
     <div class="btn-volver-wrap">
-        <a href="{{ url('/') }}" class="btn-volver">← Volver</a>
+        <a href="{{ url('/login') }}" class="btn-volver">← Volver</a>
     </div>
 
     <div class="login-card">
 
-        {{-- Panel izquierdo — solo desktop --}}
         <div class="left">
             <div class="logo-circle">
                 <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" class="logo-img">
@@ -316,7 +319,6 @@
             <div class="sistema-badge">Sistema de Admisión</div>
         </div>
 
-        {{-- Header compacto — solo mobile --}}
         <div class="left-mobile-header">
             <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT">
             <div>
@@ -325,36 +327,32 @@
             </div>
         </div>
 
-        <form class="right" action="{{ url('/login') }}" method="POST">
-            @csrf
+        <div class="right">
+            <div class="icon-wrap">🔑</div>
+            <h2>Recuperar Contraseña</h2>
+            <p class="subtitle">Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.</p>
 
-            <h2>Iniciar Sesión</h2>
-            <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
-
-            @if ($errors->any())
-            <div class="alert-error">Usuario o contraseña incorrectos.</div>
+            @if(session('status'))
+            <div class="alert-success">
+                Si existe una cuenta asociada a ese correo, recibirás las instrucciones en breve.
+            </div>
             @endif
 
-            <div class="form-group">
-                <label>Usuario</label>
-                <input type="text" name="user_name" placeholder="Nombre de usuario"
-                    value="{{ old('user_name') }}" required autofocus />
-            </div>
+            <form action="{{ url('/forgot-password') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" name="email" placeholder="correo@ejemplo.com"
+                        value="{{ old('email') }}" required autofocus />
+                </div>
+                <button type="submit" class="btn">Enviar Instrucciones</button>
+            </form>
 
-            <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" name="password" placeholder="••••••••" required />
-            </div>
-
-            <div class="forgot">
-                <a href="{{ url('/forgot-password') }}">¿Olvidaste tu contraseña?</a>
-            </div>
-
-            <button type="submit" class="btn">Ingresar al Sistema</button>
-
-            <p class="footer-text">Acceso restringido · <span>Solo personal autorizado</span></p>
-        </form>
+            <p class="back-login">
+                ¿Recordaste tu contraseña? <a href="{{ url('/login') }}">Iniciar sesión</a>
+            </p>
+        </div>
     </div>
 
 </body>
-</html> 
+</html>

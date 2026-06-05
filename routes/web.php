@@ -33,6 +33,10 @@ Route::get('/preinscripcion/exito', function () {
     return view('preinscripcion.exito');
 })->name('preinscripcion.exito');
 
+// Rutas para recuperación de contraseña (simuladas)
+Route::get('/forgot-password', fn() => view('auth.forgot_password'));
+Route::post('/forgot-password', fn() => back()->with('status', 'sent'));
+
 /*
 |--------------------------------------------------------------------------
 | 2. RUTAS PROTEGIDAS (Requieren Autenticación)
