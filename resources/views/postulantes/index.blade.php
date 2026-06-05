@@ -152,6 +152,16 @@
         color: #5a5a5a;
     }
 
+    .badge-dark { 
+        background: #e2e2e2; 
+        color: #1a1a1a; 
+    }
+
+    .badge-blue { 
+        background: #dceeff; 
+        color: #1a5fa8; 
+    }
+
     /* BOTONES DE ACCIÓN */
     .actions-cluster {
         display: flex;
@@ -170,12 +180,12 @@
     }
 
     .btn-view {
-        background: #f0f4f8;
-        color: #5a5a5a;
+        background: #fef3c7;
+        color: #d97706;
     }
 
     .btn-view:hover {
-        background: #e2e8f0;
+        background: #fde68a;
     }
 
     .btn-edit {
@@ -202,6 +212,38 @@
         border-top: 1px solid #e2e8f0;
         background: white;
     }
+
+    .pagination-box svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .pagination-box nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-box span,
+    .pagination-box a {
+        font-size: 13px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        color: #1a5fa8;
+        text-decoration: none;
+    }
+
+    .pagination-box a:hover {
+        background: #dceeff;
+    }
+
+    .pagination-box p {
+        display: none;  /* ← oculta el "Showing X to Y of Z results" */
+    }
+
+    .pagination-box nav > div:first-child {
+        display: none;  /* ← oculta el texto duplicado */
+    }
 </style>
 
 @if(session('success'))
@@ -218,23 +260,31 @@
                 autocomplete="off" />
         </div>
 
-        <select name="estado" class="filter-select" onchange="document.getElementById('filterForm').submit();">
-            <option value="Todos los estados" {{ $estado=='Todos los estados' ? 'selected' : '' }}>Todos los estados
-            </option>
-            <option value="Aprobado" {{ $estado=='Aprobado' ? 'selected' : '' }}>Aprobado</option>
-            <option value="Reprobado" {{ $estado=='Reprobado' ? 'selected' : '' }}>Reprobado</option>
-            <option value="preinscrito" {{ $estado=='preinscrito' ? 'selected' : '' }}>Preinscrito</option>
-            <option value="En curso" {{ $estado=='En curso' ? 'selected' : '' }}>En curso</option>
-            <option value="Baja" {{ $estado=='Baja' ? 'selected' : '' }}>Baja</option>
+        <select name="gestion" class="filter-select" onchange="document.getElementById('filterForm').submit();">
+            @foreach($gestiones as $g)
+                <option value="{{ $g->codigo }}" {{ $g->codigo == $gestionCodigo ? 'selected' : '' }}>
+                    Gestión {{ $g->codigo }}
+                </option>
+            @endforeach
         </select>
 
         <select name="carrera" class="filter-select" onchange="document.getElementById('filterForm').submit();">
             <option value="Todas las carreras">Todas las carreras</option>
             @foreach($carreras as $c)
-            <option value="{{ $c->codigo }}" {{ $carrera==$c->codigo ? 'selected' : '' }}>
-                {{ $c->nombre }}
+            <option value="{{ $c->codigo }}|{{ $c->plan }}|{{ $c->modalidad }}" 
+                {{ $carrera == $c->codigo.'|'.$c->plan.'|'.$c->modalidad ? 'selected' : '' }}>
+                {{ $c->nombre }} {{ $c->modalidad === 'virtual' ? '(Virtual)' : '' }}
             </option>
             @endforeach
+        </select>
+
+        <select name="estado" class="filter-select" onchange="document.getElementById('filterForm').submit();">
+            <option value="Todos los estados" {{ $estado=='Todos los estados' ? 'selected' : '' }}>Todos los estados</option>
+            <option value="aprobado" {{ $estado=='aprobado' ? 'selected' : '' }}>Aprobado</option>
+            <option value="reprobado" {{ $estado=='reprobado' ? 'selected' : '' }}>Reprobado</option>
+            <option value="inscrito" {{ $estado=='inscrito' ? 'selected' : '' }}>Inscrito</option>
+            <option value="preinscrito" {{ $estado=='preinscrito' ? 'selected' : '' }}>Preinscrito</option>
+            <option value="baja" {{ $estado=='baja' ? 'selected' : '' }}>Baja</option>
         </select>
     </form>
 
@@ -259,18 +309,22 @@
                 @forelse($postulantes as $p)
                 <tr>
                     <td><strong>{{ $p->ci }}</strong></td>
-                    <td>{{ $p->datosPersonales->nombre ?? 'N/A' }} {{ $p->datosPersonales->apellido ?? 'N/A' }}</td>
-                    <td>{{ $p->telefono_2 ?? ($p->datosPersonales->telefono ?? 'S/N') }}</td>
+                    <td>{{ $p->nombre ?? 'N/A' }} {{ $p->apellido ?? 'N/A' }}</td>
+                    <td>{{ $p->telefono_2 ?? $p->telefono ?? 'S/N' }}</td>
                     <td>{{ $p->procedencia }}</td>
                     <td>
-                        @if($p->estado == 'Aprobado')
-                        <span class="badge badge-green">Aprobado</span>
-                        @elseif($p->estado == 'Reprobado')
-                        <span class="badge badge-red">Reprobado</span>
-                        @elseif($p->estado == 'preinscrito' || $p->estado == 'En curso')
-                        <span class="badge badge-yellow">{{ $p->estado }}</span>
+                        @if($p->estado == 'aprobado')
+                            <span class="badge badge-green">Aprobado</span>
+                        @elseif($p->estado == 'reprobado')
+                            <span class="badge badge-red">Reprobado</span>
+                        @elseif($p->estado == 'inscrito')
+                            <span class="badge badge-blue">Inscrito</span>
+                        @elseif($p->estado == 'preinscrito')
+                            <span class="badge badge-yellow">Preinscrito</span>
+                        @elseif($p->estado == 'baja')
+                            <span class="badge badge-dark">Baja</span>
                         @else
-                        <span class="badge badge-gray">{{ $p->estado }}</span>
+                            <span class="badge badge-gray">{{ $p->estado }}</span>
                         @endif
                     </td>
                     <td>

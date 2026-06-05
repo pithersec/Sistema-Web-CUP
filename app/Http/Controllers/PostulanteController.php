@@ -7,6 +7,7 @@ use App\Models\Postulante;
 use App\Models\DatosPersonales;
 use App\Models\RequisitosPostulante;
 use App\Models\Bitacora;
+use App\Models\Gestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -142,18 +143,27 @@ class PostulanteController extends Controller
      */
     public function listarPostulantes(Request $request)
     {
-        $buscar = $request->input('buscar');
-        $estado = $request->input('estado');
-        $carrera = $request->input('carrera');
+        // Gestiones para el selector
+        $gestiones = Gestion::orderByRaw("SPLIT_PART(codigo, '-', 2) DESC, SPLIT_PART(codigo, '-', 1) DESC")->get();
 
-        // Construir la consulta uniendo la tabla pivote de datos personales
+        $gestionCodigo = $request->input('gestion',
+            $gestiones->first()?->codigo
+        );
+
+        $buscar = $request->input('buscar');
+        $estado = $request->input('estado', 'Todos los estados');
+        $carrera = $request->input('carrera', 'Todas las carreras');
+
         $query = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
+            ->join('grupo', 'postulante.id_grupo', '=', 'grupo.id')  // ← agregar
+            ->where('grupo.codigo_gestion', $gestionCodigo)           // ← filtrar por gestión
             ->select(
                 'postulante.codigo',
                 'postulante.ci',
                 'postulante.procedencia',
                 'postulante.estado',
+                'postulante.telefono_2',
                 'datos_personales.nombre',
                 'datos_personales.apellido',
                 'datos_personales.telefono'
@@ -162,30 +172,38 @@ class PostulanteController extends Controller
         if (!empty($buscar)) {
             $query->where(function ($q) use ($buscar) {
                 $q->where('postulante.ci', 'LIKE', "%{$buscar}%")
-                    ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
-                    ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%");
+                ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
+                ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%");
             });
         }
 
         if (!empty($estado) && $estado !== 'Todos los estados') {
-            $query->where('estado', $estado);
+            $query->where('postulante.estado', $estado);
         }
 
         if (!empty($carrera) && $carrera !== 'Todas las carreras') {
-            $query->whereExists(function($q) use ($carrera) {
+            [$codigoC, $planC, $modalidadC] = explode('|', $carrera);
+            $query->whereExists(function($q) use ($codigoC, $planC, $modalidadC) {
                 $q->select(DB::raw(1))
                 ->from('postulante_carrera')
                 ->whereColumn('postulante_carrera.codigo_postulante', 'postulante.codigo')
-                ->where('postulante_carrera.codigo_carrera', $carrera);
+                ->where('postulante_carrera.codigo_carrera', $codigoC)
+                ->where('postulante_carrera.plan_carrera', $planC)
+                ->where('postulante_carrera.modalidad_carrera', $modalidadC);
             });
         }
 
-        $postulantes = $query->paginate(5)->withQueryString();
+        $postulantes = $query->paginate(15)->withQueryString();
         $totalPostulantes = $postulantes->total();
+        $carreras = Carrera::orderByRaw("CASE WHEN modalidad = 'presencial' THEN 0 ELSE 1 END")
+            ->orderBy('nombre')
+            ->get();
 
-        $carreras = Carrera::all();
-
-        return view('postulantes.index', compact('postulantes', 'totalPostulantes', 'carreras', 'buscar', 'estado', 'carrera'));
+        return view('postulantes.index', compact(
+            'postulantes', 'totalPostulantes', 'carreras',
+            'buscar', 'estado', 'carrera',
+            'gestiones', 'gestionCodigo'
+        ));
     }
 
     /**
@@ -194,7 +212,7 @@ class PostulanteController extends Controller
 public function darBaja($codigo)
     {
         $postulante = Postulante::where('codigo', $codigo)->firstOrFail();
-        $postulante->update(['estado' => 'Baja']);
+        $postulante->update(['estado' => 'baja']);
 
         if (auth()->check()) {
             Bitacora::create([
