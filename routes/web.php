@@ -4,10 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\PostulanteController;
 use App\Http\Controllers\ExamenController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\BitacoraController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +89,11 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::middleware('privilegio:postulantes.validar')->group(function () {
         Route::patch('/admin/postulantes/{codigo}/desactivar', [PostulanteController::class, 'desactivarPostulante'])->name('postulantes.desactivar');
+    });
+
+    Route::middleware('privilegio:postulantes.editar')->group(function () {
+        Route::get('/admin/postulantes/{codigo}/editar', [PostulanteController::class, 'editarPostulante'])->name('postulantes.edit');
+        Route::put('/admin/postulantes/{codigo}', [PostulanteController::class, 'actualizarPostulante'])->name('postulantes.update');
     });
 
     /*

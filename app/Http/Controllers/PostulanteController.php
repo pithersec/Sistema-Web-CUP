@@ -257,4 +257,62 @@ public function darBaja($codigo)
 
         return view('postulantes.show', compact('postulante', 'carreras'));
     }
+
+    // CU-13: Editar datos personales y de postulante (solo campos básicos)
+    public function editarPostulante($codigo)
+    {
+        $postulante = Postulante::with(['datosPersonales'])
+            ->where('codigo', $codigo)->firstOrFail();
+
+        return view('postulantes.edit', compact('postulante'));
+    }
+
+    // CU-13: Actualizar datos personales y de postulante (solo campos básicos)
+    public function actualizarPostulante(Request $request, $codigo)
+    {
+        $postulante = Postulante::with(['datosPersonales'])
+            ->where('codigo', $codigo)->firstOrFail();
+
+        $validated = $request->validate([
+            'nombre'         => 'required|string|max:100',
+            'apellido'       => 'required|string|max:100',
+            'genero'         => 'required|in:m,f',
+            'fecha_nac'      => 'required|date',
+            'correo'         => 'required|email|max:150|unique:datos_personales,correo,' . $postulante->ci . ',ci',
+            'direccion'      => 'required|string|max:200',
+            'telefono'       => 'nullable|string|max:20',
+            'telefono_2'     => 'nullable|string|max:20',
+            'procedencia'    => 'nullable|string|max:100',
+            'gestion_egreso' => 'nullable|string|max:20',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $postulante->datosPersonales->update([
+                'nombre'    => $validated['nombre'],
+                'apellido'  => $validated['apellido'],
+                'genero'    => $validated['genero'],
+                'fecha_nac' => $validated['fecha_nac'],
+                'correo'    => $validated['correo'],
+                'direccion' => $validated['direccion'],
+                'telefono'  => $validated['telefono'],
+            ]);
+
+            $postulante->update([
+                'telefono_2'     => $validated['telefono_2'],
+                'procedencia'    => $validated['procedencia'],
+                'gestion_egreso' => $validated['gestion_egreso'],
+            ]);
+
+            DB::commit();
+            return redirect()->route('postulantes.show', $codigo)
+                ->with('success', 'Datos actualizados correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return redirect()->back()->withInput()
+                ->withErrors(['error' => 'Error al actualizar. Intente nuevamente.']);
+        }
+    }
 }

@@ -260,6 +260,11 @@
 </style>
 
 <div class="show-wrapper">
+    @if(session('success'))
+    <div style="background:#d4f5e2; color:#1a7a3c; padding:12px 16px; border-radius:6px; margin-bottom:16px; font-size:13.5px; font-weight:600;">
+        ✓ {{ session('success') }}
+    </div>
+    @endif
 
     {{-- HEADER --}}
     <div class="postulante-header">
@@ -288,7 +293,7 @@
         </div>
         <div class="header-actions">
             <a href="{{ route('postulantes.index') }}" class="btn-back">← Volver</a>
-            <a href="#" class="btn-edit-header">✏️ Editar</a>
+            <a href="{{ route('postulantes.edit', $postulante->codigo) }}" class="btn-edit-header">✏️ Editar</a>
         </div>
     </div>
 

@@ -180,20 +180,11 @@
     }
 
     .btn-view {
-        background: #fef3c7;
-        color: #d97706;
-    }
-
-    .btn-view:hover {
-        background: #fde68a;
-    }
-
-    .btn-edit {
         background: #dceeff;
         color: #1a5fa8;
     }
 
-    .btn-edit:hover {
+    .btn-view:hover {
         background: #cce3ff;
     }
 
@@ -368,8 +359,6 @@
                         <div class="actions-cluster">
                             <a href="{{ route('postulantes.show', $p->codigo) }}" class="btn-action btn-view"
                                 style="text-decoration: none;">Ver</a>
-                            <a href="#" class="btn-action btn-edit"
-                                style="text-decoration: none;">Editar</a>
 
                             <form action="{{ route('postulantes.baja', $p->codigo) }}" method="POST"
                                 style="display:inline;"
