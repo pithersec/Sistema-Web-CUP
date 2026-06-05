@@ -22,6 +22,7 @@ class GrupoSeeder extends Seeder
             ['codigo' => '1-2025', 'total' => 847],
             ['codigo' => '2-2025', 'total' => 1134],
             ['codigo' => '1-2026', 'total' => 923],
+            ['codigo' => '2-2026', 'total' => 821],
         ];
 
         $grupos = [];

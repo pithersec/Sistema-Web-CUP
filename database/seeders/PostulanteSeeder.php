@@ -10,35 +10,63 @@ class PostulanteSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create('es_BO');
+        $faker = Faker::create('es_ES');
 
         // Al inicio, carga los grupos por gestión
+        $estadosPorGestion = [
+            '1-2025' => ['aprobado' => 45, 'reprobado' => 50, 'inscrito' => 3, 'preinscrito' => 2],
+            '2-2025' => ['aprobado' => 40, 'reprobado' => 53, 'inscrito' => 4, 'preinscrito' => 3],
+            '1-2026' => ['aprobado' => 42, 'reprobado' => 51, 'inscrito' => 4, 'preinscrito' => 3],
+            '2-2026' => ['inscrito' => 55, 'preinscrito' => 45],
+        ];
+
+        $gestiones = [
+            ['codigo' => '1-2025', 'total' => 847,  'plazo_ini' => '2025-01-02', 'plazo_fin' => '2025-02-16'],
+            ['codigo' => '2-2025', 'total' => 1134, 'plazo_ini' => '2025-06-02', 'plazo_fin' => '2025-07-20'],
+            ['codigo' => '1-2026', 'total' => 923,  'plazo_ini' => '2026-01-05', 'plazo_fin' => '2026-02-15'],
+            ['codigo' => '2-2026', 'total' => 821,  'plazo_ini' => '2026-06-03', 'plazo_fin' => '2026-07-20'],
+        ];
+
         $gruposPorGestion = [
             '1-2025' => DB::table('grupo')->where('codigo_gestion', '1-2025')->pluck('id')->toArray(),
             '2-2025' => DB::table('grupo')->where('codigo_gestion', '2-2025')->pluck('id')->toArray(),
             '1-2026' => DB::table('grupo')->where('codigo_gestion', '1-2026')->pluck('id')->toArray(),
-        ];
-
-        $gestiones = [
-            ['codigo' => '1-2025', 'total' => 847, 'plazo_ini' => '2025-01-15', 'plazo_fin' => '2025-03-30'],
-            ['codigo' => '2-2025', 'total' => 1134, 'plazo_ini' => '2025-07-10', 'plazo_fin' => '2025-09-30'],
-            ['codigo' => '1-2026', 'total' => 923, 'plazo_ini' => '2026-01-10', 'plazo_fin' => '2026-03-30'],
+            '2-2026' => DB::table('grupo')->where('codigo_gestion', '2-2026')->pluck('id')->toArray(),
         ];
 
         $carreras = [
-            ['codigo' => '323', 'plan' => '0', 'modalidad' => 'presencial'],
-            ['codigo' => '187', 'plan' => '4', 'modalidad' => 'presencial'],
-            ['codigo' => '187', 'plan' => '5', 'modalidad' => 'presencial'],
-            ['codigo' => '187', 'plan' => '6', 'modalidad' => 'presencial'],
-            ['codigo' => '187', 'plan' => '3', 'modalidad' => 'virtual'],
-            ['codigo' => '187', 'plan' => '4', 'modalidad' => 'virtual'],
+            ['codigo' => '187', 'plan' => '4', 'modalidad' => 'presencial', 'peso' => 28],
+            ['codigo' => '187', 'plan' => '6', 'modalidad' => 'presencial', 'peso' => 21],
+            ['codigo' => '187', 'plan' => '5', 'modalidad' => 'presencial', 'peso' => 14],
+            ['codigo' => '187', 'plan' => '4', 'modalidad' => 'virtual',    'peso' => 14],
+            ['codigo' => '187', 'plan' => '3', 'modalidad' => 'virtual',    'peso' => 14],
+            ['codigo' => '323', 'plan' => '0', 'modalidad' => 'presencial', 'peso' => 9],
         ];
 
-        $estadosPorGestion = [
-            '1-2025' => ['aprobado' => 45, 'reprobado' => 50, 'inscrito' => 3, 'preinscrito' => 2],
-            '2-2025' => ['aprobado' => 40, 'reprobado' => 53, 'inscrito' => 4, 'preinscrito' => 3],
-            '1-2026' => ['inscrito' => 60, 'preinscrito' => 40],
-        ];
+        // Función para elegir con peso
+        $elegirCarrera = function() use ($carreras, $faker) {
+            $total = array_sum(array_column($carreras, 'peso'));
+            $rand = $faker->numberBetween(1, $total);
+            $acumulado = 0;
+            foreach ($carreras as $c) {
+                $acumulado += $c['peso'];
+                if ($rand <= $acumulado) return $c;
+            }
+            return $carreras[0];
+        };
+
+        $departamentos = array_merge(
+            array_fill(0, 51, 'Santa Cruz'),
+            ['La Paz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Beni', 'Pando', 'Chuquisaca', 'Extranjero']
+        );
+
+        $nombres = ['Carlos', 'María', 'Juan', 'Ana', 'Luis', 'Rosa', 'Jorge', 'Carmen', 
+                    'Miguel', 'Patricia', 'Roberto', 'Sandra', 'Fernando', 'Claudia', 
+                    'Alejandro', 'Gabriela', 'Diego', 'Valentina', 'Rodrigo', 'Daniela'];
+
+        $apellidos = ['Flores', 'Mamani', 'Quispe', 'Gutierrez', 'Perez', 'Rojas', 
+                    'Vargas', 'Condori', 'Huanca', 'Torrez', 'Salinas', 'Mendoza',
+                    'Choque', 'Quisbert', 'Villca', 'Apaza', 'Lima', 'Cruz'];
 
         $colegios = [1, 2, 3, 4, 5, 6, 7, 8];
         $ciCounter = 1000000;
@@ -72,20 +100,29 @@ class PostulanteSeeder extends Seeder
                 $ci = (string)($ciCounter++);
                 $codigo = "POST-{$gestionCorta}-" . str_pad($num++, 4, '0', STR_PAD_LEFT);
 
+                $nombreLower = strtolower($faker->randomElement($nombres));
+                $apellidoLower = strtolower($faker->randomElement($apellidos));
+                $numero = $faker->numberBetween(1, 999);
+                $dominio = $faker->randomElement(['gmail.com', 'gmail.com', 'gmail.com', 'hotmail.com', 'outlook.com']);
+                $formato = $faker->randomElement([
+                    $nombreLower . '.' . $apellidoLower . $numero . $ci,
+                    substr($nombreLower, 0, 1) . $apellidoLower . $numero . $ci,
+                ]);
+
                 $datosPersonales[] = [
                     'ci'        => $ci,
-                    'nombre'    => $faker->firstName(),
-                    'apellido'  => $faker->lastName(),
+                    'nombre'    => $faker->randomElement($nombres),
+                    'apellido'  => $faker->randomElement($apellidos),
                     'genero'    => $faker->randomElement(['m', 'f']),
                     'telefono'  => '7' . $faker->numerify('#######'),
-                    'correo'    => $faker->unique()->safeEmail(),
+                    'correo'    => $formato . '@' . $dominio,
                     'fecha_nac' => $faker->dateTimeBetween('-25 years', '-16 years')->format('Y-m-d'),
                     'direccion' => $faker->address(),
                 ];
 
                 $pagos[] = [
                     'id'                  => $pagoId,
-                    'monto'               => $faker->randomElement([300.00, 350.00]),
+                    'monto'               => 700.00,
                     'fecha'               => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
                     'concepto'            => "Inscripción CUP {$gestion['codigo']}",
                     'estado'              => 'completado',
@@ -105,11 +142,11 @@ class PostulanteSeeder extends Seeder
                 $postulantes[] = [
                     'codigo'                   => $codigo,
                     'ci'                       => $ci,
-                    'procedencia'              => $faker->city(),
+                    'procedencia'              => $faker->randomElement($departamentos),
                     'telefono_2'               => $faker->boolean(40) ? '6' . $faker->numerify('#######') : null,
                     'plazo'                    => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d'),
                     'estado'                   => $estado,
-                    'gestion_egreso'           => (string)($faker->numberBetween(2020, 2025)),
+                    'gestion_egreso'           => (string)($faker->numberBetween(2021, 2025)),
                     'id_requisitos_postulante' => $requisitosId,
                     'id_colegio'               => $faker->randomElement($colegios),
                     'id_pago'                  => $pagoId,
@@ -117,20 +154,21 @@ class PostulanteSeeder extends Seeder
                 ];
 
                 // Elegir 2 carreras distintas
-                $carrerasShuffled = $carreras;
-                shuffle($carrerasShuffled);
+                $carrera1 = $elegirCarrera();
+                do { $carrera2 = $elegirCarrera(); } 
+                while ($carrera2 == $carrera1); // que sean distintas
                 $postulantesCarrera[] = [
                     'codigo_postulante' => $codigo,
-                    'codigo_carrera'    => $carrerasShuffled[0]['codigo'],
-                    'plan_carrera'      => $carrerasShuffled[0]['plan'],
-                    'modalidad_carrera' => $carrerasShuffled[0]['modalidad'],
+                    'codigo_carrera'    => $carrera1['codigo'],
+                    'plan_carrera'      => $carrera1['plan'],
+                    'modalidad_carrera' => $carrera1['modalidad'],
                     'opcion'            => 1,
                 ];
                 $postulantesCarrera[] = [
                     'codigo_postulante' => $codigo,
-                    'codigo_carrera'    => $carrerasShuffled[1]['codigo'],
-                    'plan_carrera'      => $carrerasShuffled[1]['plan'],
-                    'modalidad_carrera' => $carrerasShuffled[1]['modalidad'],
+                    'codigo_carrera'    => $carrera2['codigo'],
+                    'plan_carrera'      => $carrera2['plan'],
+                    'modalidad_carrera' => $carrera2['modalidad'],
                     'opcion'            => 2,
                 ];
 

@@ -33,6 +33,14 @@ class CarreraGestionSeeder extends Seeder
             ['codigo_carrera' => '187', 'plan_carrera' => '4', 'modalidad_carrera' => 'virtual',    'codigo_gestion' => '1-2026', 'cupos' => 100],
             ['codigo_carrera' => '187', 'plan_carrera' => '3', 'modalidad_carrera' => 'virtual',    'codigo_gestion' => '1-2026', 'cupos' => 90],
             ['codigo_carrera' => '323', 'plan_carrera' => '0', 'modalidad_carrera' => 'presencial', 'codigo_gestion' => '1-2026', 'cupos' => 60],
+
+            // 2-2026
+            ['codigo_carrera' => '187', 'plan_carrera' => '4', 'modalidad_carrera' => 'presencial', 'codigo_gestion' => '2-2026', 'cupos' => 160],
+            ['codigo_carrera' => '187', 'plan_carrera' => '6', 'modalidad_carrera' => 'presencial', 'codigo_gestion' => '2-2026', 'cupos' => 140],
+            ['codigo_carrera' => '187', 'plan_carrera' => '5', 'modalidad_carrera' => 'presencial', 'codigo_gestion' => '2-2026', 'cupos' => 110],
+            ['codigo_carrera' => '187', 'plan_carrera' => '4', 'modalidad_carrera' => 'virtual',    'codigo_gestion' => '2-2026', 'cupos' => 90],
+            ['codigo_carrera' => '187', 'plan_carrera' => '3', 'modalidad_carrera' => 'virtual',    'codigo_gestion' => '2-2026', 'cupos' => 80],
+            ['codigo_carrera' => '323', 'plan_carrera' => '0', 'modalidad_carrera' => 'presencial', 'codigo_gestion' => '2-2026', 'cupos' => 50],
         ]);
     }
 }
