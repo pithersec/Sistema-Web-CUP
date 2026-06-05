@@ -36,12 +36,22 @@ class DashboardController extends Controller
             $totalAprobados     = $postulantes->where('estado', 'aprobado')->count();
             $totalReprobados    = $postulantes->where('estado', 'reprobado')->count();
             $totalGrupos        = $idsGrupos->count();
+            
+            $cuposTotales = DB::table('carrera_gestion')
+                ->where('codigo_gestion', $gestionCodigo)
+                ->sum('cupos');
+
+            $tasaAprobacion = $totalPostulantes > 0
+                ? round(($totalAprobados / $totalPostulantes) * 100)
+                : 0;
 
             $kpis = [
                 'total_inscritos'    => $totalPostulantes,
                 'total_aprobados'    => $totalAprobados,
                 'total_reprobados'   => $totalReprobados,
                 'grupos_habilitados' => $totalGrupos,
+                'cupos_totales'      => $cuposTotales,
+                'tasa_aprobacion'    => $tasaAprobacion,
             ];
 
             // Resumen por carrera — solo carreras activas en la gestión
@@ -54,6 +64,8 @@ class DashboardController extends Controller
                 })
                 ->leftJoin('postulante_carrera', function ($join) {
                     $join->on('carrera.codigo', '=', 'postulante_carrera.codigo_carrera')
+                        ->on('carrera.plan', '=', 'postulante_carrera.plan_carrera')        // ← agregar
+                        ->on('carrera.modalidad', '=', 'postulante_carrera.modalidad_carrera') // ← agregar
                         ->where('postulante_carrera.opcion', '=', 1);
                 })
                 ->leftJoin('postulante', function ($join) use ($codigosPostulantes) {
@@ -72,6 +84,7 @@ class DashboardController extends Controller
                 )
                 ->groupBy('carrera.codigo', 'carrera.plan', 'carrera.nombre', 'carrera.modalidad', 'carrera_gestion.cupos')
                 ->orderByRaw("CASE WHEN carrera.modalidad = 'presencial' THEN 0 ELSE 1 END ASC")
+                ->orderBy('carrera_gestion.cupos', 'desc')
                 ->orderBy('carrera.nombre')
                 ->get();
 

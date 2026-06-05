@@ -58,7 +58,7 @@
     /* KPIs */
     .cards-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 16px;
         margin-bottom: 28px;
     }
@@ -86,9 +86,23 @@
         color: #0d3b6e;
     }
 
-    .kpi-card:nth-child(2) .kpi-value { color: #27ae60; }
-    .kpi-card:nth-child(3) .kpi-value { color: #c0392b; }
-    .kpi-card:nth-child(4) .kpi-value { color: #f39c12; }
+    .kpi-card:nth-child(1) { border-top-color: #1a5fa8; }
+    .kpi-card:nth-child(1) .kpi-value { color: #0d3b6e; }
+
+    .kpi-card:nth-child(2) { border-top-color: #2c038b; }
+    .kpi-card:nth-child(2) .kpi-value { color: #2c038b; }
+
+    .kpi-card:nth-child(3) { border-top-color: #27ae60; }
+    .kpi-card:nth-child(3) .kpi-value { color: #27ae60; }
+
+    .kpi-card:nth-child(4) { border-top-color: #c0392b; }
+    .kpi-card:nth-child(4) .kpi-value { color: #c0392b; }
+
+    .kpi-card:nth-child(5) { border-top-color: #0891b2; }
+    .kpi-card:nth-child(5) .kpi-value { color: #0891b2; }
+
+    .kpi-card:nth-child(6) { border-top-color: #f39c12; }
+    .kpi-card:nth-child(6) .kpi-value { color: #f39c12; }
 
     .kpi-label {
         font-size: 11px;
@@ -158,6 +172,7 @@
     }
 
     .badge-green  { background: #d4f5e2; color: #1a7a3c; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
     .badge-red    { background: #fde8e8; color: #c0392b; }
     .badge-blue   { background: #dceeff; color: #1a5fa8; }
     .badge-purple { background: #ede9fe; color: #6d28d9; }
@@ -170,7 +185,7 @@
 
     /* Responsive */
     @media (max-width: 768px) {
-        .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .cards-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .kpi-card { padding: 16px; }
         .kpi-value { font-size: 26px; }
         .kpi-icon { font-size: 20px; }
@@ -196,6 +211,11 @@
 
     <div class="cards-grid">
         <div class="kpi-card">
+            <div class="kpi-icon">🎯</div>
+            <div class="kpi-value">{{ $kpis['cupos_totales'] }}</div>
+            <div class="kpi-label">Cupos Totales</div>
+        </div>
+        <div class="kpi-card">
             <div class="kpi-icon">👥</div>
             <div class="kpi-value">{{ $kpis['total_inscritos'] }}</div>
             <div class="kpi-label">Total Inscritos</div>
@@ -209,6 +229,11 @@
             <div class="kpi-icon">❌</div>
             <div class="kpi-value">{{ $kpis['total_reprobados'] }}</div>
             <div class="kpi-label">Total Reprobados</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-value">{{ $kpis['tasa_aprobacion'] }}%</div>
+            <div class="kpi-label">Tasa de Aprobación</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-icon">🏫</div>
@@ -230,7 +255,7 @@
                         <th>Aprobados</th>
                         <th>Reprobados</th>
                         <th>Tasa Aprobación</th>
-                        <th>Disponibilidad</th>
+                        <th>Estado de Cupos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -239,6 +264,7 @@
                         $tasa = $carrera->total_postulantes > 0
                             ? round(($carrera->total_aprobados / $carrera->total_postulantes) * 100)
                             : 0;
+                        $tasaClase = $tasa >= 60 ? 'badge-green' : ($tasa >= 40 ? 'badge-yellow' : 'badge-red');
                     @endphp
                     <tr>
                         <td><strong>{{ $carrera->carrera_nombre }}</strong></td>
@@ -254,20 +280,13 @@
                         <td style="color:#27ae60; font-weight:600">{{ $carrera->total_aprobados }}</td>
                         <td style="color:#c0392b; font-weight:600">{{ $carrera->total_reprobados }}</td>
                         <td>
-                            <div class="tasa-wrap">
-                                <div class="tasa-bar-bg">
-                                    <div class="tasa-bar-fill" style="width:{{ $tasa }}%"></div>
-                                </div>
-                                <span class="tasa-text">{{ $tasa }}%</span>
-                            </div>
+                            <span class="badge {{ $tasaClase }}">{{ $tasa }}%</span>
                         </td>
                         <td>
                             @if($carrera->total_aprobados >= $carrera->total_cupos && $carrera->total_cupos > 0)
-                                <span class="badge badge-red">Lleno</span>
-                            @elseif($carrera->total_postulantes > 0)
-                                <span class="badge badge-green">Disponible</span>
+                                <span class="badge badge-red">Completo</span>
                             @else
-                                <span class="badge badge-blue">En curso</span>
+                                <span class="badge badge-green">Con vacantes</span>
                             @endif
                         </td>
                     </tr>
