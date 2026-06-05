@@ -27,9 +27,9 @@ Route::post('/login', [UsuarioController::class, 'enviarCredenciales']);
 Route::get('/preinscripcion', [PostulanteController::class, 'mostrarFormularioPreinscripcion'])->name('preinscripcion.form');
 Route::post('/preinscripcion', [PostulanteController::class, 'registrarPostulante'])->name('preinscripcion.registrar');
 Route::get('/preinscripcion/exito', function () {
-    if (!session('success')) {
-        return redirect()->route('preinscripcion.form');
-    }
+    //if (!session('success')) {
+    //    return redirect()->route('preinscripcion.form');
+    //}
     return view('preinscripcion.exito');
 })->name('preinscripcion.exito');
 
