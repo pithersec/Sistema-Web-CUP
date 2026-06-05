@@ -11,6 +11,8 @@ class CarreraGestion extends Model
 
     protected $fillable = [
         'codigo_carrera',
+        'plan_carrera',
+        'modalidad_carrera',
         'codigo_gestion',
         'cupos',
     ];
