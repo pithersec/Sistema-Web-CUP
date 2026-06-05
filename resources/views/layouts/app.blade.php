@@ -8,11 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --azul: #0d3b6e;
@@ -31,6 +27,18 @@
             min-height: 100vh;
         }
 
+        /* ── OVERLAY (solo móvil) ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.active { display: block; }
+
+        /* ── SIDEBAR ── */
         .sidebar {
             width: 220px;
             background: var(--azul);
@@ -38,6 +46,8 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            transition: transform 0.25s ease;
+            z-index: 100;
         }
 
         .sidebar-header {
@@ -54,31 +64,28 @@
         }
 
         .sidebar-header p {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255,255,255,0.6);
             font-size: 14px;
             margin-top: 2px;
         }
 
-        .nav-section {
-            padding: 16px 0;
-        }
+        .nav-section { padding: 16px 0; }
 
         .nav-label {
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255,255,255,0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
             padding: 0 16px;
             margin-bottom: 6px;
         }
 
-        /* Convertimos los menús en enlaces reales */
         .nav-item {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 16px;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(255,255,255,0.75);
             font-size: 13px;
             cursor: pointer;
             border-left: 3px solid transparent;
@@ -86,26 +93,24 @@
         }
 
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             color: white;
         }
 
         .nav-item.active {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255,255,255,0.12);
             color: white;
             border-left-color: var(--rojo);
         }
 
-        .nav-icon {
-            font-size: 15px;
-            width: 18px;
-            text-align: center;
-        }
+        .nav-icon { font-size: 15px; width: 18px; text-align: center; }
 
+        /* ── MAIN ── */
         .main {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .topbar {
@@ -114,7 +119,33 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Botón hamburguesa — oculto en desktop */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 4px 4px 5px 4px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--azul);
+            border-radius: 2px;
+            transition: all 0.2s;
         }
 
         .topbar h1 {
@@ -144,6 +175,8 @@
             font-weight: 600;
         }
 
+        .username { }
+
         .content {
             flex: 1;
             display: flex;
@@ -152,11 +185,11 @@
             padding: 28px;
         }
 
-        /* Estilos específicos de la tarjeta modal */
+        /* Modales */
         .modal {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
             padding: 48px 52px;
             text-align: center;
             max-width: 420px;
@@ -164,8 +197,7 @@
         }
 
         .icon-circle {
-            width: 72px;
-            height: 72px;
+            width: 72px; height: 72px;
             border-radius: 50%;
             background: #fde8e8;
             display: flex;
@@ -189,40 +221,29 @@
             margin-bottom: 32px;
         }
 
-        .modal p strong {
-            color: var(--azul);
-        }
+        .modal p strong { color: var(--azul); }
 
-        .buttons {
-            display: flex;
-            gap: 12px;
-        }
+        .buttons { display: flex; gap: 12px; }
 
         .btn-cancel {
-            flex: 1;
-            padding: 12px;
+            flex: 1; padding: 12px;
             border: 1.5px solid var(--gris-claro);
             border-radius: 6px;
             background: white;
             color: var(--gris);
             font-family: 'Source Sans 3', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             text-align: center;
         }
 
         .btn-confirm {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            background: var(--rojo);
-            color: white;
+            flex: 1; padding: 12px;
+            border: none; border-radius: 6px;
+            background: var(--rojo); color: white;
             font-family: 'Source Sans 3', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             cursor: pointer;
         }
 
@@ -235,85 +256,128 @@
             text-align: left;
         }
 
-        .session-info p {
-            font-size: 12px;
-            color: var(--gris);
-            margin-bottom: 0;
-        }
+        .session-info p { font-size: 12px; color: var(--gris); margin-bottom: 0; }
+        .session-info strong { color: var(--azul); }
 
-        .session-info strong {
-            color: var(--azul);
+        /* ── RESPONSIVE MOBILE ── */
+        @media (max-width: 768px) {
+
+            body { flex-direction: column; }
+
+            /* Sidebar se convierte en drawer */
+            .sidebar {
+                position: fixed;
+                top: 0; left: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            /* Mostrar hamburguesa */
+            .hamburger { display: flex; }
+
+            /* Ocultar nombre usuario en móvil */
+            .username { display: none; }
+
+            .topbar {
+                padding: 12px 16px;
+            }
+
+            .topbar h1 { font-size: 15px; }
+
+            .content { padding: 16px; }
+
+            .modal {
+                padding: 32px 24px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar">
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="overlay" onclick="cerrarSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="{{ asset('img/Escudo_FICCT.png') }}" alt="FICCT" style="width: 140px; height: 140px; object-fit: contain; margin: 0 auto 8px; display: block;">
+            <img src="{{ asset('img/Escudo_FICCT.png') }}" alt="FICCT"
+                style="width:140px;height:140px;object-fit:contain;margin:0 auto 8px;display:block;">
             <h3>Sistema de Admisión</h3>
             <p>FICCT · UAGRM</p>
         </div>
         <div class="nav-section">
             <div class="nav-label">Principal</div>
-            <a href="{{ route('dashboard') }}" class="nav-item {{ Request::is('dashboard*') ? 'active' : '' }}"><span
-                    class="nav-icon">📊</span> Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="nav-item {{ Request::is('dashboard*') ? 'active' : '' }}">
+                <span class="nav-icon">📊</span> Dashboard
+            </a>
 
             @auth
             @php $user = Auth::user(); @endphp
 
             @if($user && $user->tienePrivilegio('postulantes.ver'))
-            <a href="{{ route('postulantes.index') }}"
-                class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}"><span
-                    class="nav-icon">👥</span> Postulantes</a>
+            <a href="{{ route('postulantes.index') }}" class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}">
+                <span class="nav-icon">👥</span> Postulantes
+            </a>
             @endif
 
             @if($user && $user->tienePrivilegio('docentes.ver'))
-            <a href="{{ route('docentes.index') }}"
-                class="nav-item {{ Request::is('admin/docentes*') ? 'active' : '' }}"><span
-                    class="nav-icon">👨‍🏫</span> Docentes</a>
+            <a href="{{ route('docentes.index') }}" class="nav-item {{ Request::is('admin/docentes*') ? 'active' : '' }}">
+                <span class="nav-icon">👨‍🏫</span> Docentes
+            </a>
             @endif
 
             @if($user && $user->tienePrivilegio('carreras.ver'))
-            <a href="{{ route('carreras.index') }}"
-                class="nav-item {{ Request::is('admin/carreras*') ? 'active' : '' }}"><span class="nav-icon">🎓</span>
-                Carreras y Cupos</a>
+            <a href="{{ route('carreras.index') }}" class="nav-item {{ Request::is('admin/carreras*') ? 'active' : '' }}">
+                <span class="nav-icon">🎓</span> Carreras y Cupos
+            </a>
             @endif
 
             @if($user && $user->tienePrivilegio('usuarios.ver'))
-            <a href="{{ route('usuarios.index') }}"
-                class="nav-item {{ Request::is('admin/usuarios*') ? 'active' : '' }}"><span class="nav-icon">👤</span>
-                Usuarios</a>
+            <a href="{{ route('usuarios.index') }}" class="nav-item {{ Request::is('admin/usuarios*') ? 'active' : '' }}">
+                <span class="nav-icon">👤</span> Usuarios
+            </a>
             @endif
 
             @if($user && $user->tienePrivilegio('notas.ver'))
-            <a href="{{ route('notas.index') }}"
-                class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
-                <span class="nav-icon">📝</span>
-                Notas
+            <a href="{{ route('notas.index') }}" class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
+                <span class="nav-icon">📝</span> Notas
             </a>
             @endif
 
             <div class="nav-label">Sistema</div>
+
             @if($user && $user->tienePrivilegio('bitacora.ver'))
-            <a href="{{ route('bitacora.index') }}"
-                class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}"><span class="nav-icon">📋</span>
-                Bitácora</a>
+            <a href="{{ route('bitacora.index') }}" class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}">
+                <span class="nav-icon">📋</span> Bitácora
+            </a>
             @endif
             @endauth
-            <a href="{{ url('/logout-confirm') }}"
-                class="nav-item {{ Request::is('logout-confirm*') ? 'active' : '' }}"><span class="nav-icon">🚪</span>
-                Cerrar Sesión</a>
+
+            <a href="{{ url('/logout-confirm') }}" class="nav-item {{ Request::is('logout-confirm*') ? 'active' : '' }}">
+                <span class="nav-icon">🚪</span> Cerrar Sesión
+            </a>
         </div>
     </div>
 
+    <!-- Main -->
     <div class="main">
         <div class="topbar">
-            <h1>@yield('page_title')</h1>
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()" aria-label="Menú">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <h1>@yield('page_title')</h1>
+            </div>
             <div class="user">
                 <div class="user-avatar">{{ substr(Auth::user()?->user_name ?? 'AD', 0, 2) }}</div>
-                {{ Auth::user()?->user_name ?? 'Administrador' }}
+                <span class="username">{{ Auth::user()?->user_name ?? 'Administrador' }}</span>
             </div>
         </div>
 
@@ -322,6 +386,24 @@
         </div>
     </div>
 
-</body>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('active');
+        }
 
+        function cerrarSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // Cerrar sidebar al navegar (click en nav-item en móvil)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) cerrarSidebar();
+            });
+        });
+    </script>
+
+</body>
 </html>
