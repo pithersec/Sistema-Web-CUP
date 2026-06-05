@@ -20,10 +20,12 @@ class Postulante extends Model
 
     public function carreras()
     {
-        return $this->belongsToMany(Carrera::class, 'postulante_carrera',
+        return $this->belongsToMany(
+            Carrera::class,
+            'postulante_carrera',
             'codigo_postulante',
-            ['codigo_carrera', 'plan_carrera', 'modalidad_carrera']
-        )->withPivot('opcion');
+            'codigo_carrera'
+        )->withPivot('opcion', 'plan_carrera', 'modalidad_carrera');
     }
 
     public function requisitosPostulante()

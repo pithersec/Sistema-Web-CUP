@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
     |------------------------------------------------------------------*/
     Route::middleware('privilegio:postulantes.ver')->group(function () {
         Route::get('/admin/postulantes', [PostulanteController::class, 'listarPostulantes'])->name('postulantes.index');
+        Route::get('/admin/postulantes/{codigo}', [PostulanteController::class, 'verPostulante'])->name('postulantes.show');
     });
     Route::middleware('privilegio:postulantes.aprobar')->group(function () {
         Route::put('/admin/postulantes/{codigo}', [PostulanteController::class, 'actualizarPostulante'])->name('postulantes.update');

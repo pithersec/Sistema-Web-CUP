@@ -366,7 +366,7 @@
                     </td>
                     <td>
                         <div class="actions-cluster">
-                            <a href="#" class="btn-action btn-view"
+                            <a href="{{ route('postulantes.show', $p->codigo) }}" class="btn-action btn-view"
                                 style="text-decoration: none;">Ver</a>
                             <a href="#" class="btn-action btn-edit"
                                 style="text-decoration: none;">Editar</a>

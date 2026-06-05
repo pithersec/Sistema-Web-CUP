@@ -225,4 +225,36 @@ public function darBaja($codigo)
 
         return redirect()->back()->with('success', 'El postulante ha sido dado de baja correctamente.');
     }
+
+    // CU-13: Ver detalles completos de un postulante
+    public function verPostulante($codigo)
+    {
+        $postulante = Postulante::with([
+            'datosPersonales',
+            'colegio',
+            'grupo',
+            'pago',
+            'requisitosPostulante',
+        ])->where('codigo', $codigo)->firstOrFail();
+
+        // Carreras por query directo
+        $carreras = DB::table('postulante_carrera')
+            ->join('carrera', function($join) {
+                $join->on('postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
+                    ->on('postulante_carrera.plan_carrera', '=', 'carrera.plan')
+                    ->on('postulante_carrera.modalidad_carrera', '=', 'carrera.modalidad');
+            })
+            ->where('postulante_carrera.codigo_postulante', $codigo)
+            ->select(
+                'carrera.codigo',
+                'carrera.nombre',
+                'carrera.plan',
+                'carrera.modalidad',
+                'postulante_carrera.opcion'
+            )
+            ->orderBy('postulante_carrera.opcion')
+            ->get();
+
+        return view('postulantes.show', compact('postulante', 'carreras'));
+    }
 }
