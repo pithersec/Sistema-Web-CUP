@@ -231,7 +231,7 @@
 @endif
 
 <div class="create-wrapper">
-    <form action="{{ route('docentes.guardar') }}" method="POST">
+    <form action="{{ route('personal.guardar') }}" method="POST">
         @csrf
 
         {{-- HEADER --}}
@@ -241,7 +241,7 @@
                 <p>Complete los datos del personal a registrar en el sistema.</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('docentes.index') }}" class="btn-cancel">← Cancelar</a>
+                <a href="{{ route('personal.index') }}" class="btn-cancel">← Cancelar</a>
                 <button type="submit" class="btn-save">💾 Registrar Personal</button>
             </div>
         </div>
