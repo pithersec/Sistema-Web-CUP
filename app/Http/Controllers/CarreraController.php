@@ -20,7 +20,7 @@ class CarreraController extends Controller
      */
     public function listarCarreras(Request $request)
     {
-        $gestiones = Gestion::orderBy('codigo', 'desc')->get();
+        $gestiones = Gestion::orderByRaw("SPLIT_PART(codigo, '-', 2) DESC, SPLIT_PART(codigo, '-', 1) DESC")->get();
 
         $gestion_seleccionada = $request->input('codigo_gestion');
         if (empty($gestion_seleccionada) && $gestiones->isNotEmpty()) {
@@ -40,19 +40,24 @@ class CarreraController extends Controller
                 'carrera.nombre',
                 'carrera.modalidad',
                 'carrera_gestion.cupos'
-            )->get();
+            )
+            ->orderByRaw("CASE WHEN carrera.modalidad = 'presencial' THEN 0 ELSE 1 END")
+            ->orderBy('carrera.nombre')
+            ->get();
 
         foreach ($carreras as $carrera) {
-            $carrera->ocupados = DB::table('postulante_carrera')
+            $baseQuery = DB::table('postulante_carrera')
                 ->join('postulante', 'postulante_carrera.codigo_postulante', '=', 'postulante.codigo')
                 ->join('grupo', 'postulante.id_grupo', '=', 'grupo.id')
                 ->where('postulante_carrera.codigo_carrera', $carrera->codigo)
                 ->where('postulante_carrera.plan_carrera', $carrera->plan)
                 ->where('postulante_carrera.modalidad_carrera', $carrera->modalidad)
-                ->where('grupo.codigo_gestion', $gestion_seleccionada)
-                ->count();
+                ->where('grupo.codigo_gestion', $gestion_seleccionada);
 
-            $carrera->cupos = $carrera->cupos ?? 0;
+            $carrera->ocupados   = $baseQuery->count();
+            $carrera->aprobados  = (clone $baseQuery)->where('postulante.estado', 'aprobado')->count();
+            $carrera->reprobados = (clone $baseQuery)->where('postulante.estado', 'reprobado')->count();
+            $carrera->cupos      = $carrera->cupos ?? 0;
         }
 
         return view('carreras.index', compact('gestiones', 'gestion_seleccionada', 'carreras'));

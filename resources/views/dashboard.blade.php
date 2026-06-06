@@ -249,6 +249,7 @@
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th>Código-Plan</th>
                         <th>Carrera</th>
                         <th>Modalidad</th>
                         <th>Cupos</th>
@@ -268,6 +269,7 @@
                         $tasaClase = $tasa >= 60 ? 'badge-green' : ($tasa >= 40 ? 'badge-yellow' : 'badge-red');
                     @endphp
                     <tr>
+                        <td><strong>{{ $carrera->codigo }}-{{ $carrera->plan }}</strong></td>
                         <td><strong>{{ $carrera->carrera_nombre }}</strong></td>
                         <td>
                             @if($carrera->modalidad === 'virtual')
