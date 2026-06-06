@@ -12,7 +12,7 @@
 
     /* TABS */
     .tabs {
-        display: flex;
+        display: inline-flex;
         gap: 0;
         margin-bottom: 20px;
         background: white;

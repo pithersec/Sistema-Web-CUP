@@ -340,8 +340,8 @@
             @endif
 
             @if($user && $user->tienePrivilegio('usuarios.ver'))
-            <a href="{{ route('usuarios.index') }}" class="nav-item {{ Request::is('admin/usuarios*') ? 'active' : '' }}">
-                <span class="nav-icon">👤</span> Usuarios
+            <a href="{{ route('usuarios.index') }}" class="nav-item {{ Request::is('admin/usuarios*') || Request::is('admin/perfiles*') ? 'active' : '' }}">
+                <span class="nav-icon">👤</span> Usuarios y Perfiles
             </a>
             @endif
 

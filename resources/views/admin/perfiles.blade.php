@@ -13,8 +13,15 @@
     .priv-badge { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
     .priv-badge.active { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
     .priv-badge.inactive { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+    .tabs { display: flex; gap: 0; margin-bottom: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+    .tab { padding: 14px 24px; font-size: 13px; font-weight: 600; cursor: pointer; color: #5a5a5a; text-decoration: none; border-bottom: 3px solid transparent; }
+    .tab.active { color: #0d3b6e; border-bottom-color: #0d3b6e; background: #f8fafc; }
 </style>
 
+<div class="tabs">
+        <a href="{{ route('usuarios.index') }}" class="tab">👤 Usuarios</a>
+        <a href="{{ route('perfiles.index') }}" class="tab active">🔑 Perfiles y Privilegios</a>
+    </div>
 <div class="perfiles-wrapper">
     @if(session('success'))
         <div style="background:#d1fae5;color:#065f46;padding:12px 20px;border-radius:8px;margin-bottom:20px;font-size:14px;">
