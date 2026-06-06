@@ -311,7 +311,7 @@
 
         <div class="left">
             <div class="logo-circle">
-                <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT" class="logo-img">
+                <img src="{{ asset('img/Escudo_FICCT.png') }}" alt="FICCT" class="logo-img">
             </div>
             <h1>Universidad Autónoma Gabriel René Moreno</h1>
             <div class="divider"></div>
@@ -320,7 +320,7 @@
         </div>
 
         <div class="left-mobile-header">
-            <img src="{{ asset('img/escudo_ficct.png') }}" alt="FICCT">
+            <img src="{{ asset('img/Escudo_FICCT.png') }}" alt="FICCT">
             <div>
                 <h3>Universidad Autónoma Gabriel René Moreno</h3>
                 <p>Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</p>
