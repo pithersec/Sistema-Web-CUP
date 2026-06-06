@@ -188,6 +188,16 @@
         border-top: 1px solid #e2e8f0;
         background: white;
     }
+
+    .pagination-box svg { width: 14px; height: 14px; }
+    .pagination-box nav { display: flex; align-items: center; gap: 4px; }
+    .pagination-box span,
+    .pagination-box a { font-size: 13px; padding: 4px 10px; border-radius: 4px; color: #1a5fa8; text-decoration: none; }
+    .pagination-box a:hover { background: #dceeff; }
+    .pagination-box p { display: none; }
+    .pagination-box nav > div:first-child {
+        display: none;
+    }
 </style>
 
 <div class="bitacora-wrapper">
@@ -212,17 +222,13 @@
             <div>
                 <label>Tipo de Acción</label>
                 <select name="filtroAccion">
-                    <option value="Todas las acciones" {{ $tipoAccion=='Todas las acciones' ? 'selected' : '' }}>Todas
-                        las acciones</option>
-                    <option value="Inicio de sesión" {{ $tipoAccion=='Inicio de sesión' ? 'selected' : '' }}>Inicio de
-                        sesión</option>
-                    <option value="Cierre de sesión" {{ $tipoAccion=='Cierre de sesión' ? 'selected' : '' }}>Cierre de
-                        sesión</option>
-                    <option value="Registro" {{ $tipoAccion=='Registro' ? 'selected' : '' }}>Registro / Creación
-                    </option>
-                    <option value="Modificación" {{ $tipoAccion=='Modificación' ? 'selected' : '' }}>Modificación /
-                        Actualización</option>
-                    <option value="Eliminación" {{ $tipoAccion=='Eliminación' ? 'selected' : '' }}>Eliminación</option>
+                    <option value="Todas las acciones" {{ $tipoAccion=='Todas las acciones' ? 'selected' : '' }}>Todas las acciones</option>
+                    <option value="Inicio de sesión" {{ $tipoAccion=='Inicio de sesión' ? 'selected' : '' }}>Inicio de sesión</option>
+                    <option value="Cierre de sesión" {{ $tipoAccion=='Cierre de sesión' ? 'selected' : '' }}>Cierre de sesión</option>
+                    <option value="Registro" {{ $tipoAccion=='Registro' ? 'selected' : '' }}>Registro / Creación</option>
+                    <option value="Modificación" {{ $tipoAccion=='Modificación' ? 'selected' : '' }}>Modificación</option>
+                    <option value="Activación" {{ $tipoAccion=='Activación' ? 'selected' : '' }}>Activación</option>
+                    <option value="Eliminación" {{ $tipoAccion=='Eliminación' ? 'selected' : '' }}>Baja / Desactivación</option>
                 </select>
             </div>
             <button type="submit" class="btn-filtrar">🔍 Filtrar</button>
@@ -247,18 +253,21 @@
             <tbody>
                 @forelse($eventos as $e)
                 @php
-                // Mapeo dinámico de estilos según la descripción textual del campo accion
                 $badgeClass = 'badge-create';
                 $text = strtolower($e->accion);
 
                 if (str_contains($text, 'inicio de sesión')) {
-                $badgeClass = 'badge-login';
+                    $badgeClass = 'badge-login';
                 } elseif (str_contains($text, 'cierre de sesión')) {
-                $badgeClass = 'badge-logout';
+                    $badgeClass = 'badge-logout';
                 } elseif (str_contains($text, 'modificación') || str_contains($text, 'actualiz')) {
-                $badgeClass = 'badge-update';
+                    $badgeClass = 'badge-update';
+                } elseif (str_contains($text, 'activación') && !str_contains($text, 'desactivación')) {
+                    $badgeClass = 'badge-login';   // ← verde
+                } elseif (str_contains($text, 'desactivación') || str_contains($text, 'baja')) {
+                    $badgeClass = 'badge-logout';  // ← rojo
                 } elseif (str_contains($text, 'elimin')) {
-                $badgeClass = 'badge-logout';
+                    $badgeClass = 'badge-logout';
                 }
                 @endphp
                 <tr>

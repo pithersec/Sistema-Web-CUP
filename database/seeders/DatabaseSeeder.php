@@ -36,7 +36,6 @@ class DatabaseSeeder extends Seeder
             // 4. Tablas Operativas Finales (Transacciones y Eventos)
             ExamenSeeder::class,
             ReclamoSeeder::class,
-            BitacoraSeeder::class,
         ]);
     }
 }
