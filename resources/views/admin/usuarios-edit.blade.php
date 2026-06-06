@@ -11,6 +11,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         padding: 28px;
         max-width: 600px;
+        margin: auto;
     }
     .form-group { margin-bottom: 18px; }
     .form-group label {
@@ -48,6 +49,20 @@
         background: #fde8e8; border: 1px solid #f8b4b4; color: #9b1c1c;
         padding: 12px; border-radius: 6px; font-size: 14px; margin-bottom: 16px;
     }
+
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 20px 16px;
+            max-width: 100%;
+        }
+        .form-card > div[style*="flex"] {
+            flex-direction: column;
+        }
+        .btn-primary, .btn-cancel {
+            width: 100%;
+            text-align: center;
+        }
+    }
 </style>
 
 @if($errors->any())
@@ -59,7 +74,11 @@
 @endif
 
 <div class="form-card">
-    <h2 style="font-family: 'Merriweather', serif; color: #0d3b6e; font-size: 18px; margin-bottom: 20px;">Editar Usuario: {{ $usuario->user_name }}</h2>
+    <div style="background:#0d3b6e; padding:12px 20px; border-radius:8px 8px 0 0; margin:-28px -28px 24px -28px;">
+        <h2 style="font-family:'Merriweather',serif; color:white; font-size: 16px; margin:0;">
+            ✏️ Editar Usuario: {{ $usuario->user_name }}
+        </h2>
+    </div>
 
     <form action="{{ route('usuarios.update', $usuario->id) }}" method="POST">
         @csrf
@@ -67,7 +86,9 @@
 
         <div class="form-group">
             <label>Nombre de Usuario</label>
-            <input type="text" name="user_name" value="{{ old('user_name', $usuario->user_name) }}" required />
+            <input type="text" value="{{ $usuario->user_name }}" readonly
+                style="background:#f8fafc; color:#888; cursor:not-allowed;" />
+            <div class="hint">No editable — generado automáticamente al registrar el personal.</div>
         </div>
 
         <div class="form-group">
@@ -91,8 +112,8 @@
         </div>
 
         <div style="display: flex; gap: 12px; margin-top: 24px;">
-            <button type="submit" class="btn-primary">Guardar Cambios</button>
             <a href="{{ route('usuarios.index') }}" class="btn-cancel">Cancelar</a>
+            <button type="submit" class="btn-primary">💾 Guardar Cambios</button>
         </div>
     </form>
 </div>

@@ -217,6 +217,15 @@
         border-top: 1px solid #e2e8f0;
         background: white;
     }
+
+    @media (max-width: 768px) {
+        .toolbar-form { flex-wrap: wrap; }
+        .search-box { width: 100%; flex: unset; }
+        .filter-select { flex: 1; min-width: 0; font-size: 13px; padding: 8px 10px; }
+        .table-card { overflow-x: auto; }
+        .custom-table { min-width: 600px; }
+        .btn-action { padding: 5px 8px; font-size: 10px; }
+    }
 </style>
 
 @if(session('success'))
