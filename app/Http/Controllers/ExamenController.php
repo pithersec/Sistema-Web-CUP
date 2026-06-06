@@ -86,7 +86,7 @@ class ExamenController extends Controller
     {
         // Validamos la metadata de la planilla y el arreglo de calificaciones entrantes
         $request->validate([
-            'id_grupo'   => 'required|integer|exists:grupo,id',
+            'id_grupo'   => 'required|exists:grupo,id',
             'id_materia' => 'required|exists:materia,id',
             'nro_examen'  => 'required|integer|between:1,3',
             'notas'      => 'required|array',
@@ -132,7 +132,7 @@ class ExamenController extends Controller
             if ($contadorNotas > 0) {
                 Bitacora::create([
                     'ip'         => $request->ip(),
-                    'accion'     => "Planilla Procesada de forma exitosa. El Docente/Usuario: {$user->user_name} registró/actualizó un lote de {$contadorNotas} calificaciones correspondientes al Examen Nro: {$nroExamen}.",
+                    'accion'     => "Registro de Notas. Docente: {$user->user_name} registró/actualizó {$contadorNotas} calificaciones del Examen Nro: {$nroExamen}.",
                     'fecha_hora' => now(),
                     'id_usuario' => $user->id
                 ]);

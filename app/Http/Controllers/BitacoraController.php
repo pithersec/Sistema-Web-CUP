@@ -38,6 +38,7 @@ class BitacoraController extends Controller
                 $query->where(function($q) {
                     $q->where('accion', 'LIKE', '%Registro de Docente%')
                     ->orWhere('accion', 'LIKE', '%Registro de Postulante%')
+                    ->orWhere('accion', 'LIKE', '%Registro de Notas%')
                     ->orWhere('accion', 'LIKE', '%Asignación%')
                     ->orWhere('accion', 'LIKE', '%Creación%');
                 });
