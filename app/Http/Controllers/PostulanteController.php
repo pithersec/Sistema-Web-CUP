@@ -157,7 +157,10 @@ class PostulanteController extends Controller
 
         $query = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
-            ->join('grupo', 'postulante.id_grupo', '=', 'grupo.id')  // ← agregar
+            ->join('grupo', function($join) {
+                $join->on('postulante.id_grupo', '=', 'grupo.id')
+                    ->on('postulante.gestion_grupo', '=', 'grupo.codigo_gestion');
+            })
             ->where('grupo.codigo_gestion', $gestionCodigo)           // ← filtrar por gestión
             ->select(
                 'postulante.codigo',

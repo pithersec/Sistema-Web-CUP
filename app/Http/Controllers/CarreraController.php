@@ -48,7 +48,10 @@ class CarreraController extends Controller
         foreach ($carreras as $carrera) {
             $baseQuery = DB::table('postulante_carrera')
                 ->join('postulante', 'postulante_carrera.codigo_postulante', '=', 'postulante.codigo')
-                ->join('grupo', 'postulante.id_grupo', '=', 'grupo.id')
+                ->join('grupo', function($join) {
+                    $join->on('postulante.id_grupo', '=', 'grupo.id')
+                        ->on('postulante.gestion_grupo', '=', 'grupo.codigo_gestion');  // ← agregar
+                })
                 ->where('postulante_carrera.codigo_carrera', $carrera->codigo)
                 ->where('postulante_carrera.plan_carrera', $carrera->plan)
                 ->where('postulante_carrera.modalidad_carrera', $carrera->modalidad)

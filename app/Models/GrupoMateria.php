@@ -12,6 +12,7 @@ class GrupoMateria extends Model
     protected $fillable = [
         'id_materia',
         'id_grupo',
+        'gestion_grupo',
         'horario',
         'registro_personal',
     ];
@@ -23,7 +24,8 @@ class GrupoMateria extends Model
 
     public function grupo()
     {
-        return $this->belongsTo(Grupo::class, 'id_grupo', 'id');
+        return $this->belongsTo(Grupo::class, 'id_grupo', 'id')
+            ->where('codigo_gestion', $this->gestion_grupo);
     }
 
     public function personal()

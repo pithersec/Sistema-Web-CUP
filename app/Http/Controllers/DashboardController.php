@@ -28,6 +28,7 @@ class DashboardController extends Controller
             // Postulantes de esa gestión (via grupo)
             $postulantes = DB::table('postulante')
                 ->whereIn('id_grupo', $idsGrupos)
+                ->where('gestion_grupo', $gestionCodigo)    
                 ->select('codigo', 'estado')
                 ->get();
 

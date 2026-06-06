@@ -10,7 +10,7 @@ class Grupo extends Model
     public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $primaryKey = 'id';
+    protected $primaryKey = null; // PK compuesta, se define en la migración
 
     protected $fillable = [
         'id', 'aula', 'turno', 'horario', 'total_ins', 'codigo_gestion',

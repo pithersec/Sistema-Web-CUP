@@ -151,6 +151,7 @@ class PostulanteSeeder extends Seeder
                     'id_colegio'               => $faker->randomElement($colegios),
                     'id_pago'                  => $pagoId,
                     'id_grupo'                 => $faker->randomElement($gruposPorGestion[$gestion['codigo']]),
+                    'gestion_grupo'            => $gestion['codigo'],
                 ];
 
                 // Elegir 2 carreras distintas

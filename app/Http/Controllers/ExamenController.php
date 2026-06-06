@@ -33,7 +33,10 @@ class ExamenController extends Controller
 
         // Buscamos en la tabla intermedia grupo_materia las asignaciones del docente
         $grupos = DB::table('grupo_materia')
-            ->join('grupo', 'grupo_materia.id_grupo', '=', 'grupo.id')
+            ->join('grupo', function($join) {
+                $join->on('grupo_materia.id_grupo', '=', 'grupo.id')
+                    ->on('grupo_materia.gestion_grupo', '=', 'grupo.codigo_gestion');  // ← agregar
+            })
             ->where('grupo_materia.registro_personal', $registroPersonal)
             ->where('grupo.codigo_gestion', $gestionCodigo)
             ->select('grupo.id', 'grupo.turno', 'grupo.aula')
@@ -62,6 +65,7 @@ class ExamenController extends Controller
         // Cambia esto en la línea 51 de tu controlador:
         if ($request->filled('id_grupo') && $request->filled('id_materia') && $request->filled('nro_examen')) { // 👈 Cambiado id_examen por nro_examen
             $postulantes = Postulante::where('id_grupo', $request->id_grupo)
+                ->where('gestion_grupo', $gestionCodigo)
                 ->get() // Quité el ->with('datosPersonales') si es que tus campos de nombre están directo en la tabla postulantes
                 ->map(function($postulante) use ($request) {
                     // Buscamos si este alumno ya tiene una calificación guardada en este examen y materia

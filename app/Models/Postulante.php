@@ -15,7 +15,7 @@ class Postulante extends Model
     protected $fillable = [
         'codigo', 'ci', 'procedencia', 'telefono_2', 'plazo',
         'estado', 'gestion_egreso', 'id_requisitos_postulante',
-        'id_colegio', 'id_pago', 'id_grupo',
+        'id_colegio', 'id_pago', 'id_grupo', 'gestion_grupo',
     ];
 
     public function carreras()
@@ -42,7 +42,8 @@ class Postulante extends Model
     }
     public function grupo()
     {
-        return $this->belongsTo(Grupo::class, 'id_grupo');
+        return $this->belongsTo(Grupo::class, 'id_grupo', 'id')
+            ->where('codigo_gestion', $this->gestion_grupo);
     }
     public function datosPersonales()
     {

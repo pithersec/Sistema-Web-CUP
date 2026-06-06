@@ -20,12 +20,13 @@ return new class extends Migration
             $table->string('estado', 30)->default('preinscrito');
             $table->string('gestion_egreso', 20)->nullable();
             $table->string('id_grupo', 10)->nullable();
+            $table->string('gestion_grupo', 20)->nullable();
 
             $table->foreignId('id_requisitos_postulante')->nullable()->constrained('requisitos_postulante')->onUpdate('cascade')->onDelete('set null');
             $table->foreignId('id_colegio')->nullable()->constrained('colegio')->onUpdate('cascade')->onDelete('restrict');
             $table->foreignId('id_pago')->nullable()->constrained('pago')->onUpdate('cascade')->onDelete('set null');
 
-            $table->foreign('id_grupo')->references('id')->on('grupo')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign(['id_grupo', 'gestion_grupo'])->references(['id', 'codigo_gestion'])->on('grupo')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('ci')->references('ci')->on('datos_personales')->onUpdate('cascade')->onDelete('cascade');
         });
     }

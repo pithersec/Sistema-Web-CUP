@@ -9,8 +9,8 @@ class GrupoMateriaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Obtener todos los grupos de todas las gestiones
-        $grupos = DB::table('grupo')->pluck('id')->toArray();
+        // Obtener todos los grupos con su código de gestión para la asignación correcta
+        $grupos = DB::table('grupo')->select('id', 'codigo_gestion')->get();
 
         // Asignación: docente => materia
         $asignaciones = [
@@ -29,11 +29,12 @@ class GrupoMateriaSeeder extends Seeder
         $registros = [];
 
         foreach ($asignaciones as $registro => $idMateria) {
-            foreach ($grupos as $idGrupo) {
-                $prefijo = substr($idGrupo, 0, 1);
+            foreach ($grupos as $grupo) {
+                $prefijo = substr($grupo->id, 0, 1);
                 $registros[] = [
                     'id_materia'        => $idMateria,
-                    'id_grupo'          => $idGrupo,
+                    'id_grupo'          => $grupo->id,
+                    'gestion_grupo'     => $grupo->codigo_gestion, 
                     'horario'           => $horarios[$prefijo] ?? '07:00 - 11:00',
                     'registro_personal' => $registro,
                 ];
