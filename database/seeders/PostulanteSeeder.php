@@ -75,8 +75,9 @@ class PostulanteSeeder extends Seeder
         $datosPersonales = [];
         $pagos = [];
         $requisitos = [];
-        $pagoId = 4; // empieza después de los 3 del PagoSeeder
-        $requisitosId = 4;
+
+        $pagoId = 1;
+        $requisitosId = 1;
 
         foreach ($gestiones as $gestion) {
             $estados = $estadosPorGestion[$gestion['codigo']];
@@ -194,5 +195,9 @@ class PostulanteSeeder extends Seeder
         foreach (array_chunk($postulantesCarrera, 500) as $chunk) {
             DB::table('postulante_carrera')->insert($chunk);
         }
+
+        // Al final de run(), después de todos los inserts
+        DB::statement("SELECT setval('requisitos_postulante_id_seq', (SELECT MAX(id) FROM requisitos_postulante))");
+        DB::statement("SELECT setval('pago_id_seq', (SELECT MAX(id) FROM pago))");
     }
 }
