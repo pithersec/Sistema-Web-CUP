@@ -29,6 +29,39 @@
         </div>
     @endif
 
+    @php
+    $nombresLegibles = [
+        'sistema.total'        => 'Acceso Total',
+        'usuarios.ver'         => 'Ver Usuarios',
+        'usuarios.crear'       => 'Crear Usuarios',
+        'usuarios.editar'      => 'Editar Usuarios',
+        'usuarios.eliminar'    => 'Eliminar Usuarios',
+        'perfiles.gestionar'   => 'Gestionar Perfiles',
+        'privilegios.gestionar'=> 'Gestionar Privilegios',
+        'postulantes.ver'      => 'Ver Postulantes',
+        'postulantes.aprobar'  => 'Aprobar Postulantes',
+        'postulantes.rechazar' => 'Rechazar Postulantes',
+        'postulantes.validar'  => 'Validar Postulantes',
+        'docentes.ver'         => 'Ver Personal',
+        'docentes.crear'       => 'Registrar Personal',
+        'docentes.editar'      => 'Editar Personal',
+        'docentes.desactivar'  => 'Desactivar Personal',
+        'carreras.ver'         => 'Ver Carreras',
+        'cupos.editar'         => 'Editar Cupos',
+        'grupos.ver'           => 'Ver Grupos',
+        'grupos.crear'         => 'Crear Grupos',
+        'materias.ver'         => 'Ver Materias',
+        'materias.gestionar'   => 'Gestionar Materias',
+        'gestiones.ver'        => 'Ver Gestiones',
+        'gestiones.gestionar'  => 'Gestionar Gestiones',
+        'notas.ver'            => 'Ver Exámenes',
+        'notas.registrar'      => 'Registrar Notas',
+        'notas.editar'         => 'Editar Notas',
+        'bitacora.ver'         => 'Ver Bitácora',
+        'reportes.ver'         => 'Ver Reportes',
+    ];
+    @endphp
+
     @foreach($perfiles as $perfil)
     <div class="perfil-card">
         <h3>{{ $perfil->nombre }}</h3>
@@ -39,7 +72,7 @@
                     $activo = $perfil->privilegios->contains('id', $priv->id);
                 @endphp
                 <span class="priv-badge {{ $activo ? 'active' : 'inactive' }}">
-                    {{ $activo ? '✓' : '—' }} {{ $priv->nombre }}
+                    {{ $activo ? '✓' : '—' }} {{ $nombresLegibles[$priv->nombre] ?? $priv->nombre }}
                 </span>
             @endforeach
         </div>
