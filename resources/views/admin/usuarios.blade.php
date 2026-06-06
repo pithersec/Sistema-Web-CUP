@@ -172,6 +172,9 @@
         color: #d35400;
     }
 
+    .badge-purple { background: #d1fae5; color: #065f46; }
+    .badge-cyan   { background: #cffafe; color: #036d80; }
+
     /* ACTIONS */
     .actions-cluster {
         display: flex;
@@ -250,9 +253,6 @@
         <div class="table-header">
             <h2>Listado de Usuarios</h2>
             <div style="display:flex;gap:10px;align-items:center;">
-                @can('usuarios.crear')
-                <a href="{{ route('usuarios.create') }}" class="btn-action" style="background:#0d3b6e;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">+ Nuevo Usuario</a>
-                @endcan
                 <span class="total-badge">{{ $totalUsuarios }} usuarios registrados</span>
             </div>
         </div>
@@ -270,11 +270,12 @@
             <tbody>
                 @forelse($usuarios as $u)
                 @php
-                // Clasificación de estilo visual dinámico según el nombre del rol/perfil
-                $badgeStyle = 'badge-green';
-                if (str_contains(strtolower($u->perfil->nombre ?? ''), 'admin')) {
-                $badgeStyle = $loop->even ? 'badge-orange' : 'badge-blue';
-                }
+                $badgeStyle = match(strtolower($u->perfil->nombre ?? '')) {
+                    'sistema'       => 'badge-purple',
+                    'administrador' => 'badge-blue',
+                    'docente'       => 'badge-cyan',
+                    default         => 'badge-gray',
+                };
                 @endphp
                 <tr>
                     <td><strong>{{ $u->user_name }}</strong></td>

@@ -277,7 +277,7 @@
                     <th>Nombre Completo</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
-                    <th>Perfil</th>
+                    <th>Perfil Asignado</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -290,7 +290,19 @@
                     <td>{{ $d->datosPersonales->nombre ?? '' }} {{ $d->datosPersonales->apellido ?? '' }}</td>
                     <td>{{ $d->datosPersonales->correo ?? 'Sin Correo' }}</td>
                     <td>{{ $d->datosPersonales->telefono ?? 'S/N' }}</td>
-                    <td>{{ $d->perfil_nombre ?? 'S/P' }}</td>
+                    <td>
+                        @php
+                            $badgeEstilo = match(strtolower($d->perfil_nombre ?? '')) {
+                                'sistema'       => 'background:#d1fae5; color:#065f46;',
+                                'administrador' => 'background:#dceeff; color:#1a5fa8;',
+                                'docente'       => 'background:#cffafe; color:#036d80;',
+                                default         => 'background:#f1f5f9; color:#5a5a5a;',
+                            };
+                        @endphp
+                        <span style="display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; {{ $badgeEstilo }}">
+                            {{ $d->perfil_nombre ?? 'S/P' }}
+                        </span>
+                    </td>
                     <td>
                         @if($d->estado)
                         <span class="badge badge-green">Activo</span>
