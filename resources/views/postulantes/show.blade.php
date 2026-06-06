@@ -449,23 +449,31 @@
         <div class="section-card-body">
             @if($postulante->requisitosPostulante)
             @php $req = $postulante->requisitosPostulante; @endphp
-            <div class="requisitos-grid">
-                @foreach([
-                    'titulo_original'  => 'Título Original',
-                    'titulo_copia'     => 'Copia del Título',
-                    'fotocopia_carnet' => 'Fotocopia Carnet',
-                    'formulario'       => 'Formulario',
-                    'comprobante'      => 'Comprobante de Pago',
-                    'libreta'          => 'Libreta Escolar',
-                ] as $campo => $label)
-                <div class="requisito-item">
-                    <div class="req-check {{ $req->$campo ? 'ok' : 'no' }}">
-                        {{ $req->$campo ? '✓' : '✗' }}
-                    </div>
-                    {{ $label }}
+            <form action="{{ route('postulantes.requisitos', $postulante->codigo) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="requisitos-grid">
+                    @foreach([
+                        'titulo_original'  => 'Título Original',
+                        'titulo_copia'     => 'Copia del Título',
+                        'fotocopia_carnet' => 'Fotocopia Carnet',
+                        'formulario'       => 'Formulario',
+                        'libreta'          => 'Libreta Escolar',
+                    ] as $campo => $label)
+                    <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:#333; text-transform:none; letter-spacing:0; font-weight:500; cursor:pointer;">
+                        <input type="checkbox" name="{{ $campo }}" value="1"
+                            {{ $req->$campo ? 'checked' : '' }}
+                            style="width:16px; height:16px; cursor:pointer; accent-color:#0d3b6e;" />
+                        {{ $label }}
+                    </label>
+                    @endforeach
                 </div>
-                @endforeach
-            </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid #e2e8f0;">
+                    <button type="submit" style="padding:8px 20px; background:#0d3b6e; color:white; border:none; border-radius:6px; font-family:'Source Sans 3',sans-serif; font-size:13px; font-weight:600; cursor:pointer;">
+                        💾 Guardar Requisitos
+                    </button>
+                </div>
+            </form>
             @else
             <p style="color:#aaa; font-style:italic; font-size:13px;">Sin requisitos registrados</p>
             @endif

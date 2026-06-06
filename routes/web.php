@@ -37,6 +37,9 @@ Route::get('/preinscripcion/exito', function () {
 Route::get('/forgot-password', fn() => view('auth.forgot_password'));
 Route::post('/forgot-password', fn() => back()->with('status', 'sent'));
 
+Route::get('/pago/{codigo}', [PostulanteController::class, 'mostrarPago'])->name('pago.index');
+Route::post('/pago/{codigo}/confirmar', [PostulanteController::class, 'confirmarPago'])->name('pago.confirmar');
+
 /*
 |--------------------------------------------------------------------------
 | 2. RUTAS PROTEGIDAS (Requieren Autenticación)
@@ -94,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('privilegio:postulantes.editar')->group(function () {
         Route::get('/admin/postulantes/{codigo}/editar', [PostulanteController::class, 'editarPostulante'])->name('postulantes.edit');
         Route::put('/admin/postulantes/{codigo}', [PostulanteController::class, 'actualizarPostulante'])->name('postulantes.update');
+        Route::patch('/admin/postulantes/{codigo}/requisitos', [PostulanteController::class, 'actualizarRequisitos'])->name('postulantes.requisitos');
     });
 
     /*

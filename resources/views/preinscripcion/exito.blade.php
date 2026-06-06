@@ -37,6 +37,9 @@
             <div class="codigo" id="codigoPostulante">{{ session('codigo_postulante') }}</div>
             <button onclick="copiarCodigo()" id="btnCopiar" style="background:none; border:none; color:#1a5fa8; font-size:13px; cursor:pointer; margin-top:-8px; margin-bottom:12px;">📋 Copiar código</button>
             <p>Fecha límite de validación física: <strong>{{ session('plazo_limite') }}</strong></p>
+            <a href="{{ route('pago.index', session('codigo_postulante')) }}" class="btn" style="background:#27ae60; margin-right:8px;">
+                💳 Realizar Pago
+            </a>
             <a href="{{ url('/') }}" class="btn">Ir al Inicio</a>
         </div>
     </div>

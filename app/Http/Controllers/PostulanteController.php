@@ -8,6 +8,7 @@ use App\Models\DatosPersonales;
 use App\Models\RequisitosPostulante;
 use App\Models\Bitacora;
 use App\Models\Gestion;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,8 +21,9 @@ class PostulanteController extends Controller
      */
     public function mostrarFormularioPreinscripcion()
     {
-        $carreras = Carrera::all(); 
-        return view('preinscripcion.index', compact('carreras'));
+        $carreras = Carrera::orderByRaw("CASE WHEN modalidad = 'presencial' THEN 0 ELSE 1 END")->orderBy('nombre')->get();
+        $colegios = DB::table('colegio')->orderBy('nombre')->get();
+        return view('preinscripcion.index', compact('carreras', 'colegios'));
     }
 
     /**
@@ -42,8 +44,7 @@ class PostulanteController extends Controller
             'telefono'         => 'nullable|string|max:20',
             'codigo_carrera1'  => 'required|string',
             'codigo_carrera2'  => 'required|string|different:codigo_carrera1',
-            
-            // Los agregamos como opcionales por si la vista no los envía en el paso 1
+            'id_colegio'       => 'required|exists:colegio,id',
             'procedencia'      => 'nullable|string|max:100',
             'telefono_2'       => 'nullable|string|max:20',
             'gestion_egreso'   => 'nullable|string|max:20',
@@ -79,16 +80,17 @@ class PostulanteController extends Controller
             $codigoPostulante = 'P-' . date('Y') . '-' . strtoupper(Str::random(5));
 
             // 4. Simular guardarPostulante() en la entidad central
+            // Postulante — con los campos correctos
             $postulante = Postulante::create([
                 'codigo'                   => $codigoPostulante,
                 'ci'                       => $datosPersonales->ci,
                 'procedencia'              => $validated['procedencia'] ?? 'Santa Cruz',
                 'telefono_2'               => $validated['telefono_2'] ?? null,
-                'plazo'                    => now()->addDays(5), // 5 días de plazo
+                'plazo'                    => now()->addDays(5),
                 'estado'                   => 'preinscrito',
                 'gestion_egreso'           => $validated['gestion_egreso'] ?? date('Y'),
                 'id_requisitos_postulante' => $requisitos->id,
-                'id_colegio'               => null,
+                'id_colegio'               => $validated['id_colegio'],  // ← acá
                 'id_pago'                  => null,
                 'id_grupo'                 => null,
             ]);
@@ -157,11 +159,14 @@ class PostulanteController extends Controller
 
         $query = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
-            ->join('grupo', function($join) {
+            ->leftJoin('grupo', function($join) {
                 $join->on('postulante.id_grupo', '=', 'grupo.id')
                     ->on('postulante.gestion_grupo', '=', 'grupo.codigo_gestion');
             })
-            ->where('grupo.codigo_gestion', $gestionCodigo)           // ← filtrar por gestión
+            ->where(function($q) use ($gestionCodigo) { // ← filtrar por gestión
+                $q->where('grupo.codigo_gestion', $gestionCodigo)
+                ->orWhereNull('postulante.id_grupo');  // ← incluir sin grupo
+            })           
             ->select(
                 'postulante.codigo',
                 'postulante.ci',
@@ -322,6 +327,111 @@ public function darBaja($codigo)
             Log::error($e->getMessage());
             return redirect()->back()->withInput()
                 ->withErrors(['error' => 'Error al actualizar. Intente nuevamente.']);
+        }
+    }
+
+    public function actualizarRequisitos(Request $request, $codigo)
+    {
+        $postulante = Postulante::where('codigo', $codigo)->firstOrFail();
+        
+        $req = RequisitosPostulante::find($postulante->id_requisitos_postulante);
+        
+        $req->update([
+            'titulo_original'  => $request->has('titulo_original'),
+            'titulo_copia'     => $request->has('titulo_copia'),
+            'fotocopia_carnet' => $request->has('fotocopia_carnet'),
+            'formulario'       => $request->has('formulario'),
+            'comprobante'      => $request->has('comprobante'),
+            'libreta'          => $request->has('libreta'),
+        ]);
+
+        Bitacora::create([
+            'ip'         => $request->ip(),
+            'accion'     => "Actualización de Requisitos. Usuario: " . Auth::user()->user_name . " actualizó requisitos del postulante: {$codigo}.",
+            'fecha_hora' => now(),
+            'id_usuario' => Auth::id()
+        ]);
+
+        return redirect()->back()->with('success', 'Requisitos actualizados correctamente.');
+    }
+
+    public function mostrarPago($codigo)
+    {
+        $postulante = Postulante::with(['datosPersonales', 'requisitosPostulante'])
+            ->where('codigo', $codigo)->firstOrFail();
+
+        // Verificar si ya pagó
+        if ($postulante->pago && $postulante->pago->estado === 'completado') {
+            return redirect()->route('preinscripcion.exito')
+                ->with('codigo_postulante', $codigo)
+                ->with('success', 'Tu pago ya fue procesado.');
+        }
+
+        // Verificar requisitos completos
+        $req = $postulante->requisitosPostulante;
+        $requisitosCompletos = $req &&
+            $req->titulo_original && $req->titulo_copia &&
+            $req->fotocopia_carnet && $req->formulario &&
+            $req->libreta;
+
+        return view('preinscripcion.pago', compact('postulante', 'requisitosCompletos'));
+    }
+
+    public function confirmarPago(Request $request, $codigo)
+    {
+        $postulante = Postulante::with(['requisitosPostulante'])
+            ->where('codigo', $codigo)->firstOrFail();
+
+        // Verificar requisitos
+        $req = $postulante->requisitosPostulante;
+        $requisitosCompletos = $req &&
+            $req->titulo_original && $req->titulo_copia &&
+            $req->fotocopia_carnet && $req->formulario &&
+            $req->libreta;
+
+        if (!$requisitosCompletos) {
+            return redirect()->back()->withErrors(['error' => 'No puedes pagar sin completar los requisitos.']);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Crear pago
+            $pago = DB::table('pago')->insertGetId([
+                'monto'               => 700.00,
+                'fecha'               => now()->toDateString(),
+                'concepto'            => 'Inscripción CUP FICCT',
+                'estado'              => 'completado',
+                'referencia_pasarela' => 'SIM-' . strtoupper(Str::random(8)),
+            ]);
+
+            // Marcar comprobante como entregado
+            DB::table('requisitos_postulante')
+                ->where('id', $postulante->id_requisitos_postulante)
+                ->update(['comprobante' => true]);
+
+            // Actualizar postulante
+            $postulante->update([
+                'id_pago' => $pago,
+                'estado'  => 'inscrito',
+            ]);
+
+            Bitacora::create([
+                'ip'         => $request->ip(),
+                'accion'     => "Pago Completado. Postulante: {$codigo} realizó el pago de inscripción.",
+                'fecha_hora' => now(),
+                'id_usuario' => 1 // sistema
+            ]);
+
+            DB::commit();
+            return redirect()->route('preinscripcion.exito')
+                ->with('success', '¡Pago realizado con éxito! Ya estás inscrito.')
+                ->with('codigo_postulante', $codigo)
+                ->with('plazo_limite', now()->addDays(5)->format('d/m/Y'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Error al procesar el pago.']);
         }
     }
 }
