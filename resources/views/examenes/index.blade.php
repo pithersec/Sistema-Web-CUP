@@ -121,7 +121,7 @@
                     <option value="">-- Seleccionar Grupo --</option>
                     @foreach($grupos as $g)
                     <option value="{{ $g->id }}" {{ request('id_grupo')==$g->id ? 'selected' : '' }}>
-                        {{ $g->id }} · {{ $g->turno }} · Aula {{ $g->aula }}
+                        {{ $g->id }} · {{ ucfirst($g->turno) }} · Aula {{ $g->aula }}
                     </option>
                     @endforeach
                 </select>
