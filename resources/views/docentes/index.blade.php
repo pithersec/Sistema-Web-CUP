@@ -135,8 +135,8 @@
     }
 
     .badge-gray {
-        background: #e2e8f0;
-        color: #5a5a5a;
+        background: #fde8e8;
+        color: #c0392b;
     }
 
     /* ACTIONS */
@@ -158,20 +158,11 @@
     }
 
     .btn-view {
-        background: #f0f4f8;
-        color: #5a5a5a;
-    }
-
-    .btn-view:hover {
-        background: #e2e8f0;
-    }
-
-    .btn-edit {
         background: #dceeff;
         color: #1a5fa8;
     }
 
-    .btn-edit:hover {
+    .btn-view:hover {
         background: #cce3ff;
     }
 
@@ -184,17 +175,45 @@
         background: #fbcbcb;
     }
 
+    .btn-desactivar {
+        background: #fde8e8;
+        color: #c0392b;
+    }
+
+    .btn-desactivar:hover { background: #fbcbcb; }
+
+    .btn-activar {
+        background: #d4f5e2;
+        color: #1a7a3c;
+    }
+    .btn-activar:hover { background: #b7f0d0; }
+
     /* PAGINACIÓN */
     .pagination-box {
         padding: 14px 24px;
         border-top: 1px solid #e2e8f0;
         background: white;
     }
+
+    .pagination-box svg { width: 14px; height: 14px; }
+    .pagination-box nav { display: flex; align-items: center; gap: 4px; }
+    .pagination-box span,
+    .pagination-box a { font-size: 13px; padding: 4px 10px; border-radius: 4px; color: #1a5fa8; text-decoration: none; }
+    .pagination-box a:hover { background: #dceeff; }
+    .pagination-box p { display: none; }
+
+    @media (max-width: 768px) {
+        .toolbar-form { flex-wrap: wrap; }
+        .search-box { width: 100%; flex: unset; }
+        .filter-select { flex: 1; min-width: 0; font-size: 13px; padding: 8px 10px; }
+        .table-card { overflow-x: auto; }
+        .custom-table { min-width: 500px; }
+        .btn-action { padding: 5px 8px; font-size: 10px; }
+    }
 </style>
 
 @if(session('success'))
-<div
-    style="background: #d4f5e2; color: #1a7a3c; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13.5px; font-weight: 600;">
+<div style="background: #d4f5e2; color: #1a7a3c; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13.5px; font-weight: 600; width: 100%;">
     {{ session('success') }}
 </div>
 @endif
@@ -209,7 +228,7 @@
 <div class="docentes-wrapper">
     <form action="{{ route('docentes.index') }}" method="GET" class="toolbar-form" id="docentesForm">
         <div class="search-box">
-            <input type="text" name="filtro" placeholder="Buscar por CI, registro, nombre o apellido..."
+            <input type="text" name="filtro" placeholder="Buscar docente..."
                 value="{{ $filtro }}" autocomplete="off" />
         </div>
 
@@ -256,17 +275,25 @@
                     </td>
                     <td>
                         <div class="actions-cluster">
-                            <a href="#" class="btn-action btn-view">Ver</a>
-                            <a href="#"
-                                class="btn-action btn-edit">Editar</a>
+                            <a href="{{ route('docentes.show', $d->registro) }}" class="btn-action btn-view">Ver</a>
 
-                            <form action="{{ route('docentes.desactivar', $d->registro) }}" method="POST"
-                                style="display:inline;"
-                                onsubmit="return confirm('¿Está seguro de cambiar a Inactivo al docente con registro {{ e($d->registro) }}?');">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="btn-action btn-delete">Baja</button>
-                            </form>
+                            @if($d->estado)
+                                <form action="{{ route('docentes.desactivar', $d->registro) }}" method="POST"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('¿Desactivar al docente {{ e($d->registro) }}?');">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn-action btn-desactivar">Desactivar</button>
+                                </form>
+                            @else
+                                <form action="{{ route('docentes.activar', $d->registro) }}" method="POST"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('¿Activar al docente {{ e($d->registro) }}?');">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn-action btn-activar">Activar</button>
+                                </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

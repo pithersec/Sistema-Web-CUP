@@ -115,16 +115,19 @@ Route::middleware(['auth'])->group(function () {
     |------------------------------------------------------------------*/
     Route::middleware('privilegio:docentes.ver')->group(function () {
         Route::get('/admin/docentes', [PersonalController::class, 'listarDocentes'])->name('docentes.index');
+        Route::get('/admin/docentes/{registro}', [PersonalController::class, 'verDocente'])->name('docentes.show');
     });
     Route::middleware('privilegio:docentes.crear')->group(function () {
         Route::post('/admin/docentes', [PersonalController::class, 'guardarDocente'])->name('docentes.guardar');
     });
     Route::middleware('privilegio:docentes.editar')->group(function () {
         Route::put('/admin/docentes/{registro}', [PersonalController::class, 'actualizarDocente'])->name('docentes.actualizar');
+        Route::get('/admin/docentes/{registro}/editar', [PersonalController::class, 'editarDocente'])->name('docentes.edit');
     });
     Route::middleware('privilegio:docentes.desactivar')->group(function () {
         Route::post('/admin/docentes/{registro}/baja', [PersonalController::class, 'desactivarDocente']);
         Route::patch('/admin/docentes/{registro}/desactivar', [PersonalController::class, 'desactivarDocente'])->name('docentes.desactivar');
+        Route::patch('/admin/docentes/{registro}/activar', [PersonalController::class, 'activarDocente'])->name('docentes.activar');
     });
 
     /*

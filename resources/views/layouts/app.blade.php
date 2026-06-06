@@ -180,8 +180,9 @@
         .content {
             flex: 1;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;  /* ← agregar */
+            align-items: flex-start; /* ← cambiar de center */
+            justify-content: flex-start; /* ← cambiar de center */
             padding: 28px;
         }
 
@@ -194,6 +195,7 @@
             text-align: center;
             max-width: 420px;
             width: 100%;
+            margin: auto;
         }
 
         .icon-circle {
