@@ -153,6 +153,7 @@ class PostulanteController extends Controller
         $buscar = $request->input('buscar');
         $estado = $request->input('estado', 'Todos los estados');
         $carrera = $request->input('carrera', 'Todas las carreras');
+        $procedencia = $request->input('procedencia', 'Todas');
 
         $query = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
@@ -173,12 +174,9 @@ class PostulanteController extends Controller
             $query->where(function ($q) use ($buscar) {
                 $q->where('postulante.ci', 'LIKE', "%{$buscar}%")
                 ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
-                ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%");
+                ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%")
+                ->orWhere('datos_personales.telefono', 'LIKE', "%{$buscar}%");
             });
-        }
-
-        if (!empty($estado) && $estado !== 'Todos los estados') {
-            $query->where('postulante.estado', $estado);
         }
 
         if (!empty($carrera) && $carrera !== 'Todas las carreras') {
@@ -193,6 +191,14 @@ class PostulanteController extends Controller
             });
         }
 
+        if (!empty($estado) && $estado !== 'Todos los estados') {
+            $query->where('postulante.estado', $estado);
+        }
+
+        if (!empty($procedencia) && $procedencia !== 'Todas') {
+            $query->where('postulante.procedencia', $procedencia);
+        }
+
         $postulantes = $query->paginate(15)->withQueryString();
         $totalPostulantes = $postulantes->total();
         $carreras = Carrera::orderByRaw("CASE WHEN modalidad = 'presencial' THEN 0 ELSE 1 END")
@@ -202,7 +208,7 @@ class PostulanteController extends Controller
         return view('postulantes.index', compact(
             'postulantes', 'totalPostulantes', 'carreras',
             'buscar', 'estado', 'carrera',
-            'gestiones', 'gestionCodigo'
+            'gestiones', 'gestionCodigo', 'procedencia'
         ));
     }
 

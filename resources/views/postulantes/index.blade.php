@@ -284,7 +284,7 @@
 <div class="postulantes-wrapper">
     <form action="{{ route('postulantes.index') }}" method="GET" class="toolbar-form" id="filterForm">
         <div class="search-box">
-            <input type="text" name="buscar" placeholder="Buscar por CI, nombre o apellido..." value="{{ $buscar }}"
+            <input type="text" name="buscar" placeholder="Buscar postulante..." value="{{ $buscar }}"
                 autocomplete="off" />
         </div>
 
@@ -313,6 +313,13 @@
             <option value="inscrito" {{ $estado=='inscrito' ? 'selected' : '' }}>Inscrito</option>
             <option value="preinscrito" {{ $estado=='preinscrito' ? 'selected' : '' }}>Preinscrito</option>
             <option value="baja" {{ $estado=='baja' ? 'selected' : '' }}>Baja</option>
+        </select>
+
+        <select name="procedencia" class="filter-select" onchange="document.getElementById('filterForm').submit();">
+            <option value="Todas" {{ $procedencia=='Todas' ? 'selected' : '' }}>Todas las procedencias</option>
+            @foreach(['Santa Cruz','La Paz','Cochabamba','Oruro','Potosí','Tarija','Beni','Pando','Chuquisaca','Extranjero'] as $dep)
+            <option value="{{ $dep }}" {{ $procedencia==$dep ? 'selected' : '' }}>{{ $dep }}</option>
+            @endforeach
         </select>
     </form>
 
