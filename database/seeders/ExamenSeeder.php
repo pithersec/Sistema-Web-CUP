@@ -31,8 +31,8 @@ class ExamenSeeder extends Seeder
                     $examenes[] = [
                         'codigo_postulante' => $p->codigo,
                         'nro_examen'        => $nro,
-                        'ponderacion'       => $nro == 3 ? 40.00 : 30.00,
-                        'nota'              => $faker->randomFloat(2, 60, 100),
+                        'ponderacion'       => $nro == 3 ? 40 : 30,
+                        'nota'              => $faker->numberBetween(60, 100),
                         'fecha'             => $faker->dateTimeBetween('2025-02-01', '2025-06-30')->format('Y-m-d'),
                         'id_materia'        => $faker->randomElement($materias),
                     ];
@@ -43,8 +43,8 @@ class ExamenSeeder extends Seeder
                 $examenReprobado = $faker->numberBetween(1, $cantExamenes);
                 for ($nro = 1; $nro <= $cantExamenes; $nro++) {
                     $nota = $nro === $examenReprobado
-                        ? $faker->randomFloat(2, 0, 59)
-                        : $faker->randomFloat(2, 60, 100);
+                        ? $faker->numberBetween(0, 59)
+                        : $faker->numberBetween(60, 100);
                     $examenes[] = [
                         'codigo_postulante' => $p->codigo,
                         'nro_examen'        => $nro,
@@ -60,7 +60,7 @@ class ExamenSeeder extends Seeder
                     'codigo_postulante' => $p->codigo,
                     'nro_examen'        => 1,
                     'ponderacion'       => 30.00,
-                    'nota'              => $faker->randomFloat(2, 40, 85),
+                    'nota'              => $faker->numberBetween(40, 85),
                     'fecha'             => $faker->dateTimeBetween('2025-02-01', '2025-03-30')->format('Y-m-d'),
                     'id_materia'        => $faker->randomElement($materias),
                 ];
@@ -82,7 +82,7 @@ class ExamenSeeder extends Seeder
                     'codigo_postulante' => $p->codigo,
                     'nro_examen'        => 1,
                     'ponderacion'       => 30.00,
-                    'nota'              => $faker->randomFloat(2, 30, 95),
+                    'nota'              => $faker->numberBetween(30, 95),
                     'fecha'             => $faker->dateTimeBetween('2026-02-01', '2026-04-30')->format('Y-m-d'),
                     'id_materia'        => $faker->randomElement($materias),
                 ];

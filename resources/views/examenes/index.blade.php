@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Registro de Notas - CUP')
-@section('page_title', 'Registro de Notas')
+@section('title', 'Registro de Exámenes - CUP')
+@section('page_title', 'Registro de Exámenes')
 
 @section('content')
 <div class="content" style="padding: 0; width: 100%;">
@@ -15,13 +15,20 @@
 
     <div class="filters-card"
         style="background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 20px 24px; margin-bottom: 20px;">
-        <h3
-            style="font-size: 13px; font-weight: 600; color: #0d3b6e; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
-            Seleccionar Grupo y Materia</h3>
+        <h3 style="font-size: 13px; font-weight: 600; color: #0d3b6e; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+            Seleccionar Planilla</h3>
 
-        {{-- <form action="{{ url('/docente/grupos-notas') }}" method="GET" class="filters-grid" --}} <form
-            action="{{ route('notas.index') }}" method="GET" class="filters-grid"
-            style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 14px; align-items: end;">
+        <form action="{{ route('notas.index') }}" method="GET" class="filters-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 14px; align-items: end;">
+            <div>
+                <label>Gestión</label>
+                <select name="gestion" onchange="this.form.submit()" style="width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; outline: none;">
+                    @foreach($gestiones as $g)
+                    <option value="{{ $g->codigo }}" {{ $gestionCodigo == $g->codigo ? 'selected' : '' }}>
+                        {{ $g->codigo }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
             <div>
                 <label
                     style="display: block; font-size: 11px; font-weight: 600; color: #0d3b6e; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px;">Grupo</label>
@@ -30,24 +37,10 @@
                     <option value="">-- Seleccionar Grupo --</option>
                     @foreach($grupos as $g)
                     <option value="{{ $g->id }}" {{ request('id_grupo')==$g->id ? 'selected' : '' }}>
-                        {{ $g->nombre }} · {{ $g->turno }} · Aula {{ $g->aula }}
+                        {{ $g->id }} · {{ $g->turno }} · Aula {{ $g->aula }}
                     </option>
                     @endforeach
                 </select>
-
-                {{-- <select name="id_grupo" required
-                    style="width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; outline: none;">
-                    <option value="">-- Seleccionar Grupo --</option>
-                    {{-- Aquí iterarás tus grupos reales --}}
-                    {{-- @foreach($grupos as $g) --}}
-                    {{--}} <option value="1" {{ request('id_grupo')==1 ? 'selected' : '' }}>Grupo A · Mañana ·
-                        Aula 101
-                    </option>
-                    <option value="2" {{ request('id_grupo')==2 ? 'selected' : '' }}>Grupo B · Tarde · Aula 202
-                    </option>
-                    --}} {{-- @endforeach --}}
-                    {{--
-                </select> --}}
             </div>
             <div>
                 <label
@@ -62,14 +55,6 @@
                     </option>
                     @endforeach
                 </select>
-                {{--<select name="id_materia" required
-                    style="width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; outline: none;">
-                    <option value="">-- Seleccionar Materia --</option>
-                    <option value="1" {{ request('id_materia')==1 ? 'selected' : '' }}>Matemáticas</option>
-                    <option value="2" {{ request('id_materia')==2 ? 'selected' : '' }}>Computación</option>
-                    <option value="3" {{ request('id_materia')==3 ? 'selected' : '' }}>Inglés</option>
-                    <option value="4" {{ request('id_materia')==4 ? 'selected' : '' }}>Física</option>
-                </select> --}}
             </div>
             <div>
                 <label
@@ -93,9 +78,11 @@
             style="padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
             <h2 style="font-family: 'Merriweather', serif; color: #0d3b6e; font-size: 15px;">Planilla de Evaluación
                 Actual</h2>
-            <span class="info-badge"
-                style="background: #dceeff; color: #1a5fa8; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">6
-                estudiantes en lista</span>
+            @if($postulantes && count($postulantes) > 0)
+            <span class="info-badge" style="background: #dceeff; color: #1a5fa8; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                {{ $postulantes ? count($postulantes) : 0 }} estudiantes en lista
+            </span>
+            @endif
         </div>
 
         <form action="{{ route('notas.registrar') }}" method="POST">

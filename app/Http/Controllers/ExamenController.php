@@ -6,6 +6,7 @@ use App\Models\Examen;
 use App\Models\Grupo;
 use App\Models\Postulante;
 use App\Models\Bitacora;
+use App\Models\Gestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,13 +27,19 @@ class ExamenController extends Controller
             abort(403, 'Su usuario no tiene un registro de personal asignado.');
         }
 
+        // Gestiones
+        $gestiones = Gestion::orderByRaw("SPLIT_PART(codigo, '-', 2) DESC, SPLIT_PART(codigo, '-', 1) DESC")->get();
+        $gestionCodigo = $request->input('gestion', $gestiones->first()?->codigo);
+
         // Buscamos en la tabla intermedia grupo_materia las asignaciones del docente
-$grupos = DB::table('grupo_materia')
-    ->join('grupo', 'grupo_materia.id_grupo', '=', 'grupo.id')
-    ->where('grupo_materia.registro_personal', $registroPersonal)
-    ->select('grupo.id', 'grupo.id as nombre', 'grupo.turno', 'grupo.aula') // 👈 Usamos grupo.id como el nombre visible
-    ->distinct()
-    ->get();
+        $grupos = DB::table('grupo_materia')
+            ->join('grupo', 'grupo_materia.id_grupo', '=', 'grupo.id')
+            ->where('grupo_materia.registro_personal', $registroPersonal)
+            ->where('grupo.codigo_gestion', $gestionCodigo)
+            ->select('grupo.id', 'grupo.turno', 'grupo.aula')
+            ->groupBy('grupo.id', 'grupo.turno', 'grupo.aula')
+            ->orderByRaw("CASE WHEN grupo.turno = 'mañana' THEN 0 WHEN grupo.turno = 'tarde' THEN 1 ELSE 2 END, grupo.id")
+            ->get();
 
 
         $materias = DB::table('grupo_materia')
@@ -67,8 +74,8 @@ $grupos = DB::table('grupo_materia')
                     return $postulante;
                 });
         }
-        // Cambia el retorno al final del método (Línea 65) para respetar tu mayúscula:
-        return view('notas.index', compact('grupos', 'materias', 'examenes', 'postulantes')); // 👈 'Notas.index' con N mayúscula
+
+        return view('examenes.index', compact('grupos', 'materias', 'examenes', 'postulantes', 'gestiones', 'gestionCodigo')); 
     }
 
     /**

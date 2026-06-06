@@ -347,7 +347,7 @@
 
             @if($user && $user->tienePrivilegio('notas.ver'))
             <a href="{{ route('notas.index') }}" class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
-                <span class="nav-icon">📝</span> Notas
+                <span class="nav-icon">📝</span> Exámenes
             </a>
             @endif
 
