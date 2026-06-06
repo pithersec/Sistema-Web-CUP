@@ -25,6 +25,17 @@ class PersonalController extends Controller
 
         $query = Personal::with('datosPersonales');
 
+        $perfil = $request->input('perfil', 'Todos los perfiles');
+
+        $query = Personal::with('datosPersonales')
+            ->join('usuario', 'personal.registro', '=', 'usuario.registro_personal')
+            ->join('perfil', 'usuario.id_perfil', '=', 'perfil.id')
+            ->select('personal.*', 'perfil.nombre as perfil_nombre');
+
+        if ($perfil !== 'Todos los perfiles') {
+            $query->where('perfil.id', $perfil);
+        }
+
         // Aplicar buscador predictivo (CI, Registro, Nombre o Apellido)
         if (!empty($filtro)) {
             $query->where(function($q) use ($filtro) {
@@ -50,8 +61,10 @@ class PersonalController extends Controller
         // Paginación nativa adaptada al diseño (5 por página)
         $docentes = $query->paginate(15)->withQueryString();
 
+        $perfiles = DB::table('perfil')->get();
+    
         // Retornar la vista Blade inyectando todas las variables calculadas
-        return view('docentes.index', compact('docentes', 'totalDocentes', 'filtro', 'estado'));
+        return view('personal.index', compact('docentes', 'totalDocentes', 'filtro', 'estado', 'perfil', 'perfiles'));
     }
 
     /**
@@ -61,53 +74,91 @@ class PersonalController extends Controller
     public function guardarDocente(Request $request)
     {
         $validated = $request->validate([
-            'ci'        => 'required|string|max:20|unique:datos_personales,ci',
-            'nombre'    => 'required|string|max:100',
-            'apellido'  => 'required|string|max:100',
-            'genero'    => 'nullable|string|max:10',
-            'telefono'  => 'nullable|string|max:20',
-            'correo'    => 'nullable|email|max:150',
-            'fecha_nac' => 'nullable|date',
-            'direccion' => 'nullable|string|max:200',
-            'registro'  => 'required|string|max:20|unique:personal,registro',
-            'estado'    => 'required'
+            'ci'       => 'required|string|max:20|unique:datos_personales,ci',
+            'nombre'   => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'genero'   => 'required|in:m,f',
+            'fecha_nac'=> 'nullable|date',
+            'telefono' => 'nullable|string|max:20',
+            'correo'   => 'required|email|max:150|unique:datos_personales,correo',
+            'direccion'=> 'nullable|string|max:200',
+            'registro' => 'required|string|max:20|unique:personal,registro',
+            'id_perfil'=> 'required|exists:perfil,id',
         ]);
 
         DB::beginTransaction();
         try {
-            $datos = DatosPersonales::create([
+            // Datos personales
+            DatosPersonales::create([
                 'ci'        => $validated['ci'],
                 'nombre'    => $validated['nombre'],
                 'apellido'  => $validated['apellido'],
-                'genero'    => $validated['genero'] ?? null,
-                'telefono'  => $validated['telefono'] ?? null,
-                'correo'    => $validated['correo'] ?? null,
+                'genero'    => $validated['genero'],
                 'fecha_nac' => $validated['fecha_nac'] ?? null,
+                'telefono'  => $validated['telefono'] ?? null,
+                'correo'    => $validated['correo'],
                 'direccion' => $validated['direccion'] ?? null,
             ]);
 
-            $docente = Personal::create([
+            // Personal
+            Personal::create([
                 'registro' => $validated['registro'],
-                'ci'       => $datos->ci,
-                'estado'   => filter_var($validated['estado'], FILTER_VALIDATE_BOOLEAN),
+                'ci'       => $validated['ci'],
+                'estado'   => true,
             ]);
 
-            $user = Auth::user();
+            // Credenciales si es docente
+            $perfilNombre = DB::table('perfil')->where('id', $validated['id_perfil'])->value('nombre');
+            if (strtolower($perfilNombre) === 'docente' && $request->has('credenciales')) {
+                foreach ($request->credenciales as $cred) {
+                    RequisitosPersonal::create([
+                        'registro_personal' => $validated['registro'],
+                        'area'       => $cred['area'] ?? null,
+                        'nivel_grado'=> $cred['nivel_grado'] ?? null,
+                        'nivel_exp'  => $cred['nivel_exp'] ?? null,
+                        'maestria'   => $cred['maestria'],
+                        'doctorado'  => $cred['doctorado'],
+                        'diplomado'  => $cred['diplomado'],
+                    ]);
+                }
+            }
+
+            // Generar usuario automático
+            $inicial = strtolower(substr($validated['nombre'], 0, 1));
+            $apellidoLimpio = strtolower(preg_replace('/\s+/', '', $validated['apellido']));
+            $numero = rand(10, 99);
+            $userName = $inicial . $apellidoLimpio . $numero;
+
+            // Verificar que no exista
+            while (DB::table('usuario')->where('user_name', $userName)->exists()) {
+                $numero = rand(10, 99);
+                $userName = $inicial . $apellidoLimpio . $numero;
+            }
+
+            DB::table('usuario')->insert([
+                'user_name'         => $userName,
+                'clave'             => bcrypt($validated['ci']),
+                'email'             => $validated['correo'],
+                'id_perfil'         => $validated['id_perfil'],
+                'registro_personal' => $validated['registro'],
+            ]);
+
             Bitacora::create([
                 'ip'         => $request->ip(),
-                'accion'     => "Registro de Docente. Administrador: {$user->user_name} creó al docente Registro: {$validated['registro']}.",
+                'accion'     => "Registro de Docente. Administrador: " . Auth::user()->user_name . " registró al personal: {$validated['registro']}.",
                 'fecha_hora' => now(),
-                'id_usuario' => $user->id
+                'id_usuario' => Auth::id()
             ]);
 
             DB::commit();
-            
-            return redirect()->route('docentes.index')->with('success', 'Docente registrado con éxito.');
+            return redirect()->route('personal.index')
+                ->with('success', "Personal registrado. Usuario: {$userName} · Contraseña inicial: CI del personal.");
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return redirect()->back()->withInput()->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
+            return redirect()->back()->withInput()
+                ->withErrors(['error' => 'Error al registrar. Verifique los datos.']);
         }
     }
 
@@ -186,7 +237,7 @@ class PersonalController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('docentes.show', $registro)
+            return redirect()->route('personal.show', $registro)
                 ->with('success', 'Datos del docente actualizados correctamente.');
 
         } catch (\Exception $e) {
@@ -215,10 +266,10 @@ class PersonalController extends Controller
                 'id_usuario' => $user->id
             ]);
 
-            return redirect()->route('docentes.index')->with('success', 'El docente ha sido inactivado en el sistema.');
+            return redirect()->route('personal.index')->with('success', 'El docente ha sido inactivado en el sistema.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->route('docentes.index')->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
+            return redirect()->route('personal.index')->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
         }
     }
 
@@ -235,10 +286,10 @@ class PersonalController extends Controller
                 'id_usuario' => Auth::id()
             ]);
 
-            return redirect()->route('docentes.index')->with('success', 'El docente ha sido activado correctamente.');
+            return redirect()->route('personal.index')->with('success', 'El docente ha sido activado correctamente.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->route('docentes.index')->withErrors(['error' => 'Ocurrió un error.']);
+            return redirect()->route('personal.index')->withErrors(['error' => 'Ocurrió un error.']);
         }
     }
 
@@ -247,7 +298,7 @@ class PersonalController extends Controller
         $docente = Personal::with(['datosPersonales', 'requisitosPersonal'])
             ->where('registro', $registro)->firstOrFail();
 
-        return view('docentes.show', compact('docente'));
+        return view('personal.show', compact('docente'));
     }
 
     public function editarDocente($registro)
@@ -255,6 +306,12 @@ class PersonalController extends Controller
         $docente = Personal::with(['datosPersonales', 'requisitosPersonal'])
             ->where('registro', $registro)->firstOrFail();
 
-        return view('docentes.edit', compact('docente'));
+        return view('personal.edit', compact('docente'));
+    }
+
+    public function crearDocente()
+    {
+        $perfiles = DB::table('perfil')->get();
+        return view('personal.create', compact('perfiles'));
     }
 }

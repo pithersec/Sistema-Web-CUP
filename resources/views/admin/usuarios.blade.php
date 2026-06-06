@@ -199,15 +199,6 @@
         background: #cce3ff;
     }
 
-    .btn-perfiles {
-        background: #f0f4f8;
-        color: #5a5a5a;
-    }
-
-    .btn-perfiles:hover {
-        background: #e2e8f0;
-    }
-
     .btn-delete {
         background: #fde8e8;
         color: #c0392b;
@@ -306,8 +297,6 @@
                         <div class="actions-cluster">
                             <a href="{{ route('usuarios.edit', $u->id) }}"
                                 class="btn-action btn-edit">Editar</a>
-                            <a href="{{ route('perfiles.index') }}"
-                                class="btn-action btn-perfiles">Perfil</a>
 
                             <form action="{{ route('usuarios.destroy', $u->id) }}" method="POST" style="display:inline;"
                                 onsubmit="return confirm('¿Está completamente seguro de eliminar permanentemente la cuenta de {{ e($u->user_name) }}?');">

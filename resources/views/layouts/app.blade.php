@@ -328,8 +328,8 @@
             @endif
 
             @if($user && $user->tienePrivilegio('docentes.ver'))
-            <a href="{{ route('docentes.index') }}" class="nav-item {{ Request::is('admin/docentes*') ? 'active' : '' }}">
-                <span class="nav-icon">👨‍🏫</span> Docentes
+            <a href="{{ route('personal.index') }}" class="nav-item {{ Request::is('admin/personal*') ? 'active' : '' }}">
+                <span class="nav-icon">👨‍🏫</span> Personal
             </a>
             @endif
 

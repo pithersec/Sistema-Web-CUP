@@ -113,21 +113,21 @@ Route::middleware(['auth'])->group(function () {
     |------------------------------------------------------------------
     | GESTIÓN DE DOCENTES Y PERSONAL ADMINISTRATIVO
     |------------------------------------------------------------------*/
-    Route::middleware('privilegio:docentes.ver')->group(function () {
-        Route::get('/admin/docentes', [PersonalController::class, 'listarDocentes'])->name('docentes.index');
-        Route::get('/admin/docentes/{registro}', [PersonalController::class, 'verDocente'])->name('docentes.show');
-    });
     Route::middleware('privilegio:docentes.crear')->group(function () {
-        Route::post('/admin/docentes', [PersonalController::class, 'guardarDocente'])->name('docentes.guardar');
+        Route::get('/admin/personal/crear', [PersonalController::class, 'crearDocente'])->name('personal.crear');
+        Route::post('/admin/personal', [PersonalController::class, 'guardarDocente'])->name('personal.guardar');
+    });
+    Route::middleware('privilegio:docentes.ver')->group(function () {
+        Route::get('/admin/personal', [PersonalController::class, 'listarDocentes'])->name('personal.index');
+        Route::get('/admin/personal/{registro}', [PersonalController::class, 'verDocente'])->name('personal.show');
     });
     Route::middleware('privilegio:docentes.editar')->group(function () {
-        Route::put('/admin/docentes/{registro}', [PersonalController::class, 'actualizarDocente'])->name('docentes.actualizar');
-        Route::get('/admin/docentes/{registro}/editar', [PersonalController::class, 'editarDocente'])->name('docentes.edit');
+        Route::put('/admin/personal/{registro}', [PersonalController::class, 'actualizarDocente'])->name('personal.actualizar');
+        Route::get('/admin/personal/{registro}/editar', [PersonalController::class, 'editarDocente'])->name('personal.edit');
     });
     Route::middleware('privilegio:docentes.desactivar')->group(function () {
-        Route::post('/admin/docentes/{registro}/baja', [PersonalController::class, 'desactivarDocente']);
-        Route::patch('/admin/docentes/{registro}/desactivar', [PersonalController::class, 'desactivarDocente'])->name('docentes.desactivar');
-        Route::patch('/admin/docentes/{registro}/activar', [PersonalController::class, 'activarDocente'])->name('docentes.activar');
+        Route::patch('/admin/personal/{registro}/desactivar', [PersonalController::class, 'desactivarDocente'])->name('personal.desactivar');
+        Route::patch('/admin/personal/{registro}/activar', [PersonalController::class, 'activarDocente'])->name('personal.activar');
     });
 
     /*

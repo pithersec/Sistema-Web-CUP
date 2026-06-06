@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Gestión de Docentes - CUP')
-@section('page_title', 'Gestión de Docentes')
+@section('title', 'Gestión de Personal - CUP')
+@section('page_title', 'Gestión de Personal')
 
 @section('content')
 <style>
@@ -226,9 +226,9 @@
 @endif
 
 <div class="docentes-wrapper">
-    <form action="{{ route('docentes.index') }}" method="GET" class="toolbar-form" id="docentesForm">
+    <form action="{{ route('personal.index') }}" method="GET" class="toolbar-form" id="docentesForm">
         <div class="search-box">
-            <input type="text" name="filtro" placeholder="Buscar docente..."
+            <input type="text" name="filtro" placeholder="Buscar personal..."
                 value="{{ $filtro }}" autocomplete="off" />
         </div>
 
@@ -238,12 +238,35 @@
             <option value="1" {{ $estado=='1' ? 'selected' : '' }}>Activo</option>
             <option value="0" {{ $estado=='0' ? 'selected' : '' }}>Inactivo</option>
         </select>
+
+        <select name="perfil" class="filter-select" onchange="document.getElementById('docentesForm').submit();">
+            <option value="Todos los perfiles">Todos los perfiles</option>
+            @foreach($perfiles as $p)
+            <option value="{{ $p->id }}" {{ $perfil == $p->id ? 'selected' : '' }}>{{ $p->nombre }}</option>
+            @endforeach
+        </select>
     </form>
 
     <div class="table-card">
         <div class="table-header">
-            <h2>Listado de Docentes</h2>
-            <span class="total-badge">{{ $totalDocentes }} docentes encontrados</span>
+            <h2>
+                Listado de Personal
+                @if($perfil !== 'Todos los perfiles')
+                    — {{ $perfiles->firstWhere('id', $perfil)?->nombre ?? '' }}
+                @endif
+            </h2>
+            <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                <span class="total-badge">
+                    {{ $totalDocentes }} 
+                    @if($perfil !== 'Todos los perfiles')
+                        {{ strtolower($perfiles->firstWhere('id', $perfil)?->nombre ?? 'registros') }}
+                    @else
+                        personal
+                    @endif
+                    encontrados
+                </span>
+                <a href="{{ route('personal.crear') }}" style="padding: 8px 16px; background: #0d3b6e; color: white; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none;">+ Registrar Personal</a>
+            </div>
         </div>
 
         <table class="custom-table">
@@ -254,6 +277,7 @@
                     <th>Nombre Completo</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
+                    <th>Perfil</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -266,6 +290,7 @@
                     <td>{{ $d->datosPersonales->nombre ?? '' }} {{ $d->datosPersonales->apellido ?? '' }}</td>
                     <td>{{ $d->datosPersonales->correo ?? 'Sin Correo' }}</td>
                     <td>{{ $d->datosPersonales->telefono ?? 'S/N' }}</td>
+                    <td>{{ $d->perfil_nombre ?? 'S/P' }}</td>
                     <td>
                         @if($d->estado)
                         <span class="badge badge-green">Activo</span>
@@ -275,20 +300,20 @@
                     </td>
                     <td>
                         <div class="actions-cluster">
-                            <a href="{{ route('docentes.show', $d->registro) }}" class="btn-action btn-view">Ver</a>
+                            <a href="{{ route('personal.show', $d->registro) }}" class="btn-action btn-view">Ver</a>
 
                             @if($d->estado)
-                                <form action="{{ route('docentes.desactivar', $d->registro) }}" method="POST"
+                                <form action="{{ route('personal.desactivar', $d->registro) }}" method="POST"
                                     style="display:inline;"
-                                    onsubmit="return confirm('¿Desactivar al docente {{ e($d->registro) }}?');">
+                                    onsubmit="return confirm('¿Desactivar al personal {{ e($d->registro) }}?');">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn-action btn-desactivar">Desactivar</button>
                                 </form>
                             @else
-                                <form action="{{ route('docentes.activar', $d->registro) }}" method="POST"
+                                <form action="{{ route('personal.activar', $d->registro) }}" method="POST"
                                     style="display:inline;"
-                                    onsubmit="return confirm('¿Activar al docente {{ e($d->registro) }}?');">
+                                    onsubmit="return confirm('¿Activar al personal {{ e($d->registro) }}?');">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn-action btn-activar">Activar</button>
@@ -300,7 +325,7 @@
                 @empty
                 <tr>
                     <td colspan="7" style="text-align: center; padding: 30px; color: #888;">
-                        No se encontraron registros de docentes bajo los criterios seleccionados.
+                        No se encontraron registros de personal bajo los criterios seleccionados.
                     </td>
                 </tr>
                 @endforelse
