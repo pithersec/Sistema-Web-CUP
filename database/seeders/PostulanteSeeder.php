@@ -60,16 +60,17 @@ class PostulanteSeeder extends Seeder
             ['La Paz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Beni', 'Pando', 'Chuquisaca', 'Extranjero']
         );
 
-        $nombres = ['Carlos', 'María', 'Juan', 'Ana', 'Luis', 'Rosa', 'Jorge', 'Carmen', 
-                    'Miguel', 'Patricia', 'Roberto', 'Sandra', 'Fernando', 'Claudia', 
-                    'Alejandro', 'Gabriela', 'Diego', 'Valentina', 'Rodrigo', 'Daniela'];
+        $nombresPorGenero = [
+            'm' => ['Carlos', 'Juan', 'Luis', 'Jorge', 'Miguel', 'Roberto', 'Fernando', 'Alejandro', 'Diego', 'Rodrigo'],
+            'f' => ['María', 'Ana', 'Rosa', 'Carmen', 'Patricia', 'Sandra', 'Claudia', 'Gabriela', 'Valentina', 'Daniela'],
+        ];
 
         $apellidos = ['Flores', 'Mamani', 'Quispe', 'Gutierrez', 'Perez', 'Rojas', 
                     'Vargas', 'Condori', 'Huanca', 'Torrez', 'Salinas', 'Mendoza',
                     'Choque', 'Quisbert', 'Villca', 'Apaza', 'Lima', 'Cruz'];
 
         $colegios = [1, 2, 3, 4, 5, 6, 7, 8];
-        $ciCounter = 1000000;
+        $usedCis = [];
         $postulantes = [];
         $postulantesCarrera = [];
         $datosPersonales = [];
@@ -98,10 +99,15 @@ class PostulanteSeeder extends Seeder
             $num = 1;
 
             foreach ($lista as $estado) {
-                $ci = (string)($ciCounter++);
-                $codigo = "POST-{$gestionCorta}-" . str_pad($num++, 4, '0', STR_PAD_LEFT);
+                do {
+                    $ci = (string)$faker->numberBetween(1000000, 9999999);
+                } while (in_array($ci, $usedCis));
+                $usedCis[] = $ci;
+                $codigo = $gestionCorta . str_pad($num++, 4, '0', STR_PAD_LEFT);
 
-                $nombreLower = strtolower($faker->randomElement($nombres));
+                $genero = $faker->randomElement(['m', 'f']);
+
+                $nombreLower = strtolower($faker->randomElement($nombresPorGenero[$genero]));
                 $apellidoLower = strtolower($faker->randomElement($apellidos));
                 $numero = $faker->numberBetween(1, 999);
                 $dominio = $faker->randomElement(['gmail.com', 'gmail.com', 'gmail.com', 'hotmail.com', 'outlook.com']);
@@ -112,32 +118,39 @@ class PostulanteSeeder extends Seeder
 
                 $datosPersonales[] = [
                     'ci'        => $ci,
-                    'nombre'    => $faker->randomElement($nombres),
+                    'nombre'    => $faker->randomElement($nombresPorGenero[$genero]),
                     'apellido'  => $faker->randomElement($apellidos),
-                    'genero'    => $faker->randomElement(['m', 'f']),
+                    'genero'    => $genero,
                     'telefono'  => '7' . $faker->numerify('#######'),
                     'correo'    => $formato . '@' . $dominio,
                     'fecha_nac' => $faker->dateTimeBetween('-25 years', '-16 years')->format('Y-m-d'),
                     'direccion' => $faker->address(),
                 ];
 
-                $pagos[] = [
-                    'id'                  => $pagoId,
-                    'monto'               => 700.00,
-                    'fecha'               => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
-                    'concepto'            => "Inscripción CUP {$gestion['codigo']}",
-                    'estado'              => 'completado',
-                    'referencia_pasarela' => 'PAGO-' . strtoupper($faker->bothify('??##??##')),
-                ];
+                $tienePago = in_array($estado, ['inscrito', 'aprobado', 'reprobado']);
+
+                if ($tienePago) {
+                    $pagos[] = [
+                        'id'             => $pagoId,
+                        'monto'          => 700.00,
+                        'fecha'          => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
+                        'concepto'       => "Inscripción CUP {$gestion['codigo']}",
+                        'estado'         => 'completado',
+                        'id_transaccion' => 'pi_' . $faker->bothify('????????????????????????????????'),
+                        'moneda'         => 'USD',
+                    ];
+                }
+
+                $tieneRequisitosCompletos = in_array($estado, ['inscrito', 'aprobado', 'reprobado']);
 
                 $requisitos[] = [
                     'id'              => $requisitosId,
-                    'titulo_original' => true,
-                    'titulo_copia'    => true,
-                    'fotocopia_carnet'=> true,
-                    'formulario'      => true,
-                    'comprobante'     => true,
-                    'libreta'         => $faker->boolean(80),
+                    'titulo_original' => $tieneRequisitosCompletos ? true : $faker->boolean(60),
+                    'titulo_copia'    => $tieneRequisitosCompletos ? true : $faker->boolean(60),
+                    'fotocopia_carnet'=> $tieneRequisitosCompletos ? true : $faker->boolean(60),
+                    'formulario'      => $tieneRequisitosCompletos ? true : $faker->boolean(60),
+                    'comprobante'     => $tieneRequisitosCompletos ? true : $faker->boolean(60),
+                    'libreta'         => $faker->boolean($tieneRequisitosCompletos ? 80 : 40),
                 ];
 
                 $postulantes[] = [
@@ -150,7 +163,7 @@ class PostulanteSeeder extends Seeder
                     'gestion_egreso'           => (string)($faker->numberBetween(2021, 2025)),
                     'id_requisitos_postulante' => $requisitosId,
                     'id_colegio'               => $faker->randomElement($colegios),
-                    'id_pago'                  => $pagoId,
+                    'id_pago'                  => $tienePago ? $pagoId : null,
                     'id_grupo'                 => $faker->randomElement($gruposPorGestion[$gestion['codigo']]),
                     'gestion_grupo'            => $gestion['codigo'],
                 ];
@@ -174,7 +187,7 @@ class PostulanteSeeder extends Seeder
                     'opcion'            => 2,
                 ];
 
-                $pagoId++;
+                if ($tienePago) $pagoId++;
                 $requisitosId++;
             }
         }
