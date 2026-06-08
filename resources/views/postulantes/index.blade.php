@@ -332,6 +332,7 @@
         <table class="custom-table">
             <thead>
                 <tr>
+                    <th>Código</th>
                     <th>CI</th>
                     <th>Nombre Completo</th>
                     <th>Teléfono</th>
@@ -343,6 +344,7 @@
             <tbody>
                 @forelse($postulantes as $p)
                 <tr>
+                    <td><strong>{{ $p->codigo }}</strong></td>
                     <td><strong>{{ $p->ci }}</strong></td>
                     <td>{{ $p->nombre ?? 'N/A' }} {{ $p->apellido ?? 'N/A' }}</td>
                     <td>{{ $p->telefono_2 ?? $p->telefono ?? 'S/N' }}</td>
@@ -378,7 +380,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 30px; color: #888;">
+                    <td colspan="7" style="text-align: center; padding: 30px; color: #888;">
                         No se encontraron postulantes con los criterios de búsqueda seleccionados.
                     </td>
                 </tr>

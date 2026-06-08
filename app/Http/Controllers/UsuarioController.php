@@ -86,10 +86,10 @@ class UsuarioController extends Controller
         if (!empty($filtro)) {
             $query->where(function($q) use ($filtro) {
                 $q->where('user_name', 'LIKE', "%{$filtro}%")
-                  ->orWhere('email', 'LIKE', "%{$filtro}%")
-                  ->orWhereHas('perfil', function($subQ) use ($filtro) {
-                      $subQ->where('nombre', 'LIKE', "%{$filtro}%");
-                  });
+                    ->orWhere('email', 'LIKE', "%{$filtro}%")
+                    ->orWhereHas('perfil', function($subQ) use ($filtro) {
+                        $subQ->where('nombre', 'LIKE', "%{$filtro}%");
+                });
             });
         }
 
@@ -107,53 +107,6 @@ class UsuarioController extends Controller
         $personales = Personal::with('datosPersonales')->where('estado', true)->get();
 
         return view('admin.usuarios', compact('usuarios', 'totalUsuarios', 'perfiles', 'personales', 'filtro', 'perfil_id'));
-    }
-
-    public function crearUsuario()
-    {
-        $perfiles = Perfil::all();
-        $personales = Personal::with('datosPersonales')->where('estado', true)->get();
-        return view('admin.usuarios-create', compact('perfiles', 'personales'));
-    }
-
-    /**
-     * 2. guardarUsuario() [ADAPTADO PARA WEB]
-     */
-    public function guardarUsuario(Request $request)
-    {
-        $validated = $request->validate([
-            'user_name'         => 'required|string|max:255|unique:usuario,user_name',
-            'email'             => 'nullable|string|email|max:150|unique:usuario,email',
-            'clave'             => 'required|string|min:6',
-            'id_perfil'         => 'required|exists:perfil,id',
-            'registro_personal' => 'nullable|string|exists:personal,registro'
-        ]);
-
-        try {
-            $data = [
-                'user_name'         => $validated['user_name'],
-                'email'             => $validated['email'],
-                'clave'             => $validated['clave'],
-                'id_perfil'         => $validated['id_perfil'],
-            ];
-            if (!empty($validated['registro_personal'])) {
-                $data['registro_personal'] = $validated['registro_personal'];
-            }
-            Usuario::create($data);
-
-            $admin = Auth::user();
-            Bitacora::create([
-                'ip'         => $request->ip(),
-                'accion'     => "Creación de Usuario. Administrador: {$admin->user_name} creó la cuenta: {$validated['user_name']}.",
-                'fecha_hora' => now(),
-                'id_usuario' => $admin->id
-            ]);
-
-            return redirect()->route('usuarios.index')->with('success', 'Usuario registrado con éxito en la plataforma.');
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->back()->withInput()->withErrors(['error' => 'Ocurrió un error. Verifique los datos e intente nuevamente.']);
-        }
     }
 
     public function editarUsuario($id)
@@ -198,27 +151,6 @@ class UsuarioController extends Controller
         ]);
 
         return redirect()->route('usuarios.index')->with('success', 'Los datos del usuario han sido actualizados.');
-    }
-
-    /**
-     * 4. eliminarUsuario() [ADAPTADO PARA WEB]
-     */
-    public function eliminarUsuario(Request $request, $id)
-    {
-        $usuario = Usuario::findOrFail($id);
-        $nombreAfectado = $usuario->user_name;
-        
-        $usuario->delete();
-
-        $admin = Auth::user();
-        Bitacora::create([
-            'ip'         => $request->ip(),
-            'accion'     => "Eliminación de Usuario. Administrador: {$admin->user_name} eliminó la cuenta de: {$nombreAfectado}.",
-            'fecha_hora' => now(),
-            'id_usuario' => $admin->id
-        ]);
-
-        return redirect()->route('usuarios.index')->with('success', "La cuenta de {$nombreAfectado} fue removida físicamente.");
     }
 
     public function gestionarPerfiles()

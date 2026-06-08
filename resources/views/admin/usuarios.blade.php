@@ -273,7 +273,7 @@
                     <th>Correo Electrónico</th>
                     <th>Perfil Asignado</th>
                     <th>Personal Asignado</th>
-                    <th>Acciones</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -307,19 +307,12 @@
                         <div class="actions-cluster">
                             <a href="{{ route('usuarios.edit', $u->id) }}"
                                 class="btn-action btn-edit">Editar</a>
-
-                            <form action="{{ route('usuarios.destroy', $u->id) }}" method="POST" style="display:inline;"
-                                onsubmit="return confirm('¿Está completamente seguro de eliminar permanentemente la cuenta de {{ e($u->user_name) }}?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-action btn-delete">Eliminar</button>
-                            </form>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 30px; color: #888;">
+                    <td colspan="4" style="text-align: center; padding: 30px; color: #888;">
                         No se encontraron cuentas de usuario con los criterios especificados.
                     </td>
                 </tr>

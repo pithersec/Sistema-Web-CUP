@@ -61,16 +61,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('privilegio:usuarios.ver')->group(function () {
         Route::get('/admin/usuarios', [UsuarioController::class, 'listarUsuarios'])->name('usuarios.index');
     });
-    Route::middleware('privilegio:usuarios.crear')->group(function () {
-        Route::get('/admin/usuarios/crear', [UsuarioController::class, 'crearUsuario'])->name('usuarios.create');
-        Route::post('/admin/usuarios', [UsuarioController::class, 'guardarUsuario'])->name('usuarios.store');
-    });
     Route::middleware('privilegio:usuarios.editar')->group(function () {
         Route::get('/admin/usuarios/{id}/editar', [UsuarioController::class, 'editarUsuario'])->name('usuarios.edit');
         Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'actualizarUsuario'])->name('usuarios.update');
-    });
-    Route::middleware('privilegio:usuarios.eliminar')->group(function () {
-        Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'eliminarUsuario'])->name('usuarios.destroy');
     });
     Route::middleware('privilegio:perfiles.gestionar')->group(function () {
         Route::get('/admin/perfiles', [UsuarioController::class, 'gestionarPerfiles'])->name('perfiles.index');
