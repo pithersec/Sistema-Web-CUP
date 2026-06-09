@@ -48,6 +48,7 @@ class PostulanteController extends Controller
             'procedencia'      => 'nullable|string|max:100',
             'telefono_2'       => 'nullable|string|max:20',
             'gestion_egreso'   => 'nullable|string|max:20',
+            'turno_preferido' => 'nullable|in:mañana,tarde,noche',
         ]);
 
         // Iniciamos la transacción para asegurar atomicidad
@@ -77,7 +78,12 @@ class PostulanteController extends Controller
             ]);
 
             // Generar un código único para el postulante
-            $codigoPostulante = 'P-' . date('Y') . '-' . strtoupper(Str::random(5));
+            $gestionActiva = Gestion::orderByRaw("SPLIT_PART(codigo, '-', 2) DESC, SPLIT_PART(codigo, '-', 1) DESC")->first();
+            $gestionCorta = str_replace('-', '', $gestionActiva->codigo);
+            $ultimoCodigo = DB::table('postulante')
+                ->where('codigo', 'LIKE', $gestionCorta . '%')
+                ->max(DB::raw("CAST(SUBSTRING(codigo FROM " . (strlen($gestionCorta) + 1) . ") AS INTEGER)"));
+            $codigoPostulante = $gestionCorta . str_pad(($ultimoCodigo ?? 0) + 1, 4, '0', STR_PAD_LEFT);
 
             // 4. Simular guardarPostulante() en la entidad central
             // Postulante — con los campos correctos
@@ -88,9 +94,11 @@ class PostulanteController extends Controller
                 'telefono_2'               => $validated['telefono_2'] ?? null,
                 'plazo'                    => now()->addDays(5),
                 'estado'                   => 'preinscrito',
+                'estado_formulario'        => 'activo',
+                'nombre_turno'             => $validated['turno_preferido'] ?? null,
                 'gestion_egreso'           => $validated['gestion_egreso'] ?? date('Y'),
                 'id_requisitos_postulante' => $requisitos->id,
-                'id_colegio'               => $validated['id_colegio'],  // ← acá
+                'id_colegio'               => $validated['id_colegio'],
                 'id_pago'                  => null,
                 'id_grupo'                 => null,
             ]);
@@ -397,11 +405,12 @@ public function darBaja($codigo)
         try {
             // Crear pago
             $pago = DB::table('pago')->insertGetId([
-                'monto'               => 700.00,
-                'fecha'               => now()->toDateString(),
-                'concepto'            => 'Inscripción CUP FICCT',
-                'estado'              => 'completado',
-                'referencia_pasarela' => 'SIM-' . strtoupper(Str::random(8)),
+                'monto'          => 700.00,
+                'fecha'          => now()->toDateString(),
+                'concepto'       => 'Inscripción CUP FICCT',
+                'estado'         => 'completado',
+                'id_transaccion' => 'pi_' . Str::random(32),
+                'moneda'         => 'USD',
             ]);
 
             // Marcar comprobante como entregado

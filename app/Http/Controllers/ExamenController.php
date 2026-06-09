@@ -39,9 +39,9 @@ class ExamenController extends Controller
             })
             ->where('grupo_materia.registro_personal', $registroPersonal)
             ->where('grupo.codigo_gestion', $gestionCodigo)
-            ->select('grupo.id', 'grupo.turno', 'grupo.aula')
-            ->groupBy('grupo.id', 'grupo.turno', 'grupo.aula')
-            ->orderByRaw("CASE WHEN grupo.turno = 'mañana' THEN 0 WHEN grupo.turno = 'tarde' THEN 1 ELSE 2 END, grupo.id")
+            ->select('grupo.id', 'grupo.nombre_turno', 'grupo.aula')
+            ->groupBy('grupo.id', 'grupo.nombre_turno', 'grupo.aula')
+            ->orderByRaw("CASE WHEN grupo.nombre_turno = 'mañana' THEN 0 WHEN grupo.nombre_turno = 'tarde' THEN 1 ELSE 2 END, grupo.id")
             ->get();
 
 
