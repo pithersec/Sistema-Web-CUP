@@ -17,7 +17,7 @@ class PrivilegioSeeder extends Seeder
             ['id' => 5,  'nombre' => 'perfiles.gestionar'],
             ['id' => 6,  'nombre' => 'postulantes.ver'],
             ['id' => 7,  'nombre' => 'postulantes.editar'],
-            ['id' => 8,  'nombre' => 'postulantes.validar'],
+            ['id' => 8,  'nombre' => 'postulantes.validar'],    
             ['id' => 9,  'nombre' => 'personal.ver'],
             ['id' => 10, 'nombre' => 'personal.crear'],
             ['id' => 11, 'nombre' => 'personal.editar'],
