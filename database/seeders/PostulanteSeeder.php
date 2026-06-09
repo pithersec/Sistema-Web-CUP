@@ -153,6 +153,12 @@ class PostulanteSeeder extends Seeder
                     'libreta'         => $faker->boolean($tieneRequisitosCompletos ? 80 : 40),
                 ];
 
+                $grupoAsignado = $faker->randomElement($gruposPorGestion[$gestion['codigo']]);
+                $turnoGrupo = DB::table('grupo')
+                    ->where('id', $grupoAsignado)
+                    ->where('codigo_gestion', $gestion['codigo'])
+                    ->value('nombre_turno');
+
                 $postulantes[] = [
                     'codigo'                   => $codigo,
                     'ci'                       => $ci,
@@ -164,8 +170,10 @@ class PostulanteSeeder extends Seeder
                     'id_requisitos_postulante' => $requisitosId,
                     'id_colegio'               => $faker->randomElement($colegios),
                     'id_pago'                  => $tienePago ? $pagoId : null,
-                    'id_grupo'                 => $faker->randomElement($gruposPorGestion[$gestion['codigo']]),
+                    'id_grupo'                 => $grupoAsignado,
                     'gestion_grupo'            => $gestion['codigo'],
+                    'nombre_turno'             => $turnoGrupo,
+                    'estado_formulario'        => 'activo',
                 ];
 
                 // Elegir 2 carreras distintas

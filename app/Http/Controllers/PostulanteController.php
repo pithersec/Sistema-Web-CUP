@@ -254,10 +254,14 @@ public function darBaja($codigo)
         $postulante = Postulante::with([
             'datosPersonales',
             'colegio',
-            'grupo',
             'pago',
             'requisitosPostulante',
         ])->where('codigo', $codigo)->firstOrFail();
+
+        $grupo = DB::table('grupo')
+            ->where('id', $postulante->id_grupo)
+            ->where('codigo_gestion', $postulante->gestion_grupo)
+            ->first();
 
         // Carreras por query directo
         $carreras = DB::table('postulante_carrera')
@@ -277,7 +281,7 @@ public function darBaja($codigo)
             ->orderBy('postulante_carrera.opcion')
             ->get();
 
-        return view('postulantes.show', compact('postulante', 'carreras'));
+        return view('postulantes.show', compact('postulante', 'carreras', 'grupo'));
     }
 
     // CU-13: Editar datos personales y de postulante (solo campos básicos)

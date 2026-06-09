@@ -403,11 +403,15 @@
             <div class="fields-grid">
                 <div class="field-item">
                     <label>Grupo Asignado</label>
-                    <p>{{ $postulante->grupo ? 'Grupo ' . $postulante->grupo->id . ' — ' . ucfirst($postulante->grupo->turno) : 'Sin grupo' }}</p>
+                    <p>{{ $grupo ? 'Grupo ' . $grupo->id . ' — ' . ucfirst($grupo->nombre_turno) : 'Sin grupo' }}</p>
                 </div>
                 <div class="field-item">
                     <label>Gestión</label>
                     <p>{{ $postulante->grupo?->codigo_gestion ?? 'N/A' }}</p>
+                </div>
+                <div class="field-item">
+                    <label>Turno Preferido</label>
+                    <p>{{ $postulante->nombre_turno ? ucfirst($postulante->nombre_turno) : 'No especificado' }}</p>
                 </div>
             </div>
         </div>
@@ -509,8 +513,12 @@
                     <p>{{ $pago->concepto }}</p>
                 </div>
                 <div class="field-item">
-                    <label>Referencia</label>
-                    <p>{{ $pago->referencia_pasarela ?? 'N/A' }}</p>
+                    <label>ID Transacción</label>
+                    <p>{{ $pago->id_transaccion ?? 'N/A' }}</p>
+                </div>
+                <div class="field-item">
+                    <label>Moneda</label>
+                    <p>{{ $pago->moneda ?? 'USD' }}</p>
                 </div>
             </div>
             @else
