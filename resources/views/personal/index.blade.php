@@ -265,7 +265,9 @@
                     @endif
                     encontrados
                 </span>
+                @if(Auth::user()->tienePrivilegio('personal.crear'))
                 <a href="{{ route('personal.crear') }}" style="padding: 8px 16px; background: #0d3b6e; color: white; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none;">+ Registrar Personal</a>
+                @endif
             </div>
         </div>
 
@@ -313,26 +315,25 @@
                     <td>
                         <div class="actions-cluster">
                             <a href="{{ route('personal.show', $d->registro) }}" class="btn-action btn-view">Ver</a>
-
-                            @if($d->estado)
+                            @if(Auth::user()->tienePrivilegio('personal.desactivar'))
                                 @if($d->registro !== Auth::user()->registro_personal)
-                                <form action="{{ route('personal.desactivar', $d->registro) }}" method="POST"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('¿Desactivar al personal {{ e($d->registro) }}?');">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn-action btn-desactivar">Desactivar</button>
-                                </form>
-                                @endif
-                            @else
-                                @if($d->registro !== Auth::user()->registro_personal)
-                                <form action="{{ route('personal.activar', $d->registro) }}" method="POST"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('¿Activar al personal {{ e($d->registro) }}?');">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn-action btn-activar">Activar</button>
-                                </form>
+                                    @if($d->estado)
+                                        <form action="{{ route('personal.desactivar', $d->registro) }}" method="POST"
+                                            style="display:inline;"
+                                            onsubmit="return confirm('¿Desactivar al personal {{ e($d->registro) }}?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn-action btn-desactivar">Desactivar</button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('personal.activar', $d->registro) }}" method="POST"
+                                            style="display:inline;"
+                                            onsubmit="return confirm('¿Activar al personal {{ e($d->registro) }}?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn-action btn-activar">Activar</button>
+                                        </form>
+                                    @endif
                                 @endif
                             @endif
                         </div>

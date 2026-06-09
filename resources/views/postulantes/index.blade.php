@@ -369,12 +369,13 @@
                             <a href="{{ route('postulantes.show', $p->codigo) }}" class="btn-action btn-view"
                                 style="text-decoration: none;">Ver</a>
 
-                            <form action="{{ route('postulantes.baja', $p->codigo) }}" method="POST"
-                                style="display:inline;"
+                            @if(Auth::user()->tienePrivilegio('postulantes.baja'))
+                            <form action="{{ route('postulantes.baja', $p->codigo) }}" method="POST" style="display:inline;"
                                 onsubmit="return confirm('¿Está seguro de dar de baja al postulante con código {{ e($p->codigo) }}?');">
                                 @csrf
                                 <button type="submit" class="btn-action btn-delete">Baja</button>
                             </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

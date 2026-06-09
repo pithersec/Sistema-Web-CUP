@@ -293,7 +293,9 @@
         </div>
         <div class="header-actions">
             <a href="{{ route('postulantes.index') }}" class="btn-back">← Volver</a>
+            @if(Auth::user()->tienePrivilegio('postulantes.editar'))
             <a href="{{ route('postulantes.edit', $postulante->codigo) }}" class="btn-edit-header">✏️ Editar</a>
+            @endif
         </div>
     </div>
 

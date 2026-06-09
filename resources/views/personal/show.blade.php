@@ -225,7 +225,9 @@
         </div>
         <div class="header-actions">
             <a href="{{ route('personal.index') }}" class="btn-back">← Volver</a>
+            @if(Auth::user()->tienePrivilegio('personal.editar'))
             <a href="{{ route('personal.edit', $docente->registro) }}" class="btn-edit-header">✏️ Editar</a>
+            @endif
         </div>
     </div>
 

@@ -20,7 +20,7 @@ class PerfilPrivilegioSeeder extends Seeder
         $adminPrivilegios = [
             2, 3, 4,        // usuarios (ver, editar, cargar)
             5,              // perfiles.gestionar
-            6, 7, 8,        // postulantes (ver, editar, validar)
+            6, 7, 8,        // postulantes (ver, editar, baja)
             9, 10, 11, 12,  // docentes (ver, crear, editar, desactivar)
             13, 14,         // carreras.ver, cupos.editar
             15, 16,         // grupos (ver, asignar)
