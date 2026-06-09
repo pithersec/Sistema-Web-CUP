@@ -171,10 +171,11 @@ class PostulanteController extends Controller
                 $join->on('postulante.id_grupo', '=', 'grupo.id')
                     ->on('postulante.gestion_grupo', '=', 'grupo.codigo_gestion');
             })
-            ->where(function($q) use ($gestionCodigo) { // ← filtrar por gestión
+            ->where(function($q) use ($gestionCodigo) {
                 $q->where('grupo.codigo_gestion', $gestionCodigo)
-                ->orWhereNull('postulante.id_grupo');  // ← incluir sin grupo
+                ->orWhereNull('postulante.id_grupo');
             })           
+            
             ->select(
                 'postulante.codigo',
                 'postulante.ci',
@@ -188,7 +189,8 @@ class PostulanteController extends Controller
 
         if (!empty($buscar)) {
             $query->where(function ($q) use ($buscar) {
-                $q->where('postulante.ci', 'LIKE', "%{$buscar}%")
+                $q->where('postulante.codigo', 'LIKE', "%{$buscar}%")
+                ->orWhere('postulante.ci', 'LIKE', "%{$buscar}%")
                 ->orWhere('datos_personales.nombre', 'LIKE', "%{$buscar}%")
                 ->orWhere('datos_personales.apellido', 'LIKE', "%{$buscar}%")
                 ->orWhere('datos_personales.telefono', 'LIKE', "%{$buscar}%");
@@ -215,7 +217,7 @@ class PostulanteController extends Controller
             $query->where('postulante.procedencia', $procedencia);
         }
 
-        $postulantes = $query->paginate(15)->withQueryString();
+        $postulantes = $query->orderBy('postulante.codigo', 'asc')->paginate(15)->withQueryString();
         $totalPostulantes = $postulantes->total();
         $carreras = Carrera::orderByRaw("CASE WHEN modalidad = 'presencial' THEN 0 ELSE 1 END")
             ->orderBy('nombre')

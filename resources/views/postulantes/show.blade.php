@@ -455,6 +455,9 @@
         <div class="section-card-body">
             @if($postulante->requisitosPostulante)
             @php $req = $postulante->requisitosPostulante; @endphp
+
+            @if($postulante->estado === 'preinscrito')
+            {{-- EDITABLE: solo 5 requisitos sin comprobante --}}
             <form action="{{ route('postulantes.requisitos', $postulante->codigo) }}" method="POST">
                 @csrf
                 @method('PATCH')
@@ -480,6 +483,28 @@
                     </button>
                 </div>
             </form>
+
+            @else
+            {{-- SOLO LECTURA: 6 requisitos con comprobante --}}
+            <div class="requisitos-grid">
+                @foreach([
+                    'titulo_original'  => 'Título Original',
+                    'titulo_copia'     => 'Copia del Título',
+                    'fotocopia_carnet' => 'Fotocopia Carnet',
+                    'formulario'       => 'Formulario',
+                    'libreta'          => 'Libreta Escolar',
+                    'comprobante'      => 'Comprobante de Pago',
+                ] as $campo => $label)
+                <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#333;">
+                    <div class="req-check {{ $req->$campo ? 'ok' : 'no' }}">
+                        {{ $req->$campo ? '✓' : '✗' }}
+                    </div>
+                    {{ $label }}
+                </div>
+                @endforeach
+            </div>
+            @endif
+
             @else
             <p style="color:#aaa; font-style:italic; font-size:13px;">Sin requisitos registrados</p>
             @endif
