@@ -65,9 +65,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/usuarios/{id}/editar', [UsuarioController::class, 'editarUsuario'])->name('usuarios.edit');
         Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'actualizarUsuario'])->name('usuarios.update');
     });
+    Route::middleware('privilegio:usuarios.cargar')->group(function () {
+        Route::get('/admin/usuarios/cargar', [UsuarioController::class, 'mostrarCargaMasiva'])->name('usuarios.cargar');
+        Route::post('/admin/usuarios/cargar', [UsuarioController::class, 'procesarCargaMasiva'])->name('usuarios.procesarCarga');
+    });
     Route::middleware('privilegio:perfiles.gestionar')->group(function () {
         Route::get('/admin/perfiles', [UsuarioController::class, 'gestionarPerfiles'])->name('perfiles.index');
     });
+    
 
     /*
     |------------------------------------------------------------------
@@ -77,20 +82,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/postulantes', [PostulanteController::class, 'listarPostulantes'])->name('postulantes.index');
         Route::get('/admin/postulantes/{codigo}', [PostulanteController::class, 'verPostulante'])->name('postulantes.show');
     });
-    Route::middleware('privilegio:postulantes.aprobar')->group(function () {
-        Route::put('/admin/postulantes/{codigo}', [PostulanteController::class, 'actualizarPostulante'])->name('postulantes.update');
-    });
-    Route::middleware('privilegio:postulantes.rechazar')->group(function () {
-        Route::post('/admin/postulantes/{codigo}/baja', [PostulanteController::class, 'darBaja'])->name('postulantes.baja');
-    });
-    Route::middleware('privilegio:postulantes.validar')->group(function () {
-        Route::patch('/admin/postulantes/{codigo}/desactivar', [PostulanteController::class, 'desactivarPostulante'])->name('postulantes.desactivar');
-    });
-
     Route::middleware('privilegio:postulantes.editar')->group(function () {
         Route::get('/admin/postulantes/{codigo}/editar', [PostulanteController::class, 'editarPostulante'])->name('postulantes.edit');
         Route::put('/admin/postulantes/{codigo}', [PostulanteController::class, 'actualizarPostulante'])->name('postulantes.update');
         Route::patch('/admin/postulantes/{codigo}/requisitos', [PostulanteController::class, 'actualizarRequisitos'])->name('postulantes.requisitos');
+        Route::post('/admin/postulantes/{codigo}/baja', [PostulanteController::class, 'darBaja'])->name('postulantes.baja');
+        Route::patch('/admin/postulantes/{codigo}/desactivar', [PostulanteController::class, 'desactivarPostulante'])->name('postulantes.desactivar');
     });
 
     /*
