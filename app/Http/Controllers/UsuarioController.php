@@ -159,4 +159,32 @@ class UsuarioController extends Controller
         $privilegios = Privilegio::all();
         return view('admin.perfiles', compact('perfiles', 'privilegios'));
     }
+
+    public function actualizarPrivilegios(Request $request, $id)
+    {
+        $perfil = Perfil::findOrFail($id);
+
+        $privilegios = $request->input('privilegios', []);
+
+        DB::table('perfil_privilegio')
+            ->where('id_perfil', $id)
+            ->delete();
+
+        foreach ($privilegios as $idPrivilegio) {
+            DB::table('perfil_privilegio')->insert([
+                'id_perfil'     => $id,
+                'id_privilegio' => $idPrivilegio,
+            ]);
+        }
+
+        $admin = Auth::user();
+        Bitacora::create([
+            'ip'         => $request->ip(),
+            'accion'     => "Actualización de Privilegios. Administrador: {$admin->user_name} modificó los privilegios del perfil: {$perfil->nombre}.",
+            'fecha_hora' => now(),
+            'id_usuario' => $admin->id,
+        ]);
+
+        return redirect()->route('perfiles.index')->with('success', 'Privilegios actualizados correctamente.');
+    }
 }

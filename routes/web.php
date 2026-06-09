@@ -71,6 +71,7 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::middleware('privilegio:perfiles.gestionar')->group(function () {
         Route::get('/admin/perfiles', [UsuarioController::class, 'gestionarPerfiles'])->name('perfiles.index');
+        Route::put('/admin/perfiles/{id}/privilegios', [UsuarioController::class, 'actualizarPrivilegios'])->name('perfiles.privilegios');
     });
     
 
