@@ -16,24 +16,29 @@ class PerfilPrivilegioSeeder extends Seeder
             $privilegios[] = ['id_perfil' => 1, 'id_privilegio' => $i];
         }
 
-        // ADMINISTRADOR (id: 2) — Gestión académica, sin configuración del sistema
+        // ADMINISTRADOR (id: 2)
         $adminPrivilegios = [
-            2, 3, 4, 5,       // usuarios (ver, crear, editar, eliminar)
-            8, 9, 10, 11,     // postulantes (ver, aprobar, rechazar, validar)
-            12, 13, 14, 15,   // docentes (ver, crear, editar, desactivar)
-            16, 17,           // carreras.ver, cupos.editar
-            18, 19,           // grupos (ver, crear)
-            20, 21,           // materias (ver, gestionar)
-            22, 23,           // gestiones (ver, gestionar)
-            24,               // notas.ver
-            28,               // reportes.ver
+            2, 3, 4,        // usuarios (ver, editar, cargar)
+            5,              // perfiles.gestionar
+            6, 7, 8,        // postulantes (ver, editar, validar)
+            9, 10, 11, 12,  // docentes (ver, crear, editar, desactivar)
+            13, 14,         // carreras.ver, cupos.editar
+            15, 16,         // grupos (ver, asignar)
+            17,             // materias.gestionar
+            18, 19,         // gestiones (ver, gestionar)
+            20,             // notas.ver
+            23,             // bitacora.ver
+            24,             // reportes.ver
+            25,             // rendimiento.ver
+            26,             // reclamos.gestionar
+            28,             // configuracion.gestionar
         ];
         foreach ($adminPrivilegios as $pid) {
             $privilegios[] = ['id_perfil' => 2, 'id_privilegio' => $pid];
         }
 
-        // DOCENTE (id: 3) — Solo sus grupos y notas
-        $docentePrivilegios = [24, 25, 26]; // notas.ver, notas.registrar, notas.editar
+        // DOCENTE (id: 3)
+        $docentePrivilegios = [20, 21, 22, 25, 27]; // notas.ver, registrar, editar, rendimiento.ver, asistencia.registrar
         foreach ($docentePrivilegios as $pid) {
             $privilegios[] = ['id_perfil' => 3, 'id_privilegio' => $pid];
         }
