@@ -149,7 +149,7 @@ class PostulanteSeeder extends Seeder
                     'titulo_copia'    => $tieneRequisitosCompletos ? true : $faker->boolean(60),
                     'fotocopia_carnet'=> $tieneRequisitosCompletos ? true : $faker->boolean(60),
                     'formulario'      => $tieneRequisitosCompletos ? true : $faker->boolean(60),
-                    'comprobante'     => ($tieneRequisitosCompletos || $estado === 'baja') ? $faker->boolean(70) : false,
+                    'comprobante'     => $tieneRequisitosCompletos ? true : ($estado === 'baja' ? $faker->boolean(70) : false),
                     'libreta'         => $tieneRequisitosCompletos ? true : $faker->boolean(40),
                 ];
 
