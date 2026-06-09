@@ -77,23 +77,32 @@ $nombresLegibles = [
             @method('PUT')
 
             <div class="priv-grid">
-                @foreach($privilegios as $priv)
-                @php $activo = $perfil->privilegios->contains('id', $priv->id); @endphp
-                <label class="priv-label {{ $activo ? 'active' : 'inactive' }}" onclick="togglePriv(this)">
-                    <input type="checkbox" name="privilegios[]" value="{{ $priv->id }}" {{ $activo ? 'checked' : '' }}>
-                    <span>{{ $activo ? '✓' : '—' }}</span>
-                    {{ $nombresLegibles[$priv->nombre] ?? $priv->nombre }}
-                </label>
-                @endforeach
+                @if(strtolower($perfil->nombre) === 'sistema')
+                    <div style="background:#f0f8ff; border:1.5px solid #dceeff; border-radius:8px; padding:14px 16px; font-size:13px; color:#1a5fa8;">
+                        ℹ️ El perfil <strong>Sistema</strong> tiene acceso total automático. No requiere configuración de privilegios.
+                    </div>
+                @else
+                    @foreach($privilegios->where('nombre', '!=', 'sistema.total') as $priv)
+                    @php $activo = $perfil->privilegios->contains('id', $priv->id); @endphp
+                    <label class="priv-label {{ $activo ? 'active' : 'inactive' }}" onclick="togglePriv(this)">
+                        <input type="checkbox" name="privilegios[]" value="{{ $priv->id }}" {{ $activo ? 'checked' : '' }}>
+                        <span>{{ $activo ? '✓' : '—' }}</span>
+                        {{ $nombresLegibles[$priv->nombre] ?? $priv->nombre }}
+                    </label>
+                    @endforeach
+                @endif
+                
             </div>
 
+            @if(strtolower($perfil->nombre) !== 'sistema')
             <div class="divider">
                 <button type="submit" class="save-btn">💾 Guardar cambios</button>
             </div>
+            @endif
         </form>
     </div>
     @endforeach
-</div>
+</div>  
 
 <script>
 function togglePriv(label) {
