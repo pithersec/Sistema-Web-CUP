@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Docente - CUP')
-@section('page_title', 'Editar Docente')
+@section('title', 'Editar Personal - CUP')
+@section('page_title', 'Editar Personal')
 
 @section('content')
 <style>
@@ -236,7 +236,7 @@
 </style>
 
 <div class="edit-wrapper">
-    <form action="{{ route('docentes.actualizar', $docente->registro) }}" method="POST">
+    <form action="{{ route('personal.actualizar', $docente->registro) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -258,7 +258,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="{{ route('docentes.show', $docente->registro) }}" class="btn-cancel">← Cancelar</a>
+                <a href="{{ route('personal.show', $docente->registro) }}" class="btn-cancel">← Cancelar</a>
                 <button type="submit" class="btn-save">💾 Guardar Cambios</button>
             </div>
         </div>
@@ -334,36 +334,60 @@
                     @forelse($docente->requisitosPersonal as $index => $req)
                     <div class="credencial-row" id="row-{{ $index }}">
                         <input type="hidden" name="credenciales[{{ $index }}][id]" value="{{ $req->id }}">
+                        
                         <div class="form-group">
                             <label>Área</label>
-                            <input type="text" name="credenciales[{{ $index }}][area]"
-                                value="{{ old("credenciales.$index.area", $req->area) }}" />
+                            <select name="credenciales[{{ $index }}][area]">
+                                <option value="">-- Seleccionar --</option>
+                                @foreach(['matematicas','fisica','computacion','ingles','administracion','sistemas','otra'] as $a)
+                                <option value="{{ $a }}" {{ old("credenciales.$index.area", $req->area) == $a ? 'selected' : '' }}>{{ ucfirst($a) }}</option>
+                                @endforeach
+                            </select>
                         </div>
+
                         <div class="form-group">
                             <label>Nivel de Grado</label>
-                            <input type="text" name="credenciales[{{ $index }}][nivel_grado]"
-                                value="{{ old("credenciales.$index.nivel_grado", $req->nivel_grado) }}" />
+                            <select name="credenciales[{{ $index }}][nivel_grado]">
+                                <option value="">-- Seleccionar --</option>
+                                @foreach(['tecnico_medio','tecnico_superior','licenciatura','ingenieria','maestria','doctorado'] as $ng)
+                                <option value="{{ $ng }}" {{ old("credenciales.$index.nivel_grado", $req->nivel_grado) == $ng ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$ng)) }}</option>
+                                @endforeach
+                            </select>
                         </div>
+
                         <div class="form-group">
-                            <label>Nivel de Experiencia</label>
-                            <input type="text" name="credenciales[{{ $index }}][nivel_exp]"
+                            <label>Experiencia (años)</label>
+                            <input type="number" min="0" max="50" name="credenciales[{{ $index }}][nivel_exp]"
                                 value="{{ old("credenciales.$index.nivel_exp", $req->nivel_exp) }}" />
                         </div>
+
                         <div class="form-group">
-                            <label>Maestría <span style="color:#c0392b">*</span></label>
-                            <input type="text" name="credenciales[{{ $index }}][maestria]"
-                                value="{{ old("credenciales.$index.maestria", $req->maestria) }}" required />
+                            <label>Maestría</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                                <input type="checkbox" name="credenciales[{{ $index }}][maestria]" value="1"
+                                    {{ old("credenciales.$index.maestria", $req->maestria) ? 'checked' : '' }}>
+                                Tiene maestría
+                            </label>
                         </div>
+
                         <div class="form-group">
-                            <label>Doctorado <span style="color:#c0392b">*</span></label>
-                            <input type="text" name="credenciales[{{ $index }}][doctorado]"
-                                value="{{ old("credenciales.$index.doctorado", $req->doctorado) }}" required />
+                            <label>Doctorado</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                                <input type="checkbox" name="credenciales[{{ $index }}][doctorado]" value="1"
+                                    {{ old("credenciales.$index.doctorado", $req->doctorado) ? 'checked' : '' }}>
+                                Tiene doctorado
+                            </label>
                         </div>
+
                         <div class="form-group">
-                            <label>Diplomado <span style="color:#c0392b">*</span></label>
-                            <input type="text" name="credenciales[{{ $index }}][diplomado]"
-                                value="{{ old("credenciales.$index.diplomado", $req->diplomado) }}" required />
+                            <label>Diplomado</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                                <input type="checkbox" name="credenciales[{{ $index }}][diplomado]" value="1"
+                                    {{ old("credenciales.$index.diplomado", $req->diplomado) ? 'checked' : '' }}>
+                                Tiene diplomado
+                            </label>
                         </div>
+
                         <button type="button" class="btn-remove-row" onclick="eliminarFila(this)">✕</button>
                     </div>
                     @empty
@@ -393,27 +417,50 @@
             <input type="hidden" name="credenciales[${index}][id]" value="">
             <div class="form-group">
                 <label>Área</label>
-                <input type="text" name="credenciales[${index}][area]" />
+                <select name="credenciales[${index}][area]">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="matematicas">Matematicas</option>
+                    <option value="fisica">Fisica</option>
+                    <option value="computacion">Computacion</option>
+                    <option value="ingles">Ingles</option>
+                    <option value="administracion">Administracion</option>
+                    <option value="sistemas">Sistemas</option>
+                    <option value="otra">Otra</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Nivel de Grado</label>
-                <input type="text" name="credenciales[${index}][nivel_grado]" />
+                <select name="credenciales[${index}][nivel_grado]">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="tecnico_medio">Tecnico medio</option>
+                    <option value="tecnico_superior">Tecnico superior</option>
+                    <option value="licenciatura">Licenciatura</option>
+                    <option value="ingenieria">Ingenieria</option>
+                    <option value="maestria">Maestria</option>
+                    <option value="doctorado">Doctorado</option>
+                </select>
             </div>
             <div class="form-group">
-                <label>Nivel de Experiencia</label>
-                <input type="text" name="credenciales[${index}][nivel_exp]" />
+                <label>Experiencia (años)</label>
+                <input type="number" min="0" max="50" name="credenciales[${index}][nivel_exp]" placeholder="Ej: 5" />
             </div>
             <div class="form-group">
-                <label>Maestría <span style="color:#c0392b">*</span></label>
-                <input type="text" name="credenciales[${index}][maestria]" required />
+                <label>Maestría</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <input type="checkbox" name="credenciales[${index}][maestria]" value="1"> Tiene maestría
+                </label>
             </div>
             <div class="form-group">
-                <label>Doctorado <span style="color:#c0392b">*</span></label>
-                <input type="text" name="credenciales[${index}][doctorado]" required />
+                <label>Doctorado</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <input type="checkbox" name="credenciales[${index}][doctorado]" value="1"> Tiene doctorado
+                </label>
             </div>
             <div class="form-group">
-                <label>Diplomado <span style="color:#c0392b">*</span></label>
-                <input type="text" name="credenciales[${index}][diplomado]" required />
+                <label>Diplomado</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <input type="checkbox" name="credenciales[${index}][diplomado]" value="1"> Tiene diplomado
+                </label>
             </div>
             <button type="button" class="btn-remove-row" onclick="eliminarFila(this)">✕</button>
         `;

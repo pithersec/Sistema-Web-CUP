@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Ver Docente - CUP')
-@section('page_title', 'Detalle de Docente')
+@section('title', 'Ver Personal - CUP')
+@section('page_title', 'Detalle de Personal')
 
 @section('content')
 <style>
@@ -224,8 +224,8 @@
             </div>
         </div>
         <div class="header-actions">
-            <a href="{{ route('docentes.index') }}" class="btn-back">← Volver</a>
-            <a href="{{ route('docentes.edit', $docente->registro) }}" class="btn-edit-header">✏️ Editar</a>
+            <a href="{{ route('personal.index') }}" class="btn-back">← Volver</a>
+            <a href="{{ route('personal.edit', $docente->registro) }}" class="btn-edit-header">✏️ Editar</a>
         </div>
     </div>
 
@@ -298,10 +298,10 @@
                         <tr>
                             <td>{{ $req->area ?? 'N/A' }}</td>
                             <td>{{ $req->nivel_grado ?? 'N/A' }}</td>
-                            <td>{{ $req->nivel_exp ?? 'N/A' }}</td>
-                            <td>{{ $req->maestria ?? 'N/A' }}</td>
-                            <td>{{ $req->doctorado ?? 'N/A' }}</td>
-                            <td>{{ $req->diplomado ?? 'N/A' }}</td>
+                            <td>{{ $req->nivel_exp !== null ? $req->nivel_exp . ' años' : 'N/A' }}</td>
+                            <td>{{ $req->maestria ? 'Sí' : 'No' }}</td>
+                            <td>{{ $req->doctorado ? 'Sí' : 'No' }}</td>
+                            <td>{{ $req->diplomado ? 'Sí' : 'No' }}</td>
                         </tr>
                         @endforeach
                     </tbody>

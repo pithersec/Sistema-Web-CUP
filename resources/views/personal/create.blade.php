@@ -315,23 +315,14 @@
             </div>
         </div>
 
-        {{-- DATOS DEL REGISTRO --}}
+        {{-- PERFIL Y CUENTA DE ACCESO --}}
         <div class="section-card">
             <div class="section-card-header">
-                <span>🏷️</span>
-                <h3>Datos del Registro</h3>
+                <span>🔐</span>
+                <h3>Perfil y Cuenta de Acceso</h3>
             </div>
             <div class="section-card-body">
-                <div class="fields-grid-2">
-                    <div class="form-group">
-                        <label>Número de Registro <span style="color:#c0392b">*</span></label>
-                        <input type="text" name="registro"
-                            value="{{ old('registro') }}"
-                            class="{{ $errors->has('registro') ? 'has-error' : '' }}"
-                            placeholder="Ej: REG-SIS01"
-                            required />
-                        @if($errors->has('registro')) <div class="field-error">{{ $errors->first('registro') }}</div> @endif
-                    </div>
+                <div class="fields-grid-2" style="margin-bottom:16px;">
                     <div class="form-group">
                         <label>Perfil <span style="color:#c0392b">*</span></label>
                         <select name="id_perfil" id="perfil-select"
@@ -350,16 +341,6 @@
                         @if($errors->has('id_perfil')) <div class="field-error">{{ $errors->first('id_perfil') }}</div> @endif
                     </div>
                 </div>
-            </div>
-        </div>
-
-        {{-- CUENTA DE USUARIO --}}
-        <div class="section-card">
-            <div class="section-card-header">
-                <span>🔐</span>
-                <h3>Cuenta de Acceso</h3>
-            </div>
-            <div class="section-card-body">
                 <div class="info-box">
                     <span class="info-box-icon">ℹ️</span>
                     <div>
@@ -405,31 +386,55 @@
         const fila = document.createElement('div');
         fila.className = 'credencial-row';
         fila.innerHTML = `
+            <input type="hidden" name="credenciales[${index}][id]" value="">
             <div class="form-group">
                 <label>Área</label>
-                <input type="text" name="credenciales[${index}][area]" placeholder="Ej: Matemáticas" />
+                <select name="credenciales[${index}][area]">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="matematicas">Matematicas</option>
+                    <option value="fisica">Fisica</option>
+                    <option value="computacion">Computacion</option>
+                    <option value="ingles">Ingles</option>
+                    <option value="administracion">Administracion</option>
+                    <option value="sistemas">Sistemas</option>
+                    <option value="otra">Otra</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Nivel de Grado</label>
-                <input type="text" name="credenciales[${index}][nivel_grado]" placeholder="Ej: Licenciatura" />
+                <select name="credenciales[${index}][nivel_grado]">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="tecnico_medio">Tecnico medio</option>
+                    <option value="tecnico_superior">Tecnico superior</option>
+                    <option value="licenciatura">Licenciatura</option>
+                    <option value="ingenieria">Ingenieria</option>
+                    <option value="maestria">Maestria</option>
+                    <option value="doctorado">Doctorado</option>
+                </select>
             </div>
             <div class="form-group">
-                <label>Nivel de Experiencia</label>
-                <input type="text" name="credenciales[${index}][nivel_exp]" placeholder="Ej: 5 años"/>
+                <label>Experiencia (años)</label>
+                <input type="number" min="0" max="50" name="credenciales[${index}][nivel_exp]" placeholder="Ej: 5" />
             </div>
             <div class="form-group">
-                <label>Maestría <span style="color:#c0392b">*</span></label>
-                <input type="text" name="credenciales[${index}][maestria]" placeholder="Ej: Maestría en Educación" required />
+                <label>Maestría</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <input type="checkbox" name="credenciales[${index}][maestria]" value="1"> Tiene maestría
+                </label>
             </div>
             <div class="form-group">
-                <label>Doctorado <span style="color:#c0392b">*</span></label>
-                <input type="text" name="credenciales[${index}][doctorado]" placeholder="Ej: Doctorado en Educación" required />
+                <label>Doctorado</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <input type="checkbox" name="credenciales[${index}][doctorado]" value="1"> Tiene doctorado
+                </label>
             </div>
             <div class="form-group">
-                <label>Diplomado <span style="color:#c0392b">*</span></label>
-                <input type="text" name="credenciales[${index}][diplomado]" placeholder="Ej: Diplomado en Docencia Superior" required />
+                <label>Diplomado</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <input type="checkbox" name="credenciales[${index}][diplomado]" value="1"> Tiene diplomado
+                </label>
             </div>
-            <button type="button" class="btn-remove-row" onclick="this.closest('.credencial-row').remove()">✕</button>
+            <button type="button" class="btn-remove-row" onclick="eliminarFila(this)">✕</button>
         `;
         container.appendChild(fila);
     }

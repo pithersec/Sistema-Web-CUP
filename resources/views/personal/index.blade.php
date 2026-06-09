@@ -315,6 +315,7 @@
                             <a href="{{ route('personal.show', $d->registro) }}" class="btn-action btn-view">Ver</a>
 
                             @if($d->estado)
+                                @if($d->registro !== Auth::user()->registro_personal)
                                 <form action="{{ route('personal.desactivar', $d->registro) }}" method="POST"
                                     style="display:inline;"
                                     onsubmit="return confirm('¿Desactivar al personal {{ e($d->registro) }}?');">
@@ -322,7 +323,9 @@
                                     @method('PATCH')
                                     <button type="submit" class="btn-action btn-desactivar">Desactivar</button>
                                 </form>
+                                @endif
                             @else
+                                @if($d->registro !== Auth::user()->registro_personal)
                                 <form action="{{ route('personal.activar', $d->registro) }}" method="POST"
                                     style="display:inline;"
                                     onsubmit="return confirm('¿Activar al personal {{ e($d->registro) }}?');">
@@ -330,6 +333,7 @@
                                     @method('PATCH')
                                     <button type="submit" class="btn-action btn-activar">Activar</button>
                                 </form>
+                                @endif
                             @endif
                         </div>
                     </td>
