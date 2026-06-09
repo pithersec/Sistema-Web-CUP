@@ -14,7 +14,8 @@ class Pago extends Model
         'fecha',
         'concepto',
         'estado',
-        'referencia_pasarela',
+        'id_transaccion',
+        'moneda',
     ];
 
     protected $casts = ['fecha' => 'date', 'monto' => 'decimal:2'];

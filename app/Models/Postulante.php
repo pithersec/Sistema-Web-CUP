@@ -14,8 +14,9 @@ class Postulante extends Model
 
     protected $fillable = [
         'codigo', 'ci', 'procedencia', 'telefono_2', 'plazo',
-        'estado', 'gestion_egreso', 'id_requisitos_postulante',
-        'id_colegio', 'id_pago', 'id_grupo', 'gestion_grupo',
+        'estado', 'gestion_egreso', 'estado_formulario', 'nombre_turno',
+        'id_requisitos_postulante', 'id_colegio', 'id_pago',
+        'id_grupo', 'gestion_grupo',
     ];
 
     public function carreras()
@@ -59,4 +60,9 @@ class Postulante extends Model
     {
         return $this->hasMany(Reclamo::class, 'codigo_postulante', 'codigo');
     }
+
+    public function turno()
+    {
+        return $this->belongsTo(Turno::class, 'nombre_turno', 'nombre');
+    }   
 }

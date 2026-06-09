@@ -13,7 +13,9 @@ class GrupoMateria extends Model
         'id_materia',
         'id_grupo',
         'gestion_grupo',
-        'horario',
+        'hora_inicio',
+        'hora_fin',
+        'orden',
         'registro_personal',
     ];
 
@@ -31,5 +33,10 @@ class GrupoMateria extends Model
     public function personal()
     {
         return $this->belongsTo(Personal::class, 'registro_personal', 'registro');
+    }
+
+    public function asistencias()
+    {
+        return $this->hasMany(Asistencia::class, 'id_materia', 'id_materia');
     }
 }

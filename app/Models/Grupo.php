@@ -10,15 +10,20 @@ class Grupo extends Model
     public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $primaryKey = null; // PK compuesta, se define en la migración
+    protected $primaryKey = null;
 
     protected $fillable = [
-        'id', 'aula', 'turno', 'horario', 'total_ins', 'codigo_gestion',
+        'id', 'aula', 'nombre_turno', 'total_ins', 'codigo_gestion',
     ];
 
     public function gestion()
     {
         return $this->belongsTo(Gestion::class, 'codigo_gestion', 'codigo');
+    }
+
+    public function turno()
+    {
+        return $this->belongsTo(Turno::class, 'nombre_turno', 'nombre');
     }
 
     public function postulantes()
