@@ -37,12 +37,14 @@ Route::get('/preinscripcion/exito', function () {
 Route::get('/forgot-password', fn() => view('auth.forgot_password'));
 Route::post('/forgot-password', fn() => back()->with('status', 'sent'));
 
+// Rutas públicas de pago
+Route::get('/pago/exitoso', [PostulanteController::class, 'pagoExitoso'])->name('pago.exitoso');
 Route::get('/pago/{codigo}', [PostulanteController::class, 'mostrarPago'])->name('pago.index');
-Route::post('/pago/{codigo}/confirmar', [PostulanteController::class, 'confirmarPago'])->name('pago.confirmar');
+Route::post('/pago/{codigo}/iniciar', [PostulanteController::class, 'iniciarPago'])->name('pago.iniciar');
+Route::post('/pago/webhook', [PostulanteController::class, 'pagoWebhook'])->name('pago.webhook');
 
-Route::get('/estado', function () {
-    return view('preinscripcion.estado');
-})->name('estado.form');
+// Ruta para CU-05 Consultar estado de admisión
+Route::get('/estado', [PostulanteController::class, 'mostrarFormularioEstado'])->name('estado.form');
 
 Route::post('/estado', [PostulanteController::class, 'consultarEstado'])->name('estado.consultar');
 

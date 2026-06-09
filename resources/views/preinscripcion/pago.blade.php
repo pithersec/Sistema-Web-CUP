@@ -116,6 +116,11 @@
 
     <div class="content">
         <div class="card">
+            @if($postulante->pago)
+            <div style="background:#d4f5e2; border:1.5px solid #10b981; border-radius:8px; padding:14px 16px; margin-bottom:20px; font-size:13px; color:#065f46;">
+                ✓ Ya realizaste tu pago el {{ \Carbon\Carbon::parse($postulante->pago->fecha)->format('d/m/Y') }}. ID: {{ $postulante->pago->id_transaccion }}
+            </div>
+            @endif
             <div class="pago-header">
                 <div class="pago-icon">💳</div>
                 <h2>Pago de Inscripción</h2>
@@ -159,19 +164,19 @@
                 </div>
                 <div class="resumen-row total">
                     <span class="label">Total a Pagar</span>
-                    <span class="value">Bs. 700.00</span>
+                    <span class="value">{{ $moneda }} 700.00</span>
                 </div>
             </div>
 
             {{-- Formulario de pago --}}
-            <form action="{{ route('pago.confirmar', $postulante->codigo) }}" method="POST">
+            <form action="{{ route('pago.iniciar', $postulante->codigo) }}" method="POST">
                 @csrf
                 <button type="submit" class="btn-pagar" {{ !$requisitosCompletos ? 'disabled' : '' }}>
-                    ✓ Confirmar Pago — Bs. 700.00
+                    ✓ Confirmar Pago — {{ $moneda }} 700.00
                 </button>
             </form>
 
-            <a href="{{ url('/') }}" class="btn-volver">← Volver al Inicio</a>
+            <a href="{{ route('estado.form', ['busqueda' => $postulante->codigo]) }}" class="btn-volver">← Volver a Consultar Estado</a>
         </div>
     </div>
 </body>

@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'privilegio' => \App\Http\Middleware\CheckPrivilegio::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'pago/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

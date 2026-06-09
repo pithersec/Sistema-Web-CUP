@@ -386,66 +386,119 @@ public function darBaja($codigo)
             $req->fotocopia_carnet && $req->formulario &&
             $req->libreta;
 
-        return view('preinscripcion.pago', compact('postulante', 'requisitosCompletos'));
+        $moneda = env('PAYMENT_CURRENCY', 'USD');
+
+        return view('preinscripcion.pago', compact('postulante', 'requisitosCompletos', 'moneda'));
     }
 
-    public function confirmarPago(Request $request, $codigo)
+    public function iniciarPago(Request $request, $codigo)
     {
-        $postulante = Postulante::with(['requisitosPostulante'])
+        $postulante = Postulante::with(['datosPersonales', 'requisitosPostulante', 'pago'])
             ->where('codigo', $codigo)->firstOrFail();
 
-        // Verificar requisitos
-        $req = $postulante->requisitosPostulante;
-        $requisitosCompletos = $req &&
-            $req->titulo_original && $req->titulo_copia &&
-            $req->fotocopia_carnet && $req->formulario &&
-            $req->libreta;
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-        if (!$requisitosCompletos) {
-            return redirect()->back()->withErrors(['error' => 'No puedes pagar sin completar los requisitos.']);
+        $session = \Stripe\Checkout\Session::create([
+            'mode' => 'payment',
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency'     => strtolower(env('PAYMENT_CURRENCY', 'USD')),
+                    'product_data' => [
+                        'name' => 'Inscripción CUP FICCT',
+                        'description' => 'Gestión ' . ($postulante->gestion_grupo ?? ''),
+                    ],
+                    'unit_amount' => 70000, // 700.00 en centavos
+                ],
+                'quantity' => 1,
+            ]],
+            'metadata' => [
+                'codigo_postulante' => $postulante->codigo,
+            ],
+            'success_url' => route('pago.exitoso') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'  => route('pago.index', $codigo),
+        ]);
+
+        return redirect($session->url);
+    }
+
+    public function pagoExitoso(Request $request)
+    {
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+
+        $session = \Stripe\Checkout\Session::retrieve($request->get('session_id'));
+
+        if ($session->payment_status !== 'paid') {
+            return redirect()->route('welcome')->with('error', 'El pago no fue completado.');
         }
 
-        DB::beginTransaction();
-        try {
-            // Crear pago
+        $codigo = $session->metadata->codigo_postulante;
+        $postulante = Postulante::where('codigo', $codigo)->firstOrFail();
+
+        if (!$postulante->id_pago) {
             $pago = DB::table('pago')->insertGetId([
                 'monto'          => 700.00,
-                'fecha'          => now()->toDateString(),
+                'fecha'          => now(),
                 'concepto'       => 'Inscripción CUP FICCT',
                 'estado'         => 'completado',
-                'id_transaccion' => 'pi_' . Str::random(32),
-                'moneda'         => 'USD',
+                'id_transaccion' => $session->payment_intent,
+                'moneda'         => strtoupper(env('PAYMENT_CURRENCY', 'USD')),
             ]);
 
-            // Marcar comprobante como entregado
-            DB::table('requisitos_postulante')
-                ->where('id', $postulante->id_requisitos_postulante)
-                ->update(['comprobante' => true]);
-
-            // Actualizar postulante
             $postulante->update([
                 'id_pago' => $pago,
                 'estado'  => 'inscrito',
             ]);
 
-            Bitacora::create([
-                'ip'         => $request->ip(),
-                'accion'     => "Pago Completado. Postulante: {$codigo} realizó el pago de inscripción.",
-                'fecha_hora' => now(),
-                'id_usuario' => 1 // sistema
-            ]);
-
-            DB::commit();
-            return redirect()->route('preinscripcion.exito')
-                ->with('success', '¡Pago realizado con éxito! Ya estás inscrito.')
-                ->with('codigo_postulante', $codigo)
-                ->with('plazo_limite', now()->addDays(5)->format('d/m/Y'));
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error($e->getMessage());
-            return redirect()->back()->withErrors(['error' => 'Error al procesar el pago.']);
+            if ($postulante->requisitosPostulante) {
+                $postulante->requisitosPostulante->update([
+                    'comprobante' => true,
+                ]);
+            }
         }
+
+        return redirect()->route('estado.form', ['busqueda' => $codigo])
+            ->with('success', '¡Pago completado! Ya estás inscrito en el CUP.');
+    }
+
+    public function pagoWebhook(Request $request)
+    {
+        $payload = $request->getContent();
+        $sigHeader = $request->header('Stripe-Signature');
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sigHeader,
+                config('services.stripe.webhook_secret')
+            );
+        } catch (\Exception $e) {
+            return response('Webhook error', 400);
+        }
+
+        if ($event->type === 'checkout.session.completed') {
+            $session = $event->data->object;
+            $codigo = $session->metadata->codigo_postulante;
+            $postulante = Postulante::where('codigo', $codigo)->first();
+
+            if ($postulante && !$postulante->id_pago) {
+                $pago = DB::table('pago')->insertGetId([
+                    'monto'          => 700.00,
+                    'fecha'          => now(),
+                    'concepto'       => 'Inscripción CUP FICCT',
+                    'estado'         => 'completado',
+                    'id_transaccion' => $session->payment_intent,
+                    'moneda'         => strtoupper(env('PAYMENT_CURRENCY', 'USD')),
+                ]);
+
+                $postulante->update([
+                    'id_pago' => $pago,
+                    'estado'  => 'inscrito',
+                ]);
+            }
+        }
+
+        return response('OK', 200);
     }
 
     public function consultarEstado(Request $request)
@@ -497,5 +550,54 @@ public function darBaja($codigo)
             ->get();
 
         return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras'));
+    }
+
+    public function mostrarFormularioEstado(Request $request)
+    {
+        if ($request->has('busqueda') && !empty($request->busqueda)) {
+            $busqueda = trim($request->input('busqueda'));
+
+            $postulante = Postulante::with([
+                'datosPersonales',
+                'requisitosPostulante',
+                'pago',
+                'colegio',
+            ])->where('codigo', $busqueda)
+            ->orWhereHas('datosPersonales', function($q) use ($busqueda) {
+                $q->where('ci', $busqueda);
+            })->first();
+
+            if (!$postulante) {
+                return view('preinscripcion.estado')->withErrors(['busqueda' => 'No se encontró ningún postulante con ese código o CI.']);
+            }
+
+            $examenes = DB::table('examen')
+                ->join('materia', 'examen.id_materia', '=', 'materia.id')
+                ->where('examen.codigo_postulante', $postulante->codigo)
+                ->select('materia.nombre as materia', 'examen.nro_examen', 'examen.nota', 'examen.ponderacion')
+                ->orderBy('examen.id_materia')
+                ->orderBy('examen.nro_examen')
+                ->get();
+
+            $grupo = DB::table('grupo')
+                ->where('id', $postulante->id_grupo)
+                ->where('codigo_gestion', $postulante->gestion_grupo)
+                ->first();
+
+            $carreras = DB::table('postulante_carrera')
+                ->join('carrera', function($join) {
+                    $join->on('postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
+                        ->on('postulante_carrera.plan_carrera', '=', 'carrera.plan')
+                        ->on('postulante_carrera.modalidad_carrera', '=', 'carrera.modalidad');
+                })
+                ->where('postulante_carrera.codigo_postulante', $postulante->codigo)
+                ->select('carrera.nombre', 'carrera.modalidad', 'postulante_carrera.opcion')
+                ->orderBy('postulante_carrera.opcion')
+                ->get();
+
+            return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras'));
+        }
+
+        return view('preinscripcion.estado');
     }
 }
