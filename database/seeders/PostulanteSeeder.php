@@ -150,7 +150,7 @@ class PostulanteSeeder extends Seeder
                     'fotocopia_carnet'=> $tieneRequisitosCompletos ? true : $faker->boolean(60),
                     'formulario'      => $tieneRequisitosCompletos ? true : $faker->boolean(60),
                     'comprobante'     => $tieneRequisitosCompletos ? true : $faker->boolean(60),
-                    'libreta'         => $faker->boolean($tieneRequisitosCompletos ? 80 : 40),
+                    'libreta'         => $tieneRequisitosCompletos ? true : $faker->boolean(40),
                 ];
 
                 $grupoAsignado = $faker->randomElement($gruposPorGestion[$gestion['codigo']]);

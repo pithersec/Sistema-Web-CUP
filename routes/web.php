@@ -40,6 +40,12 @@ Route::post('/forgot-password', fn() => back()->with('status', 'sent'));
 Route::get('/pago/{codigo}', [PostulanteController::class, 'mostrarPago'])->name('pago.index');
 Route::post('/pago/{codigo}/confirmar', [PostulanteController::class, 'confirmarPago'])->name('pago.confirmar');
 
+Route::get('/estado', function () {
+    return view('preinscripcion.estado');
+})->name('estado.form');
+
+Route::post('/estado', [PostulanteController::class, 'consultarEstado'])->name('estado.consultar');
+
 /*
 |--------------------------------------------------------------------------
 | 2. RUTAS PROTEGIDAS (Requieren Autenticación)

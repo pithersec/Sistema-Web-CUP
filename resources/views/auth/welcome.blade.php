@@ -290,7 +290,7 @@
                 <span class="card-btn">Iniciar ahora</span>
             </a>
 
-            <a href="#" class="card card-secondary" onclick="alert('Esta función estará disponible próximamente.')">
+            <a href="{{ route('estado.form') }}" class="card card-secondary">
                 <span class="card-icon">🎓</span>
                 <h3>Consultar Estado</h3>
                 <p>¿Ya te preinscribiste? Consulta el estado de tu admisión con tu código.</p>

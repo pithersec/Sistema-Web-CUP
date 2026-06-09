@@ -498,7 +498,7 @@
             <div class="fields-grid">
                 <div class="field-item">
                     <label>Monto</label>
-                    <p>Bs. {{ number_format($pago->monto, 2) }}</p>
+                    <p>{{ $pago->moneda }} {{ number_format($pago->monto, 2) }}</p>
                 </div>
                 <div class="field-item">
                     <label>Fecha</label>
@@ -506,8 +506,16 @@
                 </div>
                 <div class="field-item">
                     <label>Estado</label>
-                    <p class="{{ $pago->estado == 'completado' ? 'pago-estado-ok' : 'pago-estado-pen' }}">
-                        {{ ucfirst($pago->estado) }}
+                    <p>
+                        @if($pago->estado == 'completado')
+                            <span class="badge badge-green">Completado</span>
+                        @elseif($pago->estado == 'pendiente')
+                            <span class="badge badge-yellow">Pendiente</span>
+                        @elseif($pago->estado == 'rechazado')
+                            <span class="badge badge-red">Rechazado</span>
+                        @else
+                            <span class="badge badge-gray">{{ ucfirst($pago->estado) }}</span>
+                        @endif
                     </p>
                 </div>
                 <div class="field-item">

@@ -447,4 +447,55 @@ public function darBaja($codigo)
             return redirect()->back()->withErrors(['error' => 'Error al procesar el pago.']);
         }
     }
+
+    public function consultarEstado(Request $request)
+    {
+        $request->validate([
+            'busqueda' => 'required|string|max:20',
+        ]);
+
+        $busqueda = trim($request->input('busqueda'));
+
+        // Buscar por código o CI
+        $postulante = Postulante::with([
+            'datosPersonales',
+            'requisitosPostulante',
+            'pago',
+            'colegio',
+        ])->where('codigo', $busqueda)
+        ->orWhereHas('datosPersonales', function($q) use ($busqueda) {
+            $q->where('ci', $busqueda);
+        })->first();
+
+        if (!$postulante) {
+            return back()->withErrors(['busqueda' => 'No se encontró ningún postulante con ese código o CI.'])->withInput();
+        }
+
+        // Obtener notas agrupadas por materia
+        $examenes = DB::table('examen')
+            ->join('materia', 'examen.id_materia', '=', 'materia.id')
+            ->where('examen.codigo_postulante', $postulante->codigo)
+            ->select('materia.nombre as materia', 'examen.nro_examen', 'examen.nota', 'examen.ponderacion')
+            ->orderBy('examen.id_materia')
+            ->orderBy('examen.nro_examen')
+            ->get();
+
+        $grupo = DB::table('grupo')
+            ->where('id', $postulante->id_grupo)
+            ->where('codigo_gestion', $postulante->gestion_grupo)
+            ->first();
+
+        $carreras = DB::table('postulante_carrera')
+            ->join('carrera', function($join) {
+                $join->on('postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
+                    ->on('postulante_carrera.plan_carrera', '=', 'carrera.plan')
+                    ->on('postulante_carrera.modalidad_carrera', '=', 'carrera.modalidad');
+            })
+            ->where('postulante_carrera.codigo_postulante', $postulante->codigo)
+            ->select('carrera.nombre', 'carrera.modalidad', 'postulante_carrera.opcion')
+            ->orderBy('postulante_carrera.opcion')
+            ->get();
+
+        return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras'));
+    }
 }
