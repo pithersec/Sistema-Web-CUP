@@ -11,22 +11,22 @@ class RequisitosPersonalSeeder extends Seeder
     {
         DB::table('requisitos_personal')->insert([
             [
-                'registro_personal' => 'REG-DOC03', // Evans Balcázar
-                'area' => 'Sistemas',
-                'nivel_grado' => 'Licenciatura',
-                'nivel_exp' => '15 años',
-                'maestria' => 'Maestría en Ciencias de la Computación',
-                'doctorado' => 'No presenta',
-                'diplomado' => 'Diplomado en Educación Superior'
+                'registro_personal' => '1003',
+                'area'        => 'sistemas',
+                'nivel_grado' => 'licenciatura',
+                'nivel_exp'   => 15,
+                'maestria'    => true,
+                'doctorado'   => false,
+                'diplomado'   => true,
             ],
             [
-                'registro_personal' => 'REG-ADM01', // Carlos Pérez
-                'area' => 'Administración',
-                'nivel_grado' => 'Licenciatura',
-                'nivel_exp' => '8 años',
-                'maestria' => 'No presenta',
-                'doctorado' => 'No presenta',
-                'diplomado' => 'Diplomado en Gestión Pública'
+                'registro_personal' => '1001',
+                'area'        => 'administracion',
+                'nivel_grado' => 'licenciatura',
+                'nivel_exp'   => 8,
+                'maestria'    => false,
+                'doctorado'   => false,
+                'diplomado'   => true,
             ],
         ]);
     }

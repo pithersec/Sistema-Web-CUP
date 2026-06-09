@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             PerfilPrivilegioSeeder::class,
             CarreraGestionSeeder::class,
             PersonalSeeder::class,
+            TurnoSeeder::class,
             GrupoSeeder::class,
 
             // 3. Tablas Dependientes Nivel 2 (Estructuras Complejas)

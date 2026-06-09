@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('requisitos_personal', function (Blueprint $table) {
             $table->id(); // Aunque sea compuesta la PK en el DDL original, agregamos ID para facilitar Eloquent
             $table->string('registro_personal', 20);
-            $table->string('area', 20)->nullable();
-            $table->string('nivel_grado', 20)->nullable();
-            $table->string('nivel_exp', 20)->nullable();
-            $table->string('maestria', 50);
-            $table->string('doctorado', 50);
-            $table->string('diplomado', 50);
+            $table->enum('area', ['matematicas', 'fisica', 'computacion', 'ingles', 'administracion', 'sistemas', 'otra'])->nullable();
+            $table->enum('nivel_grado', ['tecnico_medio', 'tecnico_superior', 'licenciatura', 'ingenieria', 'maestria', 'doctorado'])->nullable();
+            $table->smallInteger('nivel_exp')->nullable();
+            $table->boolean('maestria')->default(false);
+            $table->boolean('doctorado')->default(false);
+            $table->boolean('diplomado')->default(false);
 
             $table->foreign('registro_personal')->references('registro')->on('personal')->onDelete('cascade');
         });

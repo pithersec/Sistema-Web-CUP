@@ -11,11 +11,6 @@ class GrupoSeeder extends Seeder
     {
         $maxPorGrupo = 70;
         $turnos = ['mañana', 'tarde', 'noche'];
-        $horarios = [
-            'mañana' => '07:00 - 11:00',
-            'tarde'  => '13:00 - 17:00',
-            'noche'  => '18:00 - 22:00',
-        ];
         $prefijos = ['mañana' => 'M', 'tarde' => 'T', 'noche' => 'N'];
 
         $gestiones = [
@@ -28,8 +23,6 @@ class GrupoSeeder extends Seeder
         $grupos = [];
 
         $aulas = [
-            '236-11', '236-12', '236-13', '236-14', '236-15',
-            '236-21', '236-22', '236-23', '236-24', '236-25',
             '236-31', '236-32', '236-33', '236-34', '236-35',
         ];
 
@@ -43,14 +36,13 @@ class GrupoSeeder extends Seeder
                 $prefijo = $prefijos[$turno];
                 $id = $prefijo . str_pad($contadores[$prefijo]++, 3, '0', STR_PAD_LEFT);
 
-                $grupos[] = [   
+                $grupos[] = [
                     'id'             => $id,
                     'aula'           => $aulas[$i % count($aulas)],
-                    'turno'          => $turno,
-                    'horario'        => $horarios[$turno],
+                    'nombre_turno'   => $turno,
                     'total_ins'      => 0,
                     'codigo_gestion' => $gestion['codigo'],
-                ];
+                ];  
 
                 $turnoIndex++;
             }

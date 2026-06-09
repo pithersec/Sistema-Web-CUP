@@ -14,7 +14,7 @@ class UsuarioSeeder extends Seeder
             'clave' => 'Admin123/*',
             'email' => 'admin@ficct.uagrm.edu.bo',
             'id_perfil' => 1,
-            'registro_personal' => 'REG-ADM01',
+            'registro_personal' => '1001',
         ]);
 
         Usuario::create([
@@ -22,7 +22,7 @@ class UsuarioSeeder extends Seeder
             'clave' => 'Admin2026',
             'email' => 'ana.suarez@ficct.uagrm.edu.bo',
             'id_perfil' => 2,
-            'registro_personal' => 'REG-VEN02',
+            'registro_personal' => '1002',
         ]);
 
         Usuario::create([
@@ -30,7 +30,7 @@ class UsuarioSeeder extends Seeder
             'clave' => 'DocenteFicct',
             'email' => 'ebalcazar@ficct.uagrm.edu.bo',
             'id_perfil' => 3,
-            'registro_personal' => 'REG-DOC03',
+            'registro_personal' => '1003',
         ]);
 
         Usuario::create([
@@ -38,7 +38,7 @@ class UsuarioSeeder extends Seeder
             'clave' => 'cvpd2026',
             'email' => 'sistema@ficct.uagrm.edu.bo',
             'id_perfil' => 1,
-            'registro_personal' => 'REG-SIS04',
+            'registro_personal' => '1004',
         ]);
     }
 }

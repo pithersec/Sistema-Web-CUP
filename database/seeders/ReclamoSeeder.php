@@ -29,9 +29,9 @@ class ReclamoSeeder extends Seeder
         $personal = DB::table('personal')->pluck('registro')->toArray();
 
         $configuracion = [
-            ['gestion' => '1-2025', 'cantidad' => 35, 'fecha_ini' => '2025-02-01', 'fecha_fin' => '2025-06-30'],
-            ['gestion' => '2-2025', 'cantidad' => 45, 'fecha_ini' => '2025-08-01', 'fecha_fin' => '2025-12-31'],
-            ['gestion' => '1-2026', 'cantidad' => 20, 'fecha_ini' => '2026-02-01', 'fecha_fin' => '2026-05-30'],
+            ['gestion' => '1-2025', 'cantidad' => 35, 'fecha_ini' => '2025-01-02', 'fecha_fin' => '2025-02-16'],
+            ['gestion' => '2-2025', 'cantidad' => 45, 'fecha_ini' => '2025-06-02', 'fecha_fin' => '2025-07-20'],
+            ['gestion' => '1-2026', 'cantidad' => 20, 'fecha_ini' => '2026-01-05', 'fecha_fin' => '2026-02-15'],
         ];
 
         foreach ($configuracion as $config) {

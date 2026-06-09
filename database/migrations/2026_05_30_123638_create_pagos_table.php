@@ -17,7 +17,8 @@ return new class extends Migration
             $table->date('fecha');
             $table->string('concepto', 200)->nullable();
             $table->enum('estado', ['pendiente', 'completado', 'rechazado', 'anulado'])->default('pendiente');
-            $table->string('referencia_pasarela', 200)->nullable();
+            $table->string('id_transaccion', 200)->nullable();
+            $table->string('moneda', 10)->default('USD');
         });
     }
 

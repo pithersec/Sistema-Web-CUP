@@ -19,6 +19,10 @@ return new class extends Migration
             $table->date('plazo')->nullable();
             $table->string('estado', 30)->default('preinscrito');
             $table->string('gestion_egreso', 20)->nullable();
+            $table->enum('estado_formulario', ['activo', 'vencido', 'anulado'])->default('activo');
+            
+            $table->string('nombre_turno', 20)->nullable();
+            $table->foreign('nombre_turno')->references('nombre')->on('turno')->onUpdate('cascade')->onDelete('set null');
             $table->string('id_grupo', 10)->nullable();
             $table->string('gestion_grupo', 20)->nullable();
 
