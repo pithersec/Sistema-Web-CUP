@@ -194,7 +194,7 @@
 
             {{-- CARRERAS --}}
             <div class="card">
-                <div class="card-header"><h2>🎓 Selección de Carreras</h2></div>
+                <div class="card-header"><h2>🎓 Preferencias académicas</h2></div>
                 <div class="card-body">
                     <div class="grid-2">
                         <div class="form-group">
@@ -225,6 +225,19 @@
                         </div>
                     </div>
                     <p class="field-hint" style="margin-top: 8px;">Las opciones deben ser diferentes. Si la primera opción no tiene cupos disponibles, se asignará la segunda.</p>
+                    <div class="grid-2" style="margin-top:16px">
+                        <div class="form-group">
+                            <label>Horario de Clases Preferido <span class="req">*</span></label>
+                            <select name="turno_preferido" class="{{ $errors->has('turno_preferido') ? 'has-error' : '' }}" required>
+                                <option value="">-- Seleccione un horario --</option>
+                                <option value="mañana" {{ old('turno_preferido') == 'mañana' ? 'selected' : '' }}>Mañana (07:00 - 11:00)</option>
+                                <option value="tarde"  {{ old('turno_preferido') == 'tarde'  ? 'selected' : '' }}>Tarde (13:00 - 17:00)</option>
+                                <option value="noche"  {{ old('turno_preferido') == 'noche'  ? 'selected' : '' }}>Noche (18:00 - 22:00)</option>
+                            </select>
+                            @if($errors->has('turno_preferido')) <div class="field-error">{{ $errors->first('turno_preferido') }}</div> @endif
+                        </div>
+                    </div>
+                    <p class="field-hint" style="margin-top: 8px;">El sistema intentará asignarte al turno seleccionado según disponibilidad.</p>
                 </div>
             </div>
 
