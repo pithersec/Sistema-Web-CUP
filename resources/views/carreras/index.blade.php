@@ -230,10 +230,14 @@
                                 @endif
                             </td>
                             <td>
+                                @if(Auth::user()->tienePrivilegio('cupos.editar'))
                                 <input type="number"
                                     name="cupos[{{ $c->codigo }}|{{ $c->plan }}|{{ $c->modalidad }}]"
-                                    class="cupos-input row-input-{{ $c->codigo }}-{{ $c->plan }}-{{ $c->modalidad }}"
+                                    class="cupos-input"
                                     value="{{ $c->cupos }}" min="0" />
+                                @else
+                                {{ $c->cupos }}
+                                @endif
                             </td>
                             <td>{{ $c->ocupados }}</td>
                             <td style="color:#27ae60; font-weight:600">{{ $c->aprobados }}</td>
@@ -257,7 +261,7 @@
                 </table>
             </div>
 
-            @if(count($carreras) > 0)
+            @if(count($carreras) > 0 && Auth::user()->tienePrivilegio('cupos.editar'))
             <div class="footer-buttons">
                 <button type="submit" class="btn-primary">💾 Guardar Todos los Cambios</button>
             </div>

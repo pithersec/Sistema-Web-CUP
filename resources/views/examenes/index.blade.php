@@ -199,7 +199,7 @@
                     <span>
                         @if($pos->nota_actual === null)
                             <span class="badge" style="background:#e2e8f0; color:#5a5a5a;">Pendiente</span>
-                        @elseif($pos->nota_actual >= 51)
+                        @elseif($pos->nota_actual >= 60)
                             <span class="badge" style="background:#d4f5e2; color:#1a7a3c;">Aprobado</span>
                         @else
                             <span class="badge" style="background:#fde8e8; color:#c0392b;">Reprobado</span>
