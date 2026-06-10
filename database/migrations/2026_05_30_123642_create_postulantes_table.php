@@ -32,6 +32,8 @@ return new class extends Migration
 
             $table->foreign(['id_grupo', 'gestion_grupo'])->references(['id', 'codigo_gestion'])->on('grupo')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('ci')->references('ci')->on('datos_personales')->onUpdate('cascade')->onDelete('cascade');
+        
+            $table->timestamps();
         });
     }
 

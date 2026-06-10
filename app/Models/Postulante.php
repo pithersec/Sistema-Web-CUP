@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Postulante extends Model
 {
-    public $timestamps = false;
+    public $timestamps = true;
     protected $table = 'postulante';
     protected $primaryKey = 'codigo';
     public $incrementing = false;

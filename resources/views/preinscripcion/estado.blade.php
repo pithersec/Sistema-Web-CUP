@@ -140,7 +140,12 @@
                         <label>Plazo de Validación</label>
                         <p>{{ $postulante->plazo ? \Carbon\Carbon::parse($postulante->plazo)->format('d/m/Y') : 'N/A' }}</p>
                     </div>
+                    <div class="field-item">
+                        <label>Fecha de Preinscripción</label>
+                        <p>{{ $postulante->created_at ? \Carbon\Carbon::parse($postulante->created_at)->format('d/m/Y H:i') : 'N/A' }}</p>
+                    </div>
                 </div>
+                
 
                 @if($postulante->estado_formulario == 'vencido' || $postulante->estado_formulario == 'anulado')
                 <div style="background:#fde8e8; border:1.5px solid #f8b4b4; border-radius:8px; padding:14px 16px; margin-top:16px; font-size:13px; color:#c0392b;">
@@ -335,7 +340,7 @@
                         </div>
                         <div class="field-item">
                             <label>Fecha</label>
-                            <p>{{ \Carbon\Carbon::parse($pago->fecha)->format('d/m/Y') }}</p>
+                            <p>{{ \Carbon\Carbon::parse($pago->fecha)->format('d/m/Y H:i') }}</p>
                         </div>
                         <div class="field-item">
                             <label>Estado</label>

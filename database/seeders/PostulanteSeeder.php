@@ -174,6 +174,8 @@ class PostulanteSeeder extends Seeder
                     'gestion_grupo'            => $gestion['codigo'],
                     'nombre_turno'             => $turnoGrupo,
                     'estado_formulario'        => 'activo',
+                    'created_at' => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
+                    'updated_at' => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
                 ];
 
                 // Elegir 2 carreras distintas

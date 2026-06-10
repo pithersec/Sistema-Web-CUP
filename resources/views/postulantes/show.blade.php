@@ -415,6 +415,10 @@
                     <label>Turno Preferido</label>
                     <p>{{ $postulante->nombre_turno ? ucfirst($postulante->nombre_turno) : 'No especificado' }}</p>
                 </div>
+                <div class="field-item">
+                    <label>Fecha de Preinscripción</label>
+                    <p>{{ $postulante->created_at ? \Carbon\Carbon::parse($postulante->created_at)->format('d/m/Y H:i') : 'N/A' }}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -527,7 +531,7 @@
                 </div>
                 <div class="field-item">
                     <label>Fecha</label>
-                    <p>{{ $pago->fecha ? \Carbon\Carbon::parse($pago->fecha)->format('d/m/Y') : 'N/A' }}</p>
+                    <p>{{ $pago->fecha ? \Carbon\Carbon::parse($pago->fecha)->format('d/m/Y H:i') : 'N/A' }}</p>
                 </div>
                 <div class="field-item">
                     <label>Estado</label>

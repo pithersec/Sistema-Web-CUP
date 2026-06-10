@@ -152,7 +152,7 @@
 
             <button type="submit"
                 style="padding: 10px 20px; background: #1a5fa8; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;">
-                Cargar Estudiantes
+                Mostrar Estudiantes
             </button>
         </form>
     </div>
