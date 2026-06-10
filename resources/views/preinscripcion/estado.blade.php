@@ -294,25 +294,50 @@
         <div class="card">
             <div class="card-header"><h2>📝 Notas por Materia</h2></div>
             <div class="card-body" style="padding:0;">
+
+                <div style="padding:12px 20px; font-size:12px; color:white; border-bottom:1px solid #1a5fa8; background:#0d3b6e;">
+                    ℹ️ Cada examen muestra tu nota y entre paréntesis la nota ponderada. Se aprueba la materia con Nota Final ≥ 60.
+                </div>
+
                 <table class="notas-table">
                     <thead>
                         <tr>
                             <th>Materia</th>
-                            <th>Examen</th>
-                            <th>Ponderación</th>
-                            <th>Nota</th>
+                            <th>Exam 1 ({{ $ponderaciones['pond1'] }}%)</th>
+                            <th>Exam 2 ({{ $ponderaciones['pond2'] }}%)</th>
+                            <th>Exam 3 ({{ $ponderaciones['pond3'] }}%)</th>
+                            <th>Nota Final</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($examenes as $e)
+                        @foreach($examenes as $materia => $data)
                         <tr>
-                            <td>{{ $e->materia }}</td>
-                            <td>Examen {{ $e->nro_examen }}</td>
-                            <td>{{ $e->ponderacion }}%</td>
-                            <td><strong>{{ $e->nota }}</strong></td>
+                            <td><strong>{{ $materia }}</strong></td>
                             <td>
-                                @if($e->nota >= 60)
+                                @if($data['e1'])
+                                    {{ number_format($data['e1']->nota, 0) }}
+                                    <br><small style="color:#888;">({{ number_format($data['e1']->nota * ($data['e1']->ponderacion / 100), 1) }} pts)</small>
+                                @else —
+                                @endif
+                            </td>
+                            <td>
+                                @if($data['e2'])
+                                    {{ number_format($data['e2']->nota, 0) }}
+                                    <br><small style="color:#888;">({{ number_format($data['e2']->nota * ($data['e2']->ponderacion / 100), 1) }} pts)</small>
+                                @else —
+                                @endif
+                            </td>
+                            <td>
+                                @if($data['e3'])
+                                    {{ number_format($data['e3']->nota, 0) }}
+                                    <br><small style="color:#888;">({{ number_format($data['e3']->nota * ($data['e3']->ponderacion / 100), 1) }} pts)</small>
+                                @else —
+                                @endif
+                            </td>
+                            <td><strong>{{ $data['notaFinal'] }}</strong></td>
+                            <td>
+                                @if($data['aprobado'])
                                     <span class="badge badge-green">Aprobado</span>
                                 @else
                                     <span class="badge badge-red">Reprobado</span>

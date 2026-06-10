@@ -534,13 +534,7 @@ class PostulanteController extends Controller
         }
 
         // Obtener notas agrupadas por materia
-        $examenes = DB::table('examen')
-            ->join('materia', 'examen.id_materia', '=', 'materia.id')
-            ->where('examen.codigo_postulante', $postulante->codigo)
-            ->select('materia.nombre as materia', 'examen.nro_examen', 'examen.nota', 'examen.ponderacion')
-            ->orderBy('examen.id_materia')
-            ->orderBy('examen.nro_examen')
-            ->get();
+        [$examenes, $ponderaciones] = $this->procesarExamenes($postulante->codigo);
 
         $grupo = DB::table('grupo')
             ->where('id', $postulante->id_grupo)
@@ -558,7 +552,7 @@ class PostulanteController extends Controller
             ->orderBy('postulante_carrera.opcion')
             ->get();
 
-        return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras'));
+        return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras', 'ponderaciones'));
     }
 
     public function mostrarFormularioEstado(Request $request)
@@ -580,13 +574,7 @@ class PostulanteController extends Controller
                 return view('preinscripcion.estado')->withErrors(['busqueda' => 'No se encontró ningún postulante con ese código o CI.']);
             }
 
-            $examenes = DB::table('examen')
-                ->join('materia', 'examen.id_materia', '=', 'materia.id')
-                ->where('examen.codigo_postulante', $postulante->codigo)
-                ->select('materia.nombre as materia', 'examen.nro_examen', 'examen.nota', 'examen.ponderacion')
-                ->orderBy('examen.id_materia')
-                ->orderBy('examen.nro_examen')
-                ->get();
+            [$examenes, $ponderaciones] = $this->procesarExamenes($postulante->codigo);
 
             $grupo = DB::table('grupo')
                 ->where('id', $postulante->id_grupo)
@@ -604,9 +592,47 @@ class PostulanteController extends Controller
                 ->orderBy('postulante_carrera.opcion')
                 ->get();
 
-            return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras'));
+            return view('preinscripcion.estado', compact('postulante', 'examenes', 'grupo', 'carreras', 'ponderaciones'));
         }
 
         return view('preinscripcion.estado');
+    }
+
+    private function procesarExamenes($codigoPostulante): array
+    {
+        $examenes = DB::table('examen')
+            ->join('materia', 'examen.id_materia', '=', 'materia.id')
+            ->where('examen.codigo_postulante', $codigoPostulante)
+            ->select('materia.nombre as materia', 'examen.nro_examen', 'examen.nota', 'examen.ponderacion')
+            ->orderBy('examen.id_materia')
+            ->orderBy('examen.nro_examen')
+            ->get()
+            ->groupBy('materia')
+            ->map(function($exams) {
+                $e1 = $exams->firstWhere('nro_examen', 1);
+                $e2 = $exams->firstWhere('nro_examen', 2);
+                $e3 = $exams->firstWhere('nro_examen', 3);
+                $notaFinal = round(
+                    (($e1->nota ?? 0) * (($e1->ponderacion ?? 30) / 100)) +
+                    (($e2->nota ?? 0) * (($e2->ponderacion ?? 30) / 100)) +
+                    (($e3->nota ?? 0) * (($e3->ponderacion ?? 40) / 100)),
+                    1
+                );
+                return [
+                    'e1'        => $e1,
+                    'e2'        => $e2,
+                    'e3'        => $e3,
+                    'notaFinal' => $notaFinal,
+                    'aprobado'  => $notaFinal >= 60,
+                ];
+            });
+
+        $ponderaciones = [
+            'pond1' => (int)(data_get($examenes->first(), 'e1.ponderacion') ?? 30),
+            'pond2' => (int)(data_get($examenes->first(), 'e2.ponderacion') ?? 30),
+            'pond3' => (int)(data_get($examenes->first(), 'e3.ponderacion') ?? 40),
+        ];
+
+        return [$examenes, $ponderaciones];
     }
 }
