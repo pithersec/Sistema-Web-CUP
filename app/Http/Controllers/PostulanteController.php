@@ -481,7 +481,8 @@ public function darBaja($codigo)
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
             $codigo = $session->metadata->codigo_postulante;
-            $postulante = Postulante::where('codigo', $codigo)->first();
+            $postulante = Postulante::with(['requisitosPostulante'])
+                ->where('codigo', $codigo)->first();
 
             if ($postulante && !$postulante->id_pago) {
                 $pago = DB::table('pago')->insertGetId([
@@ -497,6 +498,12 @@ public function darBaja($codigo)
                     'id_pago' => $pago,
                     'estado'  => 'inscrito',
                 ]);
+
+                if ($postulante->requisitosPostulante) {
+                    $postulante->requisitosPostulante->update([
+                        'comprobante' => true,
+                    ]);
+                }
             }
         }
 
