@@ -150,7 +150,7 @@
                 </div>
                 <div class="resumen-row">
                     <span class="label">Concepto</span>
-                    <span class="value">Inscripción CUP FICCT</span>
+                    <span class="value">Inscripción CUP {{ $postulante->gestion_grupo ?? '' }}</span>
                 </div>
                 <div class="resumen-row">
                     <span class="label">Requisitos</span>

@@ -233,7 +233,7 @@ class PostulanteController extends Controller
     /**
      * CU-13: Dar de baja a un postulante (Cambio de estado administrativo)
      */
-public function darBaja($codigo)
+    public function darBaja($codigo)
     {
         $postulante = Postulante::where('codigo', $codigo)->firstOrFail();
         $postulante->update(['estado' => 'baja']);
@@ -407,7 +407,7 @@ public function darBaja($codigo)
                 'price_data' => [
                     'currency'     => strtolower(env('PAYMENT_CURRENCY', 'USD')),
                     'product_data' => [
-                        'name' => 'Inscripción CUP FICCT',
+                        'name'        => 'Inscripción CUP ' . ($postulante->gestion_grupo ?? ''),
                         'description' => 'Gestión ' . ($postulante->gestion_grupo ?? ''),
                     ],
                     'unit_amount' => 70000, // 700.00 en centavos
@@ -441,7 +441,7 @@ public function darBaja($codigo)
             $pago = DB::table('pago')->insertGetId([
                 'monto'          => 700.00,
                 'fecha'          => now(),
-                'concepto'       => 'Inscripción CUP FICCT',
+                'concepto'       => 'Inscripción CUP ' . ($postulante->gestion_grupo ?? ''),
                 'estado'         => 'completado',
                 'id_transaccion' => $session->payment_intent,
                 'moneda'         => strtoupper(env('PAYMENT_CURRENCY', 'USD')),
@@ -488,7 +488,7 @@ public function darBaja($codigo)
                 $pago = DB::table('pago')->insertGetId([
                     'monto'          => 700.00,
                     'fecha'          => now(),
-                    'concepto'       => 'Inscripción CUP FICCT',
+                    'concepto'       => 'Inscripción CUP ' . ($postulante->gestion_grupo ?? ''),
                     'estado'         => 'completado',
                     'id_transaccion' => $session->payment_intent,
                     'moneda'         => strtoupper(env('PAYMENT_CURRENCY', 'USD')),
