@@ -214,6 +214,7 @@
                             <th>Inscritos</th>
                             <th>Aprobados</th>
                             <th>Reprobados</th>
+                            <th>Tasa Aprobación</th>
                             <th>Estado de Cupos</th>
                         </tr>
                     </thead>
@@ -242,6 +243,11 @@
                             <td>{{ $c->ocupados }}</td>
                             <td style="color:#27ae60; font-weight:600">{{ $c->aprobados }}</td>
                             <td style="color:#c0392b; font-weight:600">{{ $c->reprobados }}</td>
+                            @php
+                                $tasa = $c->ocupados > 0 ? round(($c->aprobados / $c->ocupados) * 100) : 0;
+                                $tasaClase = $tasa >= 60 ? 'badge-green' : ($tasa >= 40 ? 'badge-yellow' : 'badge-red');
+                            @endphp
+                            <td><span class="badge {{ $tasaClase }}">{{ $tasa }}%</span></td>
                             <td>
                                 @if($c->aprobados >= $c->cupos && $c->cupos > 0)
                                     <span class="badge badge-red">Completo</span>
@@ -251,8 +257,8 @@
                             </td>
                         </tr>
                         @empty
-                        <tr>
-                            <td colspan="8" style="text-align:center; padding:30px; color:#888;">
+                        <tr>    
+                            <td colspan="9" style="text-align:center; padding:30px; color:#888;">
                                 No existen carreras registradas para esta gestión.
                             </td>
                         </tr>
