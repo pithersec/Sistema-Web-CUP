@@ -13,6 +13,7 @@ public $timestamps = false;
         'descripcion',
         'fecha',
         'dirigido',
+        'estado',
         'codigo_postulante',
         'registro_personal',
     ];

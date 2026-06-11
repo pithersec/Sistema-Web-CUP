@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->timestamp('fecha')->useCurrent();
             $table->string('dirigido', 200)->nullable();
+            $table->enum('estado', ['pendiente', 'atendido', 'rechazado'])->default('pendiente');
             
             $table->string('codigo_postulante', 20);
             $table->string('registro_personal', 20)->nullable(); // Funcionario encargado de resolverlo
