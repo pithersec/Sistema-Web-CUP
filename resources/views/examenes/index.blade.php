@@ -82,6 +82,12 @@
         .planilla-dos-columnas > div:last-child > .planilla-header {
             display: none;
         }
+        .filtros-form {
+            grid-template-columns: 1fr 1fr !important;
+        }
+        .filtros-form button {
+            grid-column: 1 / -1;
+        }
     }
 </style>
 
@@ -99,7 +105,7 @@
             Seleccionar Planilla
         </h3>
 
-        <form action="{{ route('notas.index') }}" method="GET"
+        <form action="{{ route('notas.index') }}" method="GET" class=filtros-form
             style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 14px; align-items: end;">
 
             <div>
@@ -195,7 +201,11 @@
                     <span>{{ $index + 1 }}</span>
                     <span>{{ $pos->ci }}</span>
                     <span>{{ $pos->datosPersonales->nombre ?? '' }} {{ $pos->datosPersonales->apellido ?? '' }}</span>
-                    <span><input type="number" name="notas[{{ $pos->codigo }}]" class="nota-input" step="1" min="0" max="100" value="{{ $pos->nota_actual !== null ? (int)$pos->nota_actual : '' }}" /></span>
+                    @if($pos->nota_actual !== null)
+                        <span style="font-weight:600; color:#333;">{{ (int)$pos->nota_actual }}</span>
+                    @else
+                        <input type="number" name="notas[{{ $pos->codigo }}]" class="nota-input" step="1" min="0" max="100" value="" />
+                    @endif
                     <span>
                         @if($pos->nota_actual === null)
                             <span class="badge" style="background:#e2e8f0; color:#5a5a5a;">Pendiente</span>
@@ -222,7 +232,11 @@
                         <span>{{ $mitad + $loop->index + 1 }}</span>
                         <span>{{ $pos->ci }}</span>
                         <span>{{ $pos->datosPersonales->nombre ?? '' }} {{ $pos->datosPersonales->apellido ?? '' }}</span>
-                        <span><input type="number" name="notas[{{ $pos->codigo }}]" class="nota-input" step="1" min="0" max="100" value="{{ $pos->nota_actual !== null ? (int)$pos->nota_actual : '' }}" /></span>
+                        @if($pos->nota_actual !== null)
+                            <span style="font-weight:600; color:#333;">{{ (int)$pos->nota_actual }}</span>
+                        @else
+                            <input type="number" name="notas[{{ $pos->codigo }}]" class="nota-input" step="1" min="0" max="100" value="" />
+                        @endif
                         <span>
                             @if($pos->nota_actual === null)
                                 <span class="badge" style="background:#e2e8f0; color:#5a5a5a;">Pendiente</span>
@@ -240,7 +254,7 @@
 
             @else
             <div style="text-align: center; padding: 30px; color: #5a5a5a; background: #f8fafc;">
-                Por favor, seleccione los filtros de arriba y haga clic en "Cargar Estudiantes".
+                Por favor, seleccione los filtros de arriba y haga clic en "Mostrar Estudiantes".
             </div>
             @endif
 
