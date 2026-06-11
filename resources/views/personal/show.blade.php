@@ -298,8 +298,8 @@
                     <tbody>
                         @foreach($docente->requisitosPersonal as $req)
                         <tr>
-                            <td>{{ $req->area ?? 'N/A' }}</td>
-                            <td>{{ $req->nivel_grado ?? 'N/A' }}</td>
+                            <td>{{ ucfirst(str_replace('_', ' ', $req->area)) }}</td>
+                            <td>{{ ucwords(str_replace('_', ' ', $req->nivel_grado)) }}</td>
                             <td>{{ $req->nivel_exp !== null ? $req->nivel_exp . ' años' : 'N/A' }}</td>
                             <td>{{ $req->maestria ? 'Sí' : 'No' }}</td>
                             <td>{{ $req->doctorado ? 'Sí' : 'No' }}</td>
