@@ -189,7 +189,8 @@
                 $columna2 = $postulantes->slice($mitad);
             @endphp
 
-            <div class="planilla-dos-columnas">
+            <div style="overflow-x: auto;">
+            <div class="planilla-dos-columnas" style="min-width: 600px;">
 
             {{-- Columna 1 --}}
             <div>
@@ -251,6 +252,7 @@
                 </div>
 
             </div>
+            </div>
 
             @else
             <div style="text-align: center; padding: 30px; color: #5a5a5a; background: #f8fafc;">
@@ -258,12 +260,21 @@
             </div>
             @endif
 
-            <div style="display: flex; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid #e2e8f0;">
-                <button type="submit"
-                    style="padding: 11px 28px; border: none; border-radius: 6px; background: #0d3b6e; color: white; font-size: 14px; font-weight: 600; cursor: pointer;">
+            @php
+                $todasRegistradas = $postulantes->every(fn($p) => $p->nota_actual !== null);
+            @endphp
+
+            @if($todasRegistradas)
+            <div style="display:flex; justify-content:flex-end; padding:16px 24px; border-top:1px solid #e2e8f0;">
+                <span style="color:#1a7a3c; font-size:13px; font-weight:600;">✓ Todas las notas de esta planilla están registradas.</span>
+            </div>
+            @else
+            <div style="display:flex; justify-content:flex-end; padding:16px 24px; border-top:1px solid #e2e8f0;">
+                <button type="submit" style="padding:11px 28px; border:none; border-radius:6px; background:#0d3b6e; color:white; font-size:14px; font-weight:600; cursor:pointer;">
                     💾 Guardar Notas de la Planilla
                 </button>
             </div>
+            @endif
         </form>
     </div>
 </div>
