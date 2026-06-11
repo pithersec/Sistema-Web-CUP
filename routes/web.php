@@ -9,6 +9,7 @@ use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RendimientoController;
+use App\Http\Controllers\GrupoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -160,6 +161,20 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/admin/carreras/cupos/{id_carrera_gestion}', [CarreraController::class, 'actualizarCupos']);
         Route::post('/admin/carreras-cupos/guardar-masivo', [CarreraController::class, 'guardarMasivo'])->name('carreras.guardarMasivo');
         Route::post('/admin/carreras-cupos/guardar-fila', [CarreraController::class, 'guardarCuposFila'])->name('carreras.guardarFila');
+    });
+
+    /*
+    |------------------------------------------------------------------
+    | CU-11: ASIGNACIÓN DE GRUPOS
+    |------------------------------------------------------------------*/
+    Route::middleware('privilegio:grupos.ver')->group(function () {
+        Route::get('/admin/grupos', [GrupoController::class, 'mostrarAsignacion'])->name('grupos.index');
+    });
+
+    Route::middleware('privilegio:grupos.asignar')->group(function () {
+        Route::post('/admin/grupos/generar', [GrupoController::class, 'generarGrupos'])->name('grupos.generar');
+        Route::get('/admin/grupos/asignar-docente', [GrupoController::class, 'mostrarFormAsignarDocente'])->name('grupos.formDocente');
+        Route::post('/admin/grupos/asignar-docente', [GrupoController::class, 'asignarDocente'])->name('grupos.asignarDocente');
     });
 
     /*
