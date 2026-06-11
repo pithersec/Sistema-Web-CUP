@@ -253,13 +253,7 @@
 
             </div>
             </div>
-
-            @else
-            <div style="text-align: center; padding: 30px; color: #5a5a5a; background: #f8fafc;">
-                Por favor, seleccione los filtros de arriba y haga clic en "Mostrar Estudiantes".
-            </div>
-            @endif
-
+            
             @php
                 $todasRegistradas = $postulantes->every(fn($p) => $p->nota_actual !== null);
             @endphp
@@ -275,6 +269,12 @@
                 </button>
             </div>
             @endif
+
+            @else
+            <div style="text-align: center; padding: 30px; color: #5a5a5a; background: #f8fafc;">
+                Por favor, seleccione los filtros de arriba y haga clic en "Mostrar Estudiantes".
+            </div>
+            @endif            
         </form>
     </div>
 </div>
