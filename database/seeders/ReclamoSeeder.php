@@ -52,6 +52,7 @@ class ReclamoSeeder extends Seeder
                     'descripcion'       => $faker->randomElement($descripciones),
                     'fecha'             => $faker->dateTimeBetween($config['fecha_ini'], $config['fecha_fin'])->format('Y-m-d H:i:s'),
                     'dirigido'          => $faker->randomElement(['Jefatura de Admisión FICCT', 'Coordinación Académica', 'Dirección FICCT']),
+                    'estado'            => $faker->randomElement(['pendiente', 'atendido', 'rechazado']),
                     'codigo_postulante' => $codigo,
                     'registro_personal' => $faker->randomElement($personal),
                 ];
