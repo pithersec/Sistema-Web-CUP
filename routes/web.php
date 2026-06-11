@@ -77,6 +77,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('privilegio:usuarios.cargar')->group(function () {
         Route::get('/admin/usuarios/cargar', [UsuarioController::class, 'mostrarCargaMasiva'])->name('usuarios.cargar');
         Route::post('/admin/usuarios/cargar', [UsuarioController::class, 'procesarCargaMasiva'])->name('usuarios.procesarCarga');
+        Route::post('/admin/usuarios/cargar-requisitos', [UsuarioController::class, 'procesarCargaRequisitos'])->name('usuarios.procesarRequisitos');
     });
     Route::middleware('privilegio:perfiles.gestionar')->group(function () {
         Route::get('/admin/perfiles', [UsuarioController::class, 'gestionarPerfiles'])->name('perfiles.index');

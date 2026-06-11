@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Imports\PersonalImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\RequisitosImport;
 
 class UsuarioController extends Controller
 {
@@ -226,6 +227,36 @@ class UsuarioController extends Controller
             'creados'  => $import->creados,
             'errores'  => $import->errores,
             'omitidos' => $import->omitidos,
+            'tipo'     => 'personal',
+        ]);
+    }
+
+    public function procesarCargaRequisitos(Request $request)
+    {
+        $request->validate([
+            'archivo_requisitos' => 'required|file|extensions:xlsx,xls,csv|max:5120',
+        ], [
+            'archivo_requisitos.required'   => 'Debe seleccionar un archivo.',
+            'archivo_requisitos.extensions' => 'Solo se permiten archivos Excel (.xlsx, .xls) o CSV.',
+            'archivo_requisitos.max'        => 'El archivo no debe superar 5MB.',
+        ]);
+
+        $admin  = Auth::user();
+        $import = new RequisitosImport($request->ip(), $admin->id);
+
+        $extension = strtolower($request->file('archivo_requisitos')->getClientOriginalExtension());
+
+        if ($extension === 'csv') {
+            Excel::import($import, $request->file('archivo_requisitos'), null, \Maatwebsite\Excel\Excel::CSV);
+        } else {
+            Excel::import($import, $request->file('archivo_requisitos'));
+        }
+
+        return view('admin.cargar-resultado', [
+            'creados'  => $import->creados,
+            'errores'  => $import->errores,
+            'omitidos' => $import->omitidos,
+            'tipo'     => 'requisitos',
         ]);
     }
 }

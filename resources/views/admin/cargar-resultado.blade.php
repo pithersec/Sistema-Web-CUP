@@ -6,7 +6,7 @@
 @section('content')
 <style>
     .resultado-wrapper {
-        max-width: 780px;
+        max-width: 860px;
         font-family: 'Source Sans 3', sans-serif;
         margin: auto;
     }
@@ -14,8 +14,8 @@
     .btn-volver {
         display: inline-block;
         padding: 9px 20px;
-        background: #f1f5f9;
-        color: #333;
+        background:#cbd5e1; 
+        color:#1e293b;
         border-radius: 6px;
         font-size: 13px;
         font-weight: 600;
@@ -77,18 +77,21 @@
 
     .resumen-table {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
         font-size: 13px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 14px;
     }
-
-    .resumen-table thead tr th:first-child { border-radius: 8px 0 0 0; }
-    .resumen-table thead tr th:last-child  { border-radius: 0 8px 0 0; }
 
     .resumen-table thead { background: #0d3b6e; color: white; }
     .resumen-table th { padding: 10px 14px; text-align: left; font-size: 12px; }
+    .resumen-table th:first-child { border-radius: 8px 0 0 0; }
+    .resumen-table th:last-child  { border-radius: 0 8px 0 0; }
     .resumen-table td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; color: #333; }
     .resumen-table tr:last-child td { border-bottom: none; }
-    .resumen-table tr:hover td { background: #f8fafc; }
+    .resumen-table tbody tr:hover td { background: #f8fafc; }
 
     .problemas-list {
         margin: 0;
@@ -96,6 +99,9 @@
         font-size: 13px;
         line-height: 2;
     }
+
+    .badge-si  { background: #d4f5e2; color: #1a7a3c; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-no  { background: #f1f5f9; color: #8aa0b8; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
 </style>
 
 <div class="resultado-wrapper">
@@ -104,7 +110,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h2>Resultado de la carga masiva</h2>
+            <h2>Resultado — {{ $tipo === 'personal' ? 'Carga de personal' : 'Carga de requisitos' }}</h2>
         </div>
         <div class="card-body">
 
@@ -119,23 +125,48 @@
             </div>
 
             @if(count($creados) > 0)
-            <div class="seccion-label" style="color: #1a7a3c; margin-top: 0;">Cuentas creadas</div>
+            @php
+                $creadosOrdenados = $tipo === 'requisitos'
+                    ? collect($creados)->sortBy('registro')->values()->all()
+                    : $creados;
+            @endphp
+            <div class="seccion-label" style="color: #1a7a3c; margin-top: 0;">Registros creados</div>
             <table class="resumen-table">
                 <thead>
                     <tr>
-                        <th>Registro</th>
-                        <th>Nombre</th>
-                        <th>Usuario</th>
-                        <th>Perfil</th>
+                        @if($tipo === 'personal')
+                            <th>Registro</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Perfil</th>
+                        @else
+                            <th>Registro</th>
+                            <th>CI</th>
+                            <th>Área</th>
+                            <th>Nivel grado</th>
+                            <th>Maestría</th>
+                            <th>Doctorado</th>
+                            <th>Diplomado</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($creados as $c)
+                    @foreach($creadosOrdenados as $c)
                     <tr>
-                        <td>{{ $c['registro'] }}</td>
-                        <td>{{ $c['nombre'] }}</td>
-                        <td><code style="background:#f1f5f9; padding:2px 8px; border-radius:4px; font-size:12px;">{{ $c['user_name'] }}</code></td>
-                        <td>{{ $c['perfil'] }}</td>
+                        @if($tipo === 'personal')
+                            <td>{{ $c['registro'] }}</td>
+                            <td>{{ $c['nombre'] }}</td>
+                            <td><code style="background:#f1f5f9; padding:2px 8px; border-radius:4px; font-size:12px;">{{ $c['user_name'] }}</code></td>
+                            <td>{{ $c['perfil'] }}</td>
+                        @else
+                            <td>{{ $c['registro'] }}</td>
+                            <td>{{ $c['ci'] }}</td>
+                            <td>{{ $c['area'] }}</td>
+                            <td>{{ $c['grado'] }}</td>
+                            <td><span class="{{ $c['maestria'] ? 'badge-si' : 'badge-no' }}">{{ $c['maestria'] ? 'SI' : 'NO' }}</span></td>
+                            <td><span class="{{ $c['doctorado'] ? 'badge-si' : 'badge-no' }}">{{ $c['doctorado'] ? 'SI' : 'NO' }}</span></td>
+                            <td><span class="{{ $c['diplomado'] ? 'badge-si' : 'badge-no' }}">{{ $c['diplomado'] ? 'SI' : 'NO' }}</span></td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>
