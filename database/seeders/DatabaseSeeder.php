@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             // 1. Tablas Maestras Independientes
-            DatosPersonalesSeeder::class,
             PerfilSeeder::class,
             PrivilegioSeeder::class,
             CarreraSeeder::class,
@@ -24,14 +23,11 @@ class DatabaseSeeder extends Seeder
             // 2. Tablas Dependientes Nivel 1 (Relaciones Directas)
             PerfilPrivilegioSeeder::class,
             CarreraGestionSeeder::class,
-            PersonalSeeder::class,
             TurnoSeeder::class,
             GrupoSeeder::class,
 
             // 3. Tablas Dependientes Nivel 2 (Estructuras Complejas)
-            RequisitosPersonalSeeder::class,
-            UsuarioSeeder::class,
-            GrupoMateriaSeeder::class,
+            SistemaSeeder::class,
             PostulanteSeeder::class,
 
             // 4. Tablas Operativas Finales (Transacciones y Eventos)

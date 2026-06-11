@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Imports\PersonalImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UsuarioController extends Controller
 {
@@ -186,5 +188,44 @@ class UsuarioController extends Controller
         ]);
 
         return redirect()->route('perfiles.index')->with('success', 'Privilegios actualizados correctamente.');
+    }
+
+    /**
+     * CU-17: mostrarCargaMasiva()
+     */
+    public function mostrarCargaMasiva()
+    {
+        return view('admin.cargar-cuentas');
+    }
+
+    /**
+     * CU-17: procesarCargaMasiva()
+     */
+    public function procesarCargaMasiva(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|file|extensions:xlsx,xls,csv|max:5120',
+        ], [
+            'archivo.required'   => 'Debe seleccionar un archivo.',
+            'archivo.extensions' => 'Solo se permiten archivos Excel (.xlsx, .xls) o CSV.',
+            'archivo.max'        => 'El archivo no debe superar 5MB.',
+        ]);
+
+        $admin  = Auth::user();
+        $import = new PersonalImport($request->ip(), $admin->id);
+
+        $extension = strtolower($request->file('archivo')->getClientOriginalExtension());
+
+        if ($extension === 'csv') {
+            Excel::import($import, $request->file('archivo'), null, \Maatwebsite\Excel\Excel::CSV);
+        } else {
+            Excel::import($import, $request->file('archivo'));
+        }
+
+        return view('admin.cargar-resultado', [
+            'creados'  => $import->creados,
+            'errores'  => $import->errores,
+            'omitidos' => $import->omitidos,
+        ]);
     }
 }

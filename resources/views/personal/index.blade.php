@@ -218,6 +218,70 @@
 </div>
 @endif
 
+@if(session('carga_resultado'))
+@php $r = session('carga_resultado'); @endphp
+<div style="background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 20px 24px; margin-bottom: 20px; font-family: 'Source Sans 3', sans-serif;">
+    <div style="font-family: 'Merriweather', serif; color: #0d3b6e; font-size: 15px; font-weight: 700; margin-bottom: 14px;">
+        Resultado de la carga masiva
+    </div>
+
+    {{-- Resumen contadores --}}
+    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+        <span style="background: #d4f5e2; color: #1a7a3c; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;">
+            ✔ {{ count($r['creados']) }} creados
+        </span>
+        @if(count($r['omitidos']) > 0)
+        <span style="background: #fff3cd; color: #856404; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;">
+            ⚠ {{ count($r['omitidos']) }} omitidos (duplicados)
+        </span>
+        @endif
+        @if(count($r['errores']) > 0)
+        <span style="background: #fde8e8; color: #c0392b; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;">
+            ✖ {{ count($r['errores']) }} con error
+        </span>
+        @endif
+    </div>
+
+    {{-- Tabla cuentas creadas --}}
+    @if(count($r['creados']) > 0)
+    <div style="font-size: 12px; font-weight: 700; color: #1a7a3c; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Cuentas creadas</div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px;">
+        <thead>
+            <tr style="background: #0d3b6e; color: white;">
+                <th style="padding: 8px 12px; text-align: left; font-size: 12px;">Registro</th>
+                <th style="padding: 8px 12px; text-align: left; font-size: 12px;">Nombre</th>
+                <th style="padding: 8px 12px; text-align: left; font-size: 12px;">Usuario</th>
+                <th style="padding: 8px 12px; text-align: left; font-size: 12px;">Perfil</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($r['creados'] as $c)
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 7px 12px; color: #333;">{{ $c['registro'] }}</td>
+                <td style="padding: 7px 12px; color: #333;">{{ $c['nombre'] }}</td>
+                <td style="padding: 7px 12px;"><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px;">{{ $c['user_name'] }}</code></td>
+                <td style="padding: 7px 12px; color: #333;">{{ $c['perfil'] }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif
+
+    {{-- Errores y omitidos --}}
+    @if(count($r['errores']) > 0 || count($r['omitidos']) > 0)
+    <div style="font-size: 12px; font-weight: 700; color: #c0392b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Filas con problemas</div>
+    <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #5a5a5a; line-height: 1.9;">
+        @foreach($r['errores'] as $e)
+        <li style="color: #c0392b;">{{ $e }}</li>
+        @endforeach
+        @foreach($r['omitidos'] as $o)
+        <li style="color: #856404;">{{ $o }}</li>
+        @endforeach
+    </ul>
+    @endif
+</div>
+@endif
+
 @if($errors->has('error'))
 <div
     style="background: #fde8e8; color: #c0392b; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13.5px; font-weight: 600;">
@@ -265,6 +329,9 @@
                     @endif
                     encontrados
                 </span>
+                @if(Auth::user()->tienePrivilegio('usuarios.cargar'))
+                <a href="{{ route('usuarios.cargar') }}" style="padding: 8px 16px; background: #1a7a3c; color: white; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none;">↑ Cargar Excel/CSV</a>
+                @endif
                 @if(Auth::user()->tienePrivilegio('personal.crear'))
                 <a href="{{ route('personal.crear') }}" style="padding: 8px 16px; background: #0d3b6e; color: white; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none;">+ Registrar Personal</a>
                 @endif

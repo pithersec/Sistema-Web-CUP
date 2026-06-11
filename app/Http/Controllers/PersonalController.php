@@ -59,7 +59,7 @@ class PersonalController extends Controller
         $totalDocentes = $query->count();
 
         // Paginación nativa adaptada al diseño (5 por página)
-        $docentes = $query->paginate(15)->withQueryString();
+        $docentes = $query->orderBy('personal.registro', 'asc')->paginate(15);
 
         $perfiles = DB::table('perfil')->get();
     
