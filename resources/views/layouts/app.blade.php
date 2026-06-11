@@ -351,6 +351,12 @@
             </a>
             @endif
 
+            @if($user && $user->tienePrivilegio('rendimiento.ver'))
+            <a href="{{ route('rendimiento.index') }}" class="nav-item {{ Request::is('rendimiento*') ? 'active' : '' }}">
+                <span class="nav-icon">📈</span> Rendimiento
+            </a>
+            @endif
+
             <div class="nav-label">Sistema</div>
 
             @if($user && $user->tienePrivilegio('bitacora.ver'))

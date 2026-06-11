@@ -8,6 +8,7 @@ use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RendimientoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +114,15 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::middleware('privilegio:notas.registrar')->group(function () {
         Route::post('/docente/registrar-notas', [ExamenController::class, 'registrarNotas'])->name('notas.registrar');
+    });
+
+    /*
+    |------------------------------------------------------------------
+    | RENDIMIENTO ACADÉMICO
+    |------------------------------------------------------------------*/
+    Route::middleware('privilegio:rendimiento.ver')->group(function () {
+        Route::get('/rendimiento', [RendimientoController::class, 'index'])->name('rendimiento.index');
+        Route::get('/rendimiento/{codigo}', [RendimientoController::class, 'detalle'])->name('rendimiento.detalle');
     });
 
     /*
