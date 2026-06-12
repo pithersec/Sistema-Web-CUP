@@ -321,12 +321,27 @@
             @auth
             @php $user = Auth::user(); @endphp
 
-            {{-- GESTIÓN ACADÉMICA --}}
-            <div class="nav-label">Gestión Académica</div>
+            {{-- P4 · SEGURIDAD Y REPORTES --}}
+            <div class="nav-label">P4 · Seguridad y Reportes</div>
 
             <a href="{{ route('dashboard') }}" class="nav-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                 <span class="nav-icon">📊</span> Dashboard
             </a>
+
+            @if($user && $user->tienePrivilegio('bitacora.ver'))
+            <a href="{{ route('bitacora.index') }}" class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}">
+                <span class="nav-icon">📋</span> Bitácora
+            </a>
+            @endif
+
+            {{-- P3 · GESTIÓN ADMINISTRATIVA --}}
+            <div class="nav-label">P3 · Gestión Administrativa</div>
+
+            @if($user && $user->tienePrivilegio('postulantes.ver'))
+            <a href="{{ route('postulantes.index') }}" class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}">
+                <span class="nav-icon">👥</span> Postulantes
+            </a>
+            @endif
 
             @if($user && $user->tienePrivilegio('carreras.ver'))
             <a href="{{ route('carreras.index') }}" class="nav-item {{ Request::is('admin/carreras*') ? 'active' : '' }}">
@@ -334,9 +349,24 @@
             </a>
             @endif
 
-            @if($user && $user->tienePrivilegio('postulantes.ver'))
-            <a href="{{ route('postulantes.index') }}" class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}">
-                <span class="nav-icon">👥</span> Postulantes
+            @if($user && $user->tienePrivilegio('personal.ver'))
+            <a href="{{ route('personal.index') }}" class="nav-item {{ Request::is('admin/personal*') ? 'active' : '' }}">
+                <span class="nav-icon">👨‍🏫</span> Personal
+            </a>
+            @endif
+
+            @if($user && $user->tienePrivilegio('usuarios.ver'))
+            <a href="{{ route('usuarios.index') }}" class="nav-item {{ Request::is('admin/usuarios*') || Request::is('admin/perfiles*') ? 'active' : '' }}">
+                <span class="nav-icon">👤</span> Usuarios y Perfiles
+            </a>
+            @endif
+
+            {{-- P2 · GESTIÓN ACADÉMICA --}}
+            <div class="nav-label">P2 · Gestión Académica</div>
+
+            @if($user && $user->tienePrivilegio('grupos.ver'))
+            <a href="{{ route('grupos.index') }}" class="nav-item {{ Request::is('admin/grupos*') ? 'active' : '' }}">
+                <span class="nav-icon">🗂️</span> Grupos y Asignación
             </a>
             @endif
 
@@ -352,37 +382,9 @@
             </a>
             @endif
 
-            @if($user && $user->tienePrivilegio('grupos.ver'))
-            <a href="{{ route('grupos.index') }}" class="nav-item {{ Request::is('admin/grupos*') ? 'active' : '' }}">
-                <span class="nav-icon">🗂️</span> Grupos y Asignación
-            </a>
-            @endif
-
-            {{-- GESTIÓN ADMINISTRATIVA --}}
-            <div class="nav-label">Gestión Administrativa</div>
-
-            @if($user && $user->tienePrivilegio('personal.ver'))
-            <a href="{{ route('personal.index') }}" class="nav-item {{ Request::is('admin/personal*') ? 'active' : '' }}">
-                <span class="nav-icon">👨‍🏫</span> Personal
-            </a>
-            @endif
-
-            @if($user && $user->tienePrivilegio('usuarios.ver'))
-            <a href="{{ route('usuarios.index') }}" class="nav-item {{ Request::is('admin/usuarios*') || Request::is('admin/perfiles*') ? 'active' : '' }}">
-                <span class="nav-icon">👤</span> Usuarios y Perfiles
-            </a>
-            @endif
-
-            {{-- SISTEMA --}}
-            <div class="nav-label">Sistema</div>
-
-            @if($user && $user->tienePrivilegio('bitacora.ver'))
-            <a href="{{ route('bitacora.index') }}" class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}">
-                <span class="nav-icon">📋</span> Bitácora
-            </a>
-            @endif
-
             @endauth
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.15); margin: 8px 0;"></div>
 
             <a href="{{ url('/logout-confirm') }}" class="nav-item {{ Request::is('logout-confirm*') ? 'active' : '' }}">
                 <span class="nav-icon">🚪</span> Cerrar Sesión

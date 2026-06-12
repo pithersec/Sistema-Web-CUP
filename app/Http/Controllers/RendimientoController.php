@@ -154,10 +154,6 @@ class RendimientoController extends Controller
         $postulantes->setCollection($items);
         $resultado = $postulantes;
 
-        if ($resultado->isEmpty()) {
-            $resultado = collect([]);
-        }
-
         return view('rendimiento.index', compact(
             'resultado', 'gestiones', 'gestionCodigo',
             'grupos', 'materias', 'carreras', 'materiasDisponibles',
