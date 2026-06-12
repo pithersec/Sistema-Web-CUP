@@ -89,7 +89,7 @@
     }
 
     .table-header {
-        padding: 16px 24px;
+        padding: 14px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -99,42 +99,56 @@
     .table-header h2 {
         font-family: 'Merriweather', serif;
         color: #0d3b6e;
-        font-size: 15px;
+        font-size: 14px;
         margin: 0;
     }
 
-    .custom-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .custom-table thead { background: #0d3b6e; color: white; }
-    .custom-table th { padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
-    .custom-table td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; color: #333; vertical-align: middle; }
+    .custom-table th { padding: 9px 10px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; white-space: nowrap; }
+    .custom-table td { padding: 6px 10px; border-bottom: 1px solid #e2e8f0; color: #333; vertical-align: middle; }
     .custom-table tr:last-child td { border-bottom: none; }
     .custom-table tr:hover td { background: #f8fafc; }
 
-    .badge-turno { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .badge-turno { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
     .turno-manana { background: #fff3cd; color: #856404; }
     .turno-tarde  { background: #dceeff; color: #1a5fa8; }
     .turno-noche  { background: #e9d8fd; color: #553c9a; }
 
-    .materia-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 4px 0;
-        font-size: 12px;
-        border-bottom: 1px dashed #f1f5f9;
-        gap: 8px;
+    .materias-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px 12px;
     }
 
-    .materia-row:last-child { border-bottom: none; }
-    .materia-nombre { color: #5a5a5a; min-width: 90px; }
-    .docente-asignado { color: #1a7a3c; font-weight: 600; font-size: 12px; flex: 1; }
+    .materia-cell {
+        display: flex;
+        flex-direction: column;
+        padding: 3px 0;
+        border-bottom: 1px dashed #f1f5f9;
+        font-size: 11px;
+        gap: 1px;
+    }
+
+    .materia-cell:nth-last-child(-n+2) { border-bottom: none; }
+
+    .materia-top {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .materia-nombre  { color: #5a5a5a; font-weight: 600; white-space: nowrap; }
+    .materia-horario { color: #b0bec5; font-size: 10px; white-space: nowrap; }
+    .docente-nombre  { color: #1a7a3c; font-weight: 600; font-size: 11px; }
+    .sin-docente     { color: #b0bec5; font-size: 11px; }
 
     .btn-asignar {
-        padding: 3px 10px;
+        padding: 1px 7px;
         background: #dceeff;
         color: #1a5fa8;
-        border-radius: 4px;
-        font-size: 11px;
+        border-radius: 3px;
+        font-size: 10px;
         font-weight: 600;
         text-decoration: none;
         white-space: nowrap;
@@ -143,11 +157,11 @@
     .btn-asignar:hover { background: #cce3ff; }
 
     .btn-reasignar {
-        padding: 3px 10px;
+        padding: 1px 7px;
         background: #fff3cd;
         color: #856404;
-        border-radius: 4px;
-        font-size: 11px;
+        border-radius: 3px;
+        font-size: 10px;
         font-weight: 600;
         text-decoration: none;
         white-space: nowrap;
@@ -155,8 +169,8 @@
 
     .btn-reasignar:hover { background: #fde68a; }
 
-    .alert-success { background: #d4f5e2; color: #1a7a3c; padding: 12px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600; margin-bottom: 16px; }
-    .alert-error   { background: #fde8e8; color: #c0392b; padding: 12px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600; margin-bottom: 16px; }
+    .alert-success { background: #d4f5e2; color: #1a7a3c; padding: 12px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .alert-error   { background: #fde8e8; color: #c0392b; padding: 12px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 
     .btn-generar {
         padding: 10px 24px;
@@ -173,13 +187,18 @@
 
     .btn-generar:hover { background: #0a2d56; }
 
-    .total-badge { background: #dceeff; color: #1a5fa8; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .total-badge { background: #dceeff; color: #1a5fa8; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+    @media (max-width: 768px) {
+        .table-card { overflow-x: auto; }
+        .custom-table { min-width: 560px; }
+        .materias-grid { grid-template-columns: 1fr; }
+    }
 </style>
 
 @if(session('success'))
 <div class="alert-success">{{ session('success') }}</div>
 @endif
-
 @if(session('error'))
 <div class="alert-error">{{ session('error') }}</div>
 @endif
@@ -195,6 +214,68 @@
             @endforeach
         </select>
     </form>
+
+    @if($gruposGenerados)
+    <div class="table-card">
+        <div class="table-header">
+            <h2>Grupos — Gestión {{ $codigoGestion }}</h2>
+            <span class="total-badge">{{ $grupos->count() }} grupos</span>
+        </div>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Grupo</th>
+                    <th>Turno</th>
+                    <th>Inscritos</th>
+                    <th>Aula</th>
+                    <th>Materias y docentes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($grupos as $grupo)
+                @php $gms = collect($grupoMaterias[$grupo->id] ?? [])->sortBy('orden')->values(); @endphp
+                <tr>
+                    <td><strong>{{ $grupo->id }}</strong></td>
+                    <td>
+                        @php $tc = match($grupo->nombre_turno) { 'mañana' => 'turno-manana', 'tarde' => 'turno-tarde', 'noche' => 'turno-noche', default => '' }; @endphp
+                        <span class="badge-turno {{ $tc }}">{{ ucfirst($grupo->nombre_turno ?? 'S/T') }}</span>
+                    </td>
+                    <td>{{ $grupo->total_ins }}</td>
+                    <td>{{ $grupo->aula ?? '—' }}</td>
+                    <td>
+                        <div class="materias-grid">
+                            @foreach($gms as $gm)
+                            @php $doc = $gm->registro_personal ? ($docentesMap[(string)$gm->registro_personal] ?? null) : null; @endphp
+                            <div class="materia-cell">
+                                <div class="materia-top">
+                                    <span class="materia-nombre">{{ $gm->materia_nombre }}</span>
+                                    <span class="materia-horario">{{ substr($gm->hora_inicio, 0, 5) }}–{{ substr($gm->hora_fin, 0, 5) }}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    @if($doc)
+                                        <span class="docente-nombre">{{ $doc->nombre }} {{ $doc->apellido }}</span>
+                                        @if(Auth::user()->tienePrivilegio('grupos.asignar'))
+                                        <a href="{{ route('grupos.formDocente', ['grupo' => $grupo->id, 'gestion' => $codigoGestion, 'materia' => $gm->id_materia]) }}"
+                                            class="btn-reasignar">Reasignar</a>
+                                        @endif
+                                    @else
+                                        <span class="sin-docente">Sin docente</span>
+                                        @if(Auth::user()->tienePrivilegio('grupos.asignar'))
+                                        <a href="{{ route('grupos.formDocente', ['grupo' => $grupo->id, 'gestion' => $codigoGestion, 'materia' => $gm->id_materia]) }}"
+                                            class="btn-asignar">Asignar</a>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @endif
 
     @if($gestion)
     <div class="info-grid">
@@ -215,6 +296,7 @@
         <div class="info-card">
             <h3>Cálculo de grupos</h3>
             @if($totalInscritos > 0)
+            @php $numGrupos = (int) ceil($totalInscritos / 70); @endphp
             <div class="grupos-calc">
                 CEIL({{ $totalInscritos }} / 70) = <strong>{{ $numGrupos }} grupos</strong><br>
                 — Mañana: <strong>{{ $distribucion['mañana'] }}</strong> grupos<br>
@@ -242,63 +324,7 @@
             @endif
         </div>
     </div>
-
-    @if($gruposGenerados)
-    <div class="table-card">
-        <div class="table-header">
-            <h2>Grupos — Gestión {{ $codigoGestion }}</h2>
-            <span class="total-badge">{{ $grupos->count() }} grupos</span>
-        </div>
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>Grupo</th>
-                    <th>Turno</th>
-                    <th>Inscritos</th>
-                    <th>Aula</th>
-                    <th>Materias y docentes</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($grupos as $grupo)
-                <tr>
-                    <td><strong>{{ $grupo->id }}</strong></td>
-                    <td>
-                        @php $tc = match($grupo->nombre_turno) { 'mañana' => 'turno-manana', 'tarde' => 'turno-tarde', 'noche' => 'turno-noche', default => '' }; @endphp
-                        <span class="badge-turno {{ $tc }}">{{ ucfirst($grupo->nombre_turno ?? 'S/T') }}</span>
-                    </td>
-                    <td>{{ $grupo->total_ins }}</td>
-                    <td>{{ $grupo->aula ?? '—' }}</td>
-                    <td>
-                        @foreach($grupo->grupoMaterias->sortBy('orden') as $gm)
-                        <div class="materia-row">
-                            <span class="materia-nombre">{{ $gm->materia->nombre }}</span>
-                            @if($gm->registro_personal)
-                                @php $doc = $docentesMap[$gm->registro_personal] ?? null; @endphp
-                                <span class="docente-asignado">
-                                    {{ $doc?->nombre ?? 'Sin nombre' }} {{ $doc?->apellido ?? '' }}
-                                </span>
-                                @if(Auth::user()->tienePrivilegio('grupos.asignar'))
-                                <a href="{{ route('grupos.formDocente', ['grupo' => $grupo->id, 'gestion' => $codigoGestion, 'materia' => $gm->id_materia]) }}"
-                                class="btn-reasignar">Reasignar</a>
-                                @endif
-                            @else
-                                <span style="font-size:12px; color:#8aa0b8; flex:1;">Sin docente</span>
-                                @if(Auth::user()->tienePrivilegio('grupos.asignar'))
-                                <a href="{{ route('grupos.formDocente', ['grupo' => $grupo->id, 'gestion' => $codigoGestion, 'materia' => $gm->id_materia]) }}"
-                                class="btn-asignar">Asignar</a>
-                                @endif
-                            @endif
-                        </div>
-                        @endforeach
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
     @endif
 
-    @endif
 </div>
 @endsection

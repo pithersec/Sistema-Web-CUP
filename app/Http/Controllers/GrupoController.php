@@ -12,9 +12,11 @@ use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class GrupoController extends Controller
 {
+    // Mapeo materia → área de requisitos_personal
     private array $materiaAreaMap = [
         'Matemáticas' => 'matematicas',
         'Física'      => 'fisica',
@@ -22,12 +24,16 @@ class GrupoController extends Controller
         'Computación' => 'computacion',
     ];
 
+    // Prefijo de ID de grupo por turno
     private array $turnoPrefix = [
         'mañana' => 'M',
         'tarde'  => 'T',
         'noche'  => 'N',
     ];
 
+    /**
+     * Postulantes inscritos sin grupo asignado (candidatos para CU-11)
+     */
     private function getInscritos()
     {
         return Postulante::where('estado', 'inscrito')->whereNull('id_grupo');
@@ -35,6 +41,7 @@ class GrupoController extends Controller
 
     /**
      * CU-11: mostrarAsignacion()
+     * Vista principal — muestra inscritos por turno, cálculo de grupos y tabla de grupos existentes
      */
     public function mostrarAsignacion(Request $request)
     {
@@ -46,9 +53,10 @@ class GrupoController extends Controller
         $totalInscritos    = 0;
 
         if ($gestion) {
-            $turnos = DB::table('turno')->orderByRaw("CASE WHEN nombre='mañana' THEN 0 WHEN nombre='tarde' THEN 1 ELSE 2 END")->get();
+            $turnos       = DB::table('turno')->orderByRaw("CASE WHEN nombre='mañana' THEN 0 WHEN nombre='tarde' THEN 1 ELSE 2 END")->get();
             $gestionCorta = str_replace('-', '', $codigoGestion);
 
+            // Contar inscritos sin grupo por turno, filtrando por gestión via prefijo de código
             foreach ($turnos as $turno) {
                 $count = Postulante::where('estado', 'inscrito')
                     ->whereNull('id_grupo')
@@ -69,25 +77,50 @@ class GrupoController extends Controller
             }
         }
 
-        $grupos = Grupo::with(['grupoMaterias.materia'])
-            ->where('codigo_gestion', $codigoGestion)
+        // Cargar grupos sin eager loading (Grupo tiene PK compuesta, rompe el with())
+        $grupos = Grupo::where('codigo_gestion', $codigoGestion)
             ->orderByRaw("CASE WHEN nombre_turno='mañana' THEN 0 WHEN nombre_turno='tarde' THEN 1 ELSE 2 END")
             ->orderBy('id')
             ->get();
 
-        // Cargar datos de docentes manualmente para evitar problema con relación compuesta
-        $registrosPersonal = $grupos->flatMap(fn($g) => $g->grupoMaterias->pluck('registro_personal'))
-            ->filter()->unique()->values();
+        $grupoIds = $grupos->pluck('id');
+
+        // Cargar grupo_materia con nombre de materia directamente via query
+        $grupoMaterias = DB::table('grupo_materia')
+            ->join('materia', 'grupo_materia.id_materia', '=', 'materia.id')
+            ->whereIn('grupo_materia.id_grupo', $grupoIds)
+            ->where('grupo_materia.gestion_grupo', $codigoGestion)
+            ->select(
+                'grupo_materia.id_grupo',
+                'grupo_materia.id_materia',
+                'grupo_materia.orden',
+                'grupo_materia.registro_personal',
+                'grupo_materia.hora_inicio',
+                'grupo_materia.hora_fin',
+                'materia.nombre as materia_nombre'
+            )
+            ->orderBy('grupo_materia.orden')
+            ->get()
+            ->groupBy('id_grupo');
+
+        // Cargar datos de docentes asignados en un solo query
+        $registrosPersonal = DB::table('grupo_materia')
+            ->whereIn('id_grupo', $grupoIds)
+            ->where('gestion_grupo', $codigoGestion)
+            ->whereNotNull('registro_personal')
+            ->pluck('registro_personal')
+            ->unique();
 
         $docentesMap = DB::table('personal')
             ->join('datos_personales', 'personal.ci', '=', 'datos_personales.ci')
             ->whereIn('personal.registro', $registrosPersonal)
             ->select('personal.registro', 'datos_personales.nombre', 'datos_personales.apellido')
             ->get()
-            ->keyBy('registro');
+            ->keyBy(fn($d) => (string) $d->registro);
 
         $gruposGenerados = $grupos->isNotEmpty();
 
+        // Calcular distribución para mostrar en la tarjeta de cálculo
         $numGrupos    = $totalInscritos > 0 ? (int) ceil($totalInscritos / 70) : 0;
         $porTurno     = (int) floor($numGrupos / 3);
         $excedente    = $numGrupos % 3;
@@ -96,13 +129,14 @@ class GrupoController extends Controller
         return view('grupos.index', compact(
             'gestiones', 'gestion', 'codigoGestion',
             'inscritosPorTurno', 'totalInscritos',
-            'grupos', 'gruposGenerados',
+            'grupos', 'gruposGenerados', 'grupoMaterias',
             'numGrupos', 'distribucion', 'docentesMap'
         ));
     }
 
     /**
      * CU-11: generarGrupos()
+     * Crea grupos por turno, asigna materias con rotación y calcula horarios automáticamente
      */
     public function generarGrupos(Request $request)
     {
@@ -121,6 +155,8 @@ class GrupoController extends Controller
                 ->with('error', 'No existen postulantes inscritos para esta gestión.');
         }
 
+        // Calcular grupos totales y distribución por turno
+        // Excedente siempre va a mañana
         $numGrupos = (int) ceil($totalInscritos / 70);
         $porTurno  = (int) floor($numGrupos / 3);
         $excedente = $numGrupos % 3;
@@ -138,9 +174,13 @@ class GrupoController extends Controller
             $numMaterias    = $materias->count();
             $gruposPorTurno = [];
 
+            // Precargar hora_inicio de cada turno para calcular horarios
+            $turnosData = DB::table('turno')->pluck('hora_inicio', 'nombre');
+
             foreach ($turnos as $turno) {
-                $prefix   = $this->turnoPrefix[$turno->nombre] ?? strtoupper(substr($turno->nombre, 0, 1));
-                $cantidad = $gruposPorTurno_count[$turno->nombre] ?? 0;
+                $prefix          = $this->turnoPrefix[$turno->nombre] ?? strtoupper(substr($turno->nombre, 0, 1));
+                $cantidad        = $gruposPorTurno_count[$turno->nombre] ?? 0;
+                $turnoHoraInicio = Carbon::createFromFormat('H:i:s', $turnosData[$turno->nombre]);
                 $gruposPorTurno[$turno->nombre] = [];
 
                 for ($i = 1; $i <= $cantidad; $i++) {
@@ -154,15 +194,26 @@ class GrupoController extends Controller
                         'aula'           => null,
                     ]);
 
-                    $offset = ($i - 1) % $numMaterias;
+                    // Rotar materias entre grupos del mismo turno
+                    // Cada grupo empieza en un offset distinto: G1→Mat1, G2→Mat2, etc.
+                    $offset    = ($i - 1) % $numMaterias;
+                    $acumulado = 0; // horas acumuladas desde inicio del turno
+
                     foreach (range(0, $numMaterias - 1) as $pos) {
-                        $materia = $materias->values()[($offset + $pos) % $numMaterias];
+                        $materia    = $materias->values()[($offset + $pos) % $numMaterias];
+                        $duracion   = (float) $materia->duracion;
+
+                        // Calcular hora_inicio y hora_fin según acumulado de duraciones
+                        $horaInicio = (clone $turnoHoraInicio)->addMinutes((int)($acumulado * 60));
+                        $horaFin    = (clone $horaInicio)->addMinutes((int)($duracion * 60));
+                        $acumulado += $duracion;
+
                         GrupoMateria::create([
                             'id_grupo'          => $grupoId,
                             'gestion_grupo'     => $codigoGestion,
                             'id_materia'        => $materia->id,
-                            'hora_inicio'       => null,
-                            'hora_fin'          => null,
+                            'hora_inicio'       => $horaInicio->format('H:i:s'),
+                            'hora_fin'          => $horaFin->format('H:i:s'),
                             'orden'             => $pos + 1,
                             'registro_personal' => null,
                         ]);
@@ -172,6 +223,8 @@ class GrupoController extends Controller
                 }
             }
 
+            // Distribuir postulantes respetando turno preferido
+            // Si el turno está lleno, se reasigna al siguiente turno disponible
             $postulantes   = $this->getInscritos()->get();
             $contadorGrupo = collect($gruposPorTurno)->flatten()->mapWithKeys(fn($id) => [$id => 0])->toArray();
             $turnosOrden   = array_keys($gruposPorTurno);
@@ -197,6 +250,7 @@ class GrupoController extends Controller
                 }
             }
 
+            // Actualizar total_ins en cada grupo
             foreach ($contadorGrupo as $grupoId => $total) {
                 Grupo::where('id', $grupoId)->where('codigo_gestion', $codigoGestion)->update(['total_ins' => $total]);
             }
@@ -215,6 +269,8 @@ class GrupoController extends Controller
 
     /**
      * CU-11: mostrarFormAsignarDocente()
+     * Muestra docentes disponibles para un grupo+materia
+     * Filtra por área coincidente, límite de 4 grupos y cruce de horario
      */
     public function mostrarFormAsignarDocente(Request $request)
     {
@@ -230,21 +286,26 @@ class GrupoController extends Controller
 
         $nombreMateria = $grupoMateria->materia->nombre;
         $areaNecesaria = $this->materiaAreaMap[$nombreMateria] ?? null;
-        $turnoGrupo    = $grupoMateria->grupo->nombre_turno;
 
         $docentes = Personal::with(['datosPersonales', 'requisitosPersonal'])
             ->where('estado', true)
             ->whereHas('requisitosPersonal', fn($q) => $q->where('area', $areaNecesaria))
             ->whereHas('usuario', fn($q) => $q->where('id_perfil', 3))
             ->get()
-            ->map(function ($p) use ($idMateria, $turnoGrupo, $codigoGestion) {
+            ->map(function ($p) use ($idMateria, $codigoGestion, $grupoId, $grupoMateria) {
+                // Contar cuántos grupo_materia tiene asignados en esta gestión
                 $totalAsignados = GrupoMateria::where('registro_personal', $p->registro)
                     ->where('gestion_grupo', $codigoGestion)->count();
 
+                // Verificar cruce de horario: solapamiento de intervalos
+                // Un docente tiene cruce si ya tiene asignada una materia que se superpone
+                // con el horario de la materia que se quiere asignar
                 $cruceMateria = GrupoMateria::where('registro_personal', $p->registro)
                     ->where('gestion_grupo', $codigoGestion)
-                    ->where('id_materia', $idMateria)
-                    ->whereHas('grupo', fn($q) => $q->where('nombre_turno', $turnoGrupo))
+                    ->where('hora_inicio', '<', $grupoMateria->hora_fin)
+                    ->where('hora_fin', '>', $grupoMateria->hora_inicio)
+                    ->where(fn($q) => $q->where('id_grupo', '!=', $grupoId)
+                        ->orWhere('id_materia', '!=', $idMateria))
                     ->exists();
 
                 $p->total_asignados = $totalAsignados;
@@ -261,6 +322,7 @@ class GrupoController extends Controller
 
     /**
      * CU-11: asignarDocente()
+     * Guarda la asignación validando límite de 4 grupos y cruce de horario
      */
     public function asignarDocente(Request $request)
     {
@@ -275,8 +337,7 @@ class GrupoController extends Controller
             ->where('id_materia', $idMateria)
             ->firstOrFail();
 
-        $turnoGrupo = $grupoMateria->grupo->nombre_turno;
-
+        // Validar límite de 4 grupos por docente por gestión
         $totalAsignados = GrupoMateria::where('registro_personal', $registroPersonal)
             ->where('gestion_grupo', $codigoGestion)->count();
 
@@ -284,14 +345,17 @@ class GrupoController extends Controller
             return back()->with('error', 'El docente ya tiene 4 grupos asignados en esta gestión.');
         }
 
+        // Validar cruce de horario por solapamiento de intervalos
         $cruce = GrupoMateria::where('registro_personal', $registroPersonal)
             ->where('gestion_grupo', $codigoGestion)
-            ->where('id_materia', $idMateria)
-            ->whereHas('grupo', fn($q) => $q->where('nombre_turno', $turnoGrupo))
+            ->where('hora_inicio', '<', $grupoMateria->hora_fin)
+            ->where('hora_fin', '>', $grupoMateria->hora_inicio)
+            ->where(fn($q) => $q->where('id_grupo', '!=', $grupoId)
+                ->orWhere('id_materia', '!=', $idMateria))
             ->exists();
 
         if ($cruce) {
-            return back()->with('error', 'El docente ya dicta esta materia en otro grupo del mismo turno.');
+            return back()->with('error', 'El docente tiene un cruce de horario con otra asignación.');
         }
 
         $grupoMateria->update(['registro_personal' => $registroPersonal]);
