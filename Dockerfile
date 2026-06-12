@@ -20,9 +20,6 @@ RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloade
 
 COPY . .
 
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
-
 EXPOSE 8080
 
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
+CMD php artisan config:cache && php artisan route:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
