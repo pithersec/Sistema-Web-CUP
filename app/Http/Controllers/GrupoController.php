@@ -47,23 +47,44 @@ class GrupoController extends Controller
 
         if ($gestion) {
             $turnos = DB::table('turno')->orderByRaw("CASE WHEN nombre='mañana' THEN 0 WHEN nombre='tarde' THEN 1 ELSE 2 END")->get();
+            $gestionCorta = str_replace('-', '', $codigoGestion);
+
             foreach ($turnos as $turno) {
-                $count = $this->getInscritos()->where('nombre_turno', $turno->nombre)->count();
+                $count = Postulante::where('estado', 'inscrito')
+                    ->whereNull('id_grupo')
+                    ->where('nombre_turno', $turno->nombre)
+                    ->where('codigo', 'LIKE', $gestionCorta . '%')
+                    ->count();
                 $inscritosPorTurno[$turno->nombre] = $count;
                 $totalInscritos += $count;
             }
-            $sinTurno = $this->getInscritos()->whereNull('nombre_turno')->count();
+            $sinTurno = Postulante::where('estado', 'inscrito')
+                ->whereNull('id_grupo')
+                ->whereNull('nombre_turno')
+                ->where('codigo', 'LIKE', $gestionCorta . '%')
+                ->count();
             if ($sinTurno > 0) {
                 $inscritosPorTurno['sin turno'] = $sinTurno;
                 $totalInscritos += $sinTurno;
             }
         }
 
-        $grupos = Grupo::with(['grupoMaterias.materia', 'grupoMaterias.personal.datosPersonales'])
+        $grupos = Grupo::with(['grupoMaterias.materia'])
             ->where('codigo_gestion', $codigoGestion)
             ->orderByRaw("CASE WHEN nombre_turno='mañana' THEN 0 WHEN nombre_turno='tarde' THEN 1 ELSE 2 END")
             ->orderBy('id')
             ->get();
+
+        // Cargar datos de docentes manualmente para evitar problema con relación compuesta
+        $registrosPersonal = $grupos->flatMap(fn($g) => $g->grupoMaterias->pluck('registro_personal'))
+            ->filter()->unique()->values();
+
+        $docentesMap = DB::table('personal')
+            ->join('datos_personales', 'personal.ci', '=', 'datos_personales.ci')
+            ->whereIn('personal.registro', $registrosPersonal)
+            ->select('personal.registro', 'datos_personales.nombre', 'datos_personales.apellido')
+            ->get()
+            ->keyBy('registro');
 
         $gruposGenerados = $grupos->isNotEmpty();
 
@@ -76,7 +97,7 @@ class GrupoController extends Controller
             'gestiones', 'gestion', 'codigoGestion',
             'inscritosPorTurno', 'totalInscritos',
             'grupos', 'gruposGenerados',
-            'numGrupos', 'distribucion'
+            'numGrupos', 'distribucion', 'docentesMap'
         ));
     }
 

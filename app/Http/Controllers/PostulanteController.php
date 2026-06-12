@@ -172,8 +172,12 @@ class PostulanteController extends Controller
                     ->on('postulante.gestion_grupo', '=', 'grupo.codigo_gestion');
             })
             ->where(function($q) use ($gestionCodigo) {
+                $gestionCorta = str_replace('-', '', $gestionCodigo);
                 $q->where('grupo.codigo_gestion', $gestionCodigo)
-                ->orWhereNull('postulante.id_grupo');
+                    ->orWhere(function($q2) use ($gestionCorta) {
+                        $q2->whereNull('postulante.id_grupo')
+                            ->where('postulante.codigo', 'LIKE', $gestionCorta . '%');
+                    });
             })           
             
             ->select(

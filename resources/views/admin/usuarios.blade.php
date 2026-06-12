@@ -218,6 +218,14 @@
         background: white;
     }
 
+    .pagination-box svg { width: 14px; height: 14px; }
+    .pagination-box nav { display: flex; align-items: center; gap: 4px; }
+    .pagination-box span,
+    .pagination-box a { font-size: 13px; padding: 4px 10px; border-radius: 4px; color: #1a5fa8; text-decoration: none; }
+    .pagination-box a:hover { background: #dceeff; }
+    .pagination-box p { display: none; }
+    .pagination-box nav > div:first-child { display: none; } /* ← oculta el texto duplicado */
+
     @media (max-width: 768px) {
         .toolbar-form { flex-wrap: wrap; }
         .search-box { width: 100%; flex: unset; }

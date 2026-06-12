@@ -102,7 +102,7 @@ class UsuarioController extends Controller
         }
 
         // Paginación estructural nativa para la vista
-        $usuarios = $query->paginate(5)->withQueryString();
+        $usuarios = $query->orderBy('id', 'asc')->paginate(15)->withQueryString();
         $totalUsuarios = $usuarios->total();
 
         // Obtener listado de perfiles existentes para renderizar el selector dinámico

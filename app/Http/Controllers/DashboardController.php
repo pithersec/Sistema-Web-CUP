@@ -34,27 +34,33 @@ class DashboardController extends Controller
             $idsGrupos = Grupo::where('codigo_gestion', $gestionCodigo)->pluck('id');
 
             $postulantes = DB::table('postulante')
-                ->whereIn('id_grupo', $idsGrupos)
-                ->where('gestion_grupo', $gestionCodigo)
-                ->select('codigo', 'estado')
+                ->where(function($q) use ($gestionCodigo) {
+                    $gestionCorta = str_replace('-', '', $gestionCodigo);
+                    $q->where('gestion_grupo', $gestionCodigo)
+                    ->orWhere(function($q2) use ($gestionCorta) {
+                        $q2->whereNull('gestion_grupo')
+                            ->where('codigo', 'LIKE', $gestionCorta . '%');
+                    });
+                })
+                ->select('codigo', 'estado', 'id_pago')
                 ->get();
 
-            $codigosPostulantes = $postulantes->pluck('codigo');
-            $totalPostulantes   = $postulantes->count();
-            $totalAprobados     = $postulantes->where('estado', 'aprobado')->count();
-            $totalReprobados    = $postulantes->where('estado', 'reprobado')->count();
-            $totalGrupos        = $idsGrupos->count();
+            $totalInscritos  = $postulantes->whereIn('estado', ['inscrito', 'aprobado', 'reprobado'])->count()
+                            + $postulantes->where('estado', 'baja')->whereNotNull('id_pago')->count();
+            $totalAprobados  = $postulantes->where('estado', 'aprobado')->count();
+            $totalReprobados = $postulantes->where('estado', 'reprobado')->count();
+            $totalGrupos     = $idsGrupos->count();
 
             $cuposTotales = DB::table('carrera_gestion')
                 ->where('codigo_gestion', $gestionCodigo)
                 ->sum('cupos');
 
-            $tasaAprobacion = $totalPostulantes > 0
-                ? round(($totalAprobados / $totalPostulantes) * 100)
+            $tasaAprobacion = $totalInscritos > 0
+                ? round(($totalAprobados / $totalInscritos) * 100)
                 : 0;
 
             $kpis = [
-                'total_inscritos'    => $totalPostulantes,
+                'total_inscritos'    => $totalInscritos,
                 'total_aprobados'    => $totalAprobados,
                 'total_reprobados'   => $totalReprobados,
                 'grupos_habilitados' => $totalGrupos,

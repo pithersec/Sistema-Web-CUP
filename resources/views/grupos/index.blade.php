@@ -274,19 +274,19 @@
                         <div class="materia-row">
                             <span class="materia-nombre">{{ $gm->materia->nombre }}</span>
                             @if($gm->registro_personal)
+                                @php $doc = $docentesMap[$gm->registro_personal] ?? null; @endphp
                                 <span class="docente-asignado">
-                                    {{ $gm->personal->datosPersonales->nombre ?? '' }}
-                                    {{ $gm->personal->datosPersonales->apellido ?? '' }}
+                                    {{ $doc?->nombre ?? 'Sin nombre' }} {{ $doc?->apellido ?? '' }}
                                 </span>
                                 @if(Auth::user()->tienePrivilegio('grupos.asignar'))
                                 <a href="{{ route('grupos.formDocente', ['grupo' => $grupo->id, 'gestion' => $codigoGestion, 'materia' => $gm->id_materia]) }}"
-                                    class="btn-reasignar">Reasignar</a>
+                                class="btn-reasignar">Reasignar</a>
                                 @endif
                             @else
                                 <span style="font-size:12px; color:#8aa0b8; flex:1;">Sin docente</span>
                                 @if(Auth::user()->tienePrivilegio('grupos.asignar'))
                                 <a href="{{ route('grupos.formDocente', ['grupo' => $grupo->id, 'gestion' => $codigoGestion, 'materia' => $gm->id_materia]) }}"
-                                    class="btn-asignar">Asignar</a>
+                                class="btn-asignar">Asignar</a>
                                 @endif
                             @endif
                         </div>
