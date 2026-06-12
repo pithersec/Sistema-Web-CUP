@@ -84,6 +84,12 @@ class PersonalImport implements ToCollection, WithHeadingRow
             $correo   = trim($row['correo']);
             $registro = (string) $nextRegistro;
 
+            // Verificar duplicado por correo en usuario
+            if (\App\Models\Usuario::where('email', $correo)->exists()) {
+                $this->omitidos[] = "Fila {$fila}: correo '{$correo}' ya existe en el sistema — omitido.";
+                continue;
+            }
+
             DB::transaction(function () use (
                 $ci, $row, $generoMap, $genero, $fechaNac, $correo,
                 $registro, $userName, $perfilMap, $perfil
