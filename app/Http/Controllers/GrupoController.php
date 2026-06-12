@@ -278,11 +278,19 @@ class GrupoController extends Controller
         $codigoGestion = $request->input('gestion');
         $idMateria     = $request->input('materia');
 
-        $grupoMateria = GrupoMateria::with(['grupo', 'materia'])
+        $grupoMateria = GrupoMateria::with(['materia'])
             ->where('id_grupo', $grupoId)
             ->where('gestion_grupo', $codigoGestion)
             ->where('id_materia', $idMateria)
             ->firstOrFail();
+
+        // Cargar grupo manualmente
+        $grupo = DB::table('grupo')
+            ->where('id', $grupoId)
+            ->where('codigo_gestion', $codigoGestion)
+            ->first();
+
+        $turnoGrupo = $grupo->nombre_turno;
 
         $nombreMateria = $grupoMateria->materia->nombre;
         $areaNecesaria = $this->materiaAreaMap[$nombreMateria] ?? null;
@@ -292,6 +300,7 @@ class GrupoController extends Controller
             ->whereHas('requisitosPersonal', fn($q) => $q->where('area', $areaNecesaria))
             ->whereHas('usuario', fn($q) => $q->where('id_perfil', 3))
             ->get()
+            ->sortBy('registro')
             ->map(function ($p) use ($idMateria, $codigoGestion, $grupoId, $grupoMateria) {
                 // Contar cuántos grupo_materia tiene asignados en esta gestión
                 $totalAsignados = GrupoMateria::where('registro_personal', $p->registro)
@@ -316,7 +325,7 @@ class GrupoController extends Controller
 
         return view('grupos.asignar-docente', compact(
             'grupoMateria', 'docentes', 'areaNecesaria',
-            'grupoId', 'codigoGestion', 'idMateria'
+            'grupoId', 'codigoGestion', 'idMateria', 'turnoGrupo'
         ));
     }
 
@@ -358,7 +367,11 @@ class GrupoController extends Controller
             return back()->with('error', 'El docente tiene un cruce de horario con otra asignación.');
         }
 
-        $grupoMateria->update(['registro_personal' => $registroPersonal]);
+        DB::table('grupo_materia')
+            ->where('id_grupo', $grupoId)
+            ->where('gestion_grupo', $codigoGestion)
+            ->where('id_materia', $idMateria)
+            ->update(['registro_personal' => $registroPersonal]);
 
         $docente = Personal::with('datosPersonales')->find($registroPersonal);
         Bitacora::create([

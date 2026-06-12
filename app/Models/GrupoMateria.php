@@ -8,6 +8,8 @@ class GrupoMateria extends Model
 {
     public $timestamps = false;
     protected $table = 'grupo_materia';
+    public $incrementing = false;
+    protected $primaryKey = null;
 
     protected $fillable = [
         'id_materia',

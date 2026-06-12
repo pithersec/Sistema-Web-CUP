@@ -98,7 +98,8 @@
             <h2>Asignar docente — Grupo {{ $grupoId }}, {{ $grupoMateria->materia->nombre }}</h2>
             <div class="meta">
                 Gestión {{ $codigoGestion }} &nbsp;·&nbsp;
-                Turno {{ ucfirst($grupoMateria->grupo->nombre_turno) }} &nbsp;·&nbsp;
+                Turno {{ ucfirst($turnoGrupo) }} &nbsp;·&nbsp;
+                {{ substr($grupoMateria->hora_inicio, 0, 5) }}–{{ substr($grupoMateria->hora_fin, 0, 5) }} &nbsp;·&nbsp;
                 Área requerida: <span class="area-badge">{{ $areaNecesaria }}</span>
             </div>
         </div>
@@ -138,7 +139,7 @@
                             @if($d->total_asignados >= 4)
                                 <span class="badge-carga carga-llena">Límite alcanzado</span>
                             @elseif($d->cruce_materia)
-                                <span class="badge-carga carga-cruce">Cruce de materia</span>
+                                <span class="badge-carga carga-cruce">Cruce de horario</span>
                             @else
                                 <span class="badge-carga carga-ok">Disponible</span>
                             @endif
