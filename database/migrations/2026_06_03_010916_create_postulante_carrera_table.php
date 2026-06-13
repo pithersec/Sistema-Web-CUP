@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('codigo_carrera', 20);
             $table->string('plan_carrera', 50);
             $table->string('modalidad_carrera', 50);
-            $table->unsignedSmallInteger('opcion');
+            $table->unsignedSmallInteger('opcion')->nullable();
+            $table->boolean('asignada')->default(false);
 
             $table->primary(['codigo_postulante', 'codigo_carrera', 'plan_carrera', 'modalidad_carrera']);
 

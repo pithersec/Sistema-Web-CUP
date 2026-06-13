@@ -12,9 +12,6 @@ class PostulanteSeeder extends Seeder
     {
         $faker = Faker::create('es_ES');
 
-        // Porcentajes de estados por gestión
-        // Gestiones cerradas: solo aprobado, reprobado y algunos preinscrito
-        // Gestión activa 2-2026: mayoría inscrita esperando grupos
         $estadosPorGestion = [
             '1-2025' => ['aprobado' => 47, 'reprobado' => 50, 'preinscrito' => 3],
             '2-2025' => ['aprobado' => 43, 'reprobado' => 54, 'preinscrito' => 3],
@@ -60,8 +57,8 @@ class PostulanteSeeder extends Seeder
         ];
 
         $apellidos = ['Flores', 'Mamani', 'Quispe', 'Gutierrez', 'Perez', 'Rojas',
-                        'Vargas', 'Condori', 'Huanca', 'Torrez', 'Salinas', 'Mendoza',
-                        'Choque', 'Quisbert', 'Villca', 'Apaza', 'Lima', 'Cruz'];
+                      'Vargas', 'Condori', 'Huanca', 'Torrez', 'Salinas', 'Mendoza',
+                      'Choque', 'Quisbert', 'Villca', 'Apaza', 'Lima', 'Cruz'];
 
         $aulas        = ['236-31', '236-32', '236-33', '236-34', '236-35'];
         $colegios     = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -70,7 +67,6 @@ class PostulanteSeeder extends Seeder
         $materias     = DB::table('materia')->pluck('id')->toArray();
         $numMaterias  = count($materias);
 
-        // Docentes agrupados por área para asignar a grupo_materia en gestiones cerradas
         $docentes = DB::table('usuario')
             ->where('id_perfil', 3)
             ->join('personal', 'usuario.registro_personal', '=', 'personal.registro')
@@ -79,7 +75,6 @@ class PostulanteSeeder extends Seeder
             ->get()
             ->groupBy('area');
 
-        // Mapeo id_materia → área de requisitos
         $areaMateria = [
             1 => 'matematicas',
             2 => 'fisica',
@@ -87,7 +82,6 @@ class PostulanteSeeder extends Seeder
             4 => 'computacion',
         ];
 
-        // Precargar horas de turno y duraciones de materia para calcular horarios
         $turnoHoras        = DB::table('turno')->pluck('hora_inicio', 'nombre');
         $materiaDuraciones = DB::table('materia')->pluck('duracion', 'id');
 
@@ -102,16 +96,13 @@ class PostulanteSeeder extends Seeder
 
         $pagoId              = 1;
         $requisitosId        = 1;
-        $docenteAsignaciones = []; // [gestion][registro] = count asignaciones
+        $docenteAsignaciones = [];
 
         foreach ($gestiones as $gestion) {
             $esActiva       = $gestion['codigo'] === '2-2026';
             $gruposPorTurno = [];
 
-            // Generar grupos y grupo_materia solo para gestiones cerradas
-            // Para 2-2026 los grupos se generan via CU-11
             if (!$esActiva) {
-                // Calcular grupos basado en aprobados + reprobados (los que pasaron por el CUP)
                 $pctInscritos   = ($estadosPorGestion[$gestion['codigo']]['aprobado'] ?? 0)
                                 + ($estadosPorGestion[$gestion['codigo']]['reprobado'] ?? 0);
                 $totalInscritos = (int) round($gestion['total'] * $pctInscritos / 100);
@@ -120,7 +111,6 @@ class PostulanteSeeder extends Seeder
                 $porTurno  = (int) floor($numGrupos / 3);
                 $excedente = $numGrupos % 3;
 
-                // Excedente siempre va a mañana
                 $distribucion = [
                     'mañana' => $porTurno + $excedente,
                     'tarde'  => $porTurno,
@@ -130,12 +120,12 @@ class PostulanteSeeder extends Seeder
                 $docenteAsignaciones[$gestion['codigo']] = [];
 
                 foreach ($turnosOrden as $turno) {
-                    $prefix = $turnoPrefijo[$turno];
+                    $prefix          = $turnoPrefijo[$turno];
                     $gruposPorTurno[$turno] = [];
                     $turnoHoraInicio = \Carbon\Carbon::createFromFormat('H:i:s', $turnoHoras[$turno]);
 
                     for ($i = 1; $i <= $distribucion[$turno]; $i++) {
-                        $grupoId = $prefix . str_pad($i, 3, '0', STR_PAD_LEFT);
+                        $grupoId  = $prefix . str_pad($i, 3, '0', STR_PAD_LEFT);
                         $grupos[] = [
                             'id'             => $grupoId,
                             'aula'           => $aulas[($i - 1) % count($aulas)],
@@ -144,21 +134,17 @@ class PostulanteSeeder extends Seeder
                             'codigo_gestion' => $gestion['codigo'],
                         ];
 
-                        // Rotar materias y calcular horarios
                         $offset    = ($i - 1) % $numMaterias;
                         $acumulado = 0;
 
                         foreach (range(0, $numMaterias - 1) as $pos) {
                             $idMateria  = $materias[($offset + $pos) % $numMaterias];
                             $duracion   = (float) $materiaDuraciones[$idMateria];
-
-                            // hora_inicio = inicio del turno + suma de duraciones anteriores
                             $horaInicio = (clone $turnoHoraInicio)->addMinutes((int)($acumulado * 60));
                             $horaFin    = (clone $horaInicio)->addMinutes((int)($duracion * 60));
                             $area       = $areaMateria[$idMateria];
                             $acumulado += $duracion;
 
-                            // Asignar docente disponible para esta área (máx 4 grupos por docente)
                             $registro = null;
                             if (!empty($docentes[$area])) {
                                 foreach ($docentes[$area] as $d) {
@@ -187,7 +173,6 @@ class PostulanteSeeder extends Seeder
                 }
             }
 
-            // Generar lista de postulantes según porcentajes
             $estados = $estadosPorGestion[$gestion['codigo']];
             $lista   = [];
             foreach ($estados as $estado => $pct) {
@@ -256,14 +241,11 @@ class PostulanteSeeder extends Seeder
                     'libreta'          => $tienePago ? true : $faker->boolean(40),
                 ];
 
-                // Asignación de grupo según gestión activa o cerrada
                 if ($esActiva) {
-                    // Gestión activa: sin grupo, turno preferido asignado para cuando se generen grupos
                     $grupoAsignado = null;
                     $gestionGrupo  = null;
                     $turnoGrupo    = $tienePago ? $faker->randomElement($turnosOrden) : null;
                 } else {
-                    // Gestión cerrada: distribuir respetando turno, reasignar si está lleno
                     $turnoGrupo    = $faker->randomElement($turnosOrden);
                     $grupoAsignado = null;
                     $gestionGrupo  = null;
@@ -287,6 +269,9 @@ class PostulanteSeeder extends Seeder
                     }
                 }
 
+                $carrera1 = $elegirCarrera();
+                do { $carrera2 = $elegirCarrera(); } while ($carrera2 == $carrera1);
+
                 $postulantes[] = [
                     'codigo'                   => $codigo,
                     'ci'                       => $ci,
@@ -302,21 +287,18 @@ class PostulanteSeeder extends Seeder
                     'gestion_grupo'            => $gestionGrupo,
                     'nombre_turno'             => $turnoGrupo,
                     'estado_formulario'        => 'activo',
-                    'created_at' => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
-                    'updated_at' => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
+                    'created_at'               => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
+                    'updated_at'               => $faker->dateTimeBetween($gestion['plazo_ini'], $gestion['plazo_fin'])->format('Y-m-d H:i:s'),
                 ];
 
-                $carrera1 = $elegirCarrera();
-                do { $carrera2 = $elegirCarrera(); } while ($carrera2 == $carrera1);
-
-                $postulantesCarrera[] = ['codigo_postulante' => $codigo, 'codigo_carrera' => $carrera1['codigo'], 'plan_carrera' => $carrera1['plan'], 'modalidad_carrera' => $carrera1['modalidad'], 'opcion' => 1];
-                $postulantesCarrera[] = ['codigo_postulante' => $codigo, 'codigo_carrera' => $carrera2['codigo'], 'plan_carrera' => $carrera2['plan'], 'modalidad_carrera' => $carrera2['modalidad'], 'opcion' => 2];
+                // asignada = false para todos — se actualiza en ExamenSeeder
+                $postulantesCarrera[] = ['codigo_postulante' => $codigo, 'codigo_carrera' => $carrera1['codigo'], 'plan_carrera' => $carrera1['plan'], 'modalidad_carrera' => $carrera1['modalidad'], 'opcion' => 1, 'asignada' => false];
+                $postulantesCarrera[] = ['codigo_postulante' => $codigo, 'codigo_carrera' => $carrera2['codigo'], 'plan_carrera' => $carrera2['plan'], 'modalidad_carrera' => $carrera2['modalidad'], 'opcion' => 2, 'asignada' => false];
 
                 if ($tienePago) $pagoId++;
                 $requisitosId++;
             }
 
-            // Actualizar total_ins con el contador real de postulantes asignados
             if (!$esActiva) {
                 foreach ($contadorGrupo as $grupoId => $total) {
                     foreach ($grupos as &$g) {

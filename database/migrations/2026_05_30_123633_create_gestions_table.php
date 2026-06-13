@@ -15,6 +15,9 @@ return new class extends Migration
             $table->string('codigo', 20)->primary(); // PK Personalizada tipo String
             $table->date('fecha_ini');
             $table->date('fecha_fin');
+            $table->date('fecha_inicio_notas')->nullable();
+            $table->date('fecha_fin_notas')->nullable();
+            $table->unsignedTinyInteger('nota_minima')->default(60);
         });
     }
 
