@@ -329,6 +329,11 @@
             <h2>{{ $titulo }}</h2>
             <span class="total-badge">{{ $totalFilas }} registros</span>
         </div>
+        @if($resumen)
+        <div style="padding: 8px 24px; font-size: 13px; color: #555; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+            {{ $resumen }}
+        </div>
+        @endif
         <div style="overflow-x: auto;">
             <table class="custom-table">
                 <thead>
