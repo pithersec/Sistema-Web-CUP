@@ -185,7 +185,9 @@ class ReporteController extends Controller
         return [
             'Lista de Postulantes',
             ['Código', 'CI', 'Nombre Completo', 'Correo', 'Carrera', 'Estado', 'Grupo'], 
-            $q->orderBy('datos_personales.apellido')->get()
+            $q->orderByRaw("SUBSTRING(postulante.codigo, 2, 4) DESC")
+            ->orderByRaw("SUBSTRING(postulante.codigo, 1, 1) DESC")
+            ->orderByDesc('postulante.codigo')->get()
         ];
     }
 
@@ -229,7 +231,9 @@ class ReporteController extends Controller
         return [
             'Lista de Aprobados por Carrera',
             ['Código', 'CI', 'Nombre Completo', 'Carrera y Opción Asignada', 'Matemáticas', 'Física', 'Inglés', 'Computación'],
-            $q->orderByDesc('postulante.codigo')->get()
+            $q->orderByRaw("SUBSTRING(postulante.codigo, 2, 4) DESC")
+            ->orderByRaw("SUBSTRING(postulante.codigo, 1, 1) DESC")
+            ->orderByDesc('postulante.codigo')->get()
         ];
     }
 
@@ -265,7 +269,9 @@ class ReporteController extends Controller
         return [
             'Lista de Reprobados',
             ['Código', 'CI', 'Nombre Completo', 'Carrera Elegida (Primera Opción)', 'Matemáticas', 'Física', 'Inglés', 'Computación'],
-            $q->orderByDesc('postulante.codigo')->get()
+            $q->orderByRaw("SUBSTRING(postulante.codigo, 2, 4) DESC")
+            ->orderByRaw("SUBSTRING(postulante.codigo, 1, 1) DESC")
+            ->orderByDesc('postulante.codigo')->get()
         ];
     }
 
