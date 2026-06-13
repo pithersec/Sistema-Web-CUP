@@ -483,10 +483,12 @@ class ReporteController extends Controller
                     ->on('asistencia.codigo_gestion', '=', 'grupo.codigo_gestion');
             })
             ->select(
-                'asistencia.fecha',
+                'postulante.codigo',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
+                'grupo.id as grupo',
                 'materia.nombre as materia',
-                'grupo.nombre_turno as turno',
+                DB::raw("INITCAP(grupo.nombre_turno) as turno"),
+                DB::raw("TO_CHAR(asistencia.fecha, 'DD/MM/YYYY') as fecha"),
                 DB::raw("CASE WHEN asistencia.presente THEN 'Presente' ELSE 'Ausente' END as asistencia")
             );
 
@@ -496,7 +498,7 @@ class ReporteController extends Controller
 
         return [
             'Lista de Asistencia',
-            ['Fecha', 'Nombre Completo', 'Materia', 'Turno', 'Asistencia'],
+            ['Código', 'Nombre Completo', 'Grupo', 'Materia', 'Turno', 'Fecha', 'Asistencia'],
             $q->orderByDesc('asistencia.fecha')->orderBy('datos_personales.apellido')->get()
         ];
     }
