@@ -22,6 +22,10 @@
     <p>Generado el {{ now()->format('d/m/Y H:i') }}</p>
 </div>
 
+@if($resumen)
+<p style="font-size: 9px; color: #444; margin-bottom: 8px; font-weight: bold;">{{ $resumen }}</p>
+@endif
+
 @if($cortado)
 <div class="aviso">
     ⚠ Mostrando {{ number_format($filas->count()) }} de {{ number_format($total) }} registros. Para el listado completo use Excel.

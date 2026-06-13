@@ -203,11 +203,10 @@
                 'postulantes'          => ['📋', 'Lista de Postulantes'],
                 'aprobados'            => ['✅', 'Aprobados por Carrera'],
                 'reprobados'           => ['❌', 'Lista de Reprobados'],
-                'promedios_materia'    => ['📊', 'Promedios por Materia'],
                 'estadisticas_materia' => ['📈', 'Estadísticas por Materia'],
                 'docentes_grupo'       => ['👨‍🏫', 'Docentes por Grupo'],
                 'grupos_aprobados'     => ['🏆', 'Grupos con Más Aprobados'],
-                'recaudacion'          => ['💰', 'Recaudación por Pagos'],
+                'recaudacion'          => ['💰', 'Registro de Pagos'],
                 'promedios_generales'  => ['📉', 'Promedios Generales'],
                 'grupos_habilitados'   => ['📅', 'Grupos Habilitados por Gestión'],
                 'asistencia'           => ['📝', 'Lista de Asistencia'],
@@ -330,6 +329,11 @@
             <h2>{{ $titulo }}</h2>
             <span class="total-badge">{{ $totalFilas }} registros</span>
         </div>
+        @if($resumen)
+        <div style="padding: 8px 24px; font-size: 13px; color: #555; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+            {{ $resumen }}
+        </div>
+        @endif
         <div style="overflow-x: auto;">
             <table class="custom-table">
                 <thead>
@@ -370,9 +374,9 @@ const filtrosPorTipo = {
     promedios_materia:    ['filtro-gestion'],
     estadisticas_materia: ['filtro-gestion'],
     docentes_grupo:       ['filtro-gestion', 'filtro-turno'],
-    grupos_aprobados:     ['filtro-gestion'],
+    grupos_aprobados:     ['filtro-gestion', 'filtro-turno'],
     recaudacion:          ['filtro-fecha-ini', 'filtro-fecha-fin'],
-    promedios_generales:  ['filtro-gestion', 'filtro-carrera'],
+    promedios_generales:  ['filtro-gestion', 'filtro-estado'],
     grupos_habilitados:   ['filtro-gestion', 'filtro-turno'],
     asistencia:           ['filtro-gestion', 'filtro-materia', 'filtro-turno'],
 };

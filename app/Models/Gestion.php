@@ -11,12 +11,21 @@ class Gestion extends Model
     protected $primaryKey = 'codigo';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $casts = ['fecha_ini' => 'date', 'fecha_fin' => 'date'];
+
+    protected $casts = [
+        'fecha_ini'          => 'date',
+        'fecha_fin'          => 'date',
+        'fecha_inicio_notas' => 'date',
+        'fecha_fin_notas'    => 'date',
+    ];
 
     protected $fillable = [
         'codigo',
         'fecha_ini',
         'fecha_fin',
+        'fecha_inicio_notas',
+        'fecha_fin_notas',
+        'nota_minima',
     ];
 
     public function grupos()
