@@ -257,6 +257,19 @@
                 </select>
             </div>
 
+            {{-- Estado --}}
+            <div class="filtro-condicional flex-col" id="filtro-estado">
+                <span class="filter-label">Estado</span>
+                <select name="estado" class="filter-select" onchange="submitFiltros()">
+                    <option value="">-- Todos --</option>
+                    <option value="aprobado"    {{ $estado === 'aprobado'    ? 'selected' : '' }}>Aprobado</option>
+                    <option value="reprobado"   {{ $estado === 'reprobado'   ? 'selected' : '' }}>Reprobado</option>
+                    <option value="inscrito"    {{ $estado === 'inscrito'    ? 'selected' : '' }}>Inscrito</option>
+                    <option value="preinscrito" {{ $estado === 'preinscrito' ? 'selected' : '' }}>Preinscrito</option>
+                    <option value="baja"        {{ $estado === 'baja'        ? 'selected' : '' }}>Baja</option>
+                </select>
+            </div>
+
             {{-- Turno --}}
             <div class="filtro-condicional flex-col" id="filtro-turno">
                 <span class="filter-label">Turno</span>
@@ -351,7 +364,7 @@
 
 <script>
 const filtrosPorTipo = {
-    postulantes:          ['filtro-gestion', 'filtro-carrera'],
+    postulantes:          ['filtro-gestion', 'filtro-carrera', 'filtro-estado'],
     aprobados:            ['filtro-gestion', 'filtro-carrera'],
     reprobados:           ['filtro-gestion', 'filtro-carrera'],
     promedios_materia:    ['filtro-gestion'],
@@ -363,7 +376,7 @@ const filtrosPorTipo = {
     grupos_habilitados:   ['filtro-gestion', 'filtro-turno'],
     asistencia:           ['filtro-gestion', 'filtro-materia', 'filtro-turno'],
 };
-const todosLosFiltros = ['filtro-gestion','filtro-carrera','filtro-turno','filtro-materia','filtro-fecha-ini','filtro-fecha-fin'];
+const todosLosFiltros = ['filtro-gestion','filtro-carrera','filtro-turno','filtro-materia','filtro-fecha-ini','filtro-fecha-fin', 'filtro-estado'];
 
 function mostrarFiltros(tipo) {
     todosLosFiltros.forEach(id => {

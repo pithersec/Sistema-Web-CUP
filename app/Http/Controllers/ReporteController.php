@@ -26,11 +26,11 @@ class ReporteController extends Controller
 
         $tipoActual  = $request->input('tipo_reporte', '');
         $gestion     = $request->input('gestion', '');
-        $carrera     = $request->input('carrera', '');
         $turno       = $request->input('turno', '');
         $materia     = $request->input('materia', '');
         $fechaInicio = $request->input('fecha_inicio', '');
         $fechaFin    = $request->input('fecha_fin', '');
+        $estado      = $request->input('estado', '');
 
         $titulo  = '';
         $columnas = [];
@@ -39,7 +39,7 @@ class ReporteController extends Controller
 
         if ($tipoActual) {
             [$titulo, $columnas, $todasFilas] = $this->obtenerDatos(
-                $tipoActual, $gestion, $codigoCarrera, $planCarrera, $modalidadCarrera, $turno, $materia, $fechaInicio, $fechaFin
+                $tipoActual, $gestion, $codigoCarrera, $planCarrera, $modalidadCarrera, $turno, $materia, $fechaInicio, $fechaFin, $estado
             );
             $totalFilas = $todasFilas->count();
             $page  = $request->input('page', 1);
@@ -55,7 +55,7 @@ class ReporteController extends Controller
         return view('reportes.index', compact(
             'gestiones', 'carreras', 'materias', 'turnos',
             'tipoActual', 'gestion', 'carrera', 'turno', 'materia',
-            'fechaInicio', 'fechaFin', 'titulo', 'columnas', 'filas', 'totalFilas'
+            'fechaInicio', 'fechaFin', 'titulo', 'columnas', 'filas', 'totalFilas', 'estado'
         ));
     }
 
@@ -73,9 +73,10 @@ class ReporteController extends Controller
         $fechaIni = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
         $formato  = $request->input('formato', 'pdf');
+        $estado      = $request->input('estado', '');
 
         [$titulo, $columnas, $filas] = $this->obtenerDatos(
-            $tipo, $gestion, $codigoCarrera, $planCarrera, $modalidadCarrera, $turno, $materia, $fechaIni, $fechaFin
+            $tipo, $gestion, $codigoCarrera, $planCarrera, $modalidadCarrera, $turno, $materia, $fechaIni, $fechaFin, $estado
         );
 
         if ($formato === 'excel') {
@@ -109,10 +110,10 @@ class ReporteController extends Controller
     }
 
     // -------------------------------------------------------------------
-    private function obtenerDatos($tipo, $gestion, $carrera, $plan, $modalidad, $turno, $materia, $fechaIni, $fechaFin): array
+    private function obtenerDatos($tipo, $gestion, $carrera, $plan, $modalidad, $turno, $materia, $fechaIni, $fechaFin, $estado): array
     {
         return match($tipo) {
-            'postulantes'         => $this->listaPostulantes($gestion, $carrera, $plan, $modalidad),
+            'postulantes'         => $this->listaPostulantes($gestion, $carrera, $plan, $modalidad, $estado),
             'aprobados'           => $this->listaAprobados($gestion, $carrera, $plan, $modalidad),
             'reprobados'          => $this->listaReprobados($gestion, $carrera, $plan, $modalidad),
             'promedios_materia'   => $this->promediosPorMateria($gestion),
@@ -127,47 +128,63 @@ class ReporteController extends Controller
         };
     }
 
-    private function listaPostulantes($gestion, $carrera, $plan, $modalidad): array
+    private function listaPostulantes($gestion, $carrera, $plan, $modalidad, $estado): array
     {
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
-            ->join('postulante_carrera', 'postulante.codigo', '=', 'postulante_carrera.codigo_postulante')
-            ->join('carrera', 'postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
             ->leftJoin('grupo', function($j) {
                 $j->on('postulante.id_grupo', '=', 'grupo.id')
                 ->on('postulante.gestion_grupo', '=', 'grupo.codigo_gestion');
             })
             ->select(
+                'postulante.codigo',
                 'datos_personales.ci',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
                 'datos_personales.correo',
-                'carrera.nombre as carrera',
-                'postulante_carrera.opcion',
-                'postulante.estado',
-                DB::raw("COALESCE(grupo.id::text || '-' || grupo.nombre_turno, 'Sin grupo') as grupo")
-            )
-            ->where('postulante_carrera.opcion', 1)
-            ->groupBy(
-                'postulante.codigo',
-                'datos_personales.ci',
-                'datos_personales.nombre',
-                'datos_personales.apellido',
-                'datos_personales.correo',
-                'carrera.nombre',
-                'postulante_carrera.opcion',
-                'postulante.estado',
-                'grupo.id',
-                'grupo.nombre_turno'
+                DB::raw("CASE 
+                    WHEN postulante.estado = 'aprobado' THEN (
+                        SELECT c2.nombre || CASE WHEN c2.modalidad = 'virtual' THEN ' (Virtual)' ELSE '' END
+                        FROM postulante_carrera pc2
+                        JOIN carrera c2 ON pc2.codigo_carrera = c2.codigo 
+                            AND pc2.plan_carrera = c2.plan 
+                            AND pc2.modalidad_carrera = c2.modalidad
+                        WHERE pc2.codigo_postulante = postulante.codigo 
+                        AND pc2.asignada = true
+                        LIMIT 1
+                    )
+                    ELSE (
+                        SELECT c2.nombre || CASE WHEN c2.modalidad = 'virtual' THEN ' (Virtual)' ELSE '' END
+                        FROM postulante_carrera pc2
+                        JOIN carrera c2 ON pc2.codigo_carrera = c2.codigo
+                            AND pc2.plan_carrera = c2.plan
+                            AND pc2.modalidad_carrera = c2.modalidad
+                        WHERE pc2.codigo_postulante = postulante.codigo 
+                        AND pc2.opcion = 1
+                        LIMIT 1
+                    )
+                END as carrera"),
+                DB::raw("INITCAP(postulante.estado) as estado"),
+                DB::raw("COALESCE(grupo.id::text || ' - ' || grupo.nombre_turno, 'Sin grupo') as grupo")
             );
+            
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
-        if ($carrera)   $q->where('carrera.codigo', $carrera);
-        if ($plan)      $q->where('carrera.plan', $plan);
-        if ($modalidad) $q->where('carrera.modalidad', $modalidad);
+        if ($carrera) {
+            $q->whereExists(function($sub) use ($carrera, $plan, $modalidad) {
+                $sub->select(DB::raw(1))
+                    ->from('postulante_carrera as pc3')
+                    ->whereColumn('pc3.codigo_postulante', 'postulante.codigo')
+                    ->where('pc3.codigo_carrera', $carrera)
+                    ->where('pc3.plan_carrera', $plan)
+                    ->where('pc3.modalidad_carrera', $modalidad)
+                    ->where('pc3.opcion', 1);
+            });
+        }
+        if ($estado) $q->where('postulante.estado', $estado);
 
         return [
             'Lista de Postulantes',
-            ['CI', 'Nombre Completo', 'Correo', 'Carrera', 'Opción', 'Estado', 'Grupo'],
+            ['Código', 'CI', 'Nombre Completo', 'Correo', 'Carrera', 'Estado', 'Grupo'], 
             $q->orderBy('datos_personales.apellido')->get()
         ];
     }
