@@ -394,6 +394,10 @@ class ReporteController extends Controller
 
     private function promediosGenerales($gestion, $estado): array
     {
+        $gestionActiva = DB::table('gestion')
+                ->orderByRaw("SPLIT_PART(codigo, '-', 2) DESC, SPLIT_PART(codigo, '-', 1) DESC")
+                ->value('codigo');
+
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
             ->select(
@@ -412,12 +416,12 @@ class ReporteController extends Controller
                 ) / 4.0)::numeric, 2) as promedio_final"),
                 DB::raw("INITCAP(postulante.estado) as estado")
             )
-            ->where(function($q) {
+            ->where(function($q) use ($gestionActiva) {
                 $q->where('postulante.estado', 'aprobado')
                 ->orWhere('postulante.estado', 'reprobado')
-                ->orWhere(function($q2) {
+                ->orWhere(function($q2) use ($gestionActiva) {
                     $q2->where('postulante.estado', 'inscrito')
-                        ->where('postulante.gestion_grupo', '!=', '2-2026');
+                        ->where('postulante.gestion_grupo', '!=', $gestionActiva);
                 });
             });
 
@@ -437,24 +441,31 @@ class ReporteController extends Controller
     private function gruposHabilitados($gestion, $turno): array
     {
         $q = DB::table('grupo')
-            ->leftJoin('carrera_gestion', 'grupo.codigo_gestion', '=', 'carrera_gestion.codigo_gestion')
-            ->leftJoin('carrera', 'carrera_gestion.codigo_carrera', '=', 'carrera.codigo')
+            ->join('turno', 'grupo.nombre_turno', '=', 'turno.nombre')
+            ->leftJoin('grupo_materia', function($j) {
+                $j->on('grupo.id', '=', 'grupo_materia.id_grupo')
+                ->on('grupo.codigo_gestion', '=', 'grupo_materia.gestion_grupo');
+            })
             ->select(
                 'grupo.id',
                 'grupo.codigo_gestion as gestion',
-                'grupo.nombre_turno as turno',
+                DB::raw("INITCAP(grupo.nombre_turno) || ' · ' || TO_CHAR(turno.hora_inicio, 'HH24:MI') || ' - ' || TO_CHAR(turno.hora_fin, 'HH24:MI') as turno"),
                 'grupo.aula',
                 'grupo.total_ins as inscritos',
-                DB::raw("COALESCE(carrera.nombre, '-') as carrera")
-            );
+                DB::raw("COUNT(DISTINCT grupo_materia.registro_personal) as docentes")
+            )
+            ->groupBy('grupo.id', 'grupo.codigo_gestion', 'grupo.nombre_turno', 'grupo.aula', 'grupo.total_ins', 'turno.hora_inicio', 'turno.hora_fin');
 
         if ($gestion) $q->where('grupo.codigo_gestion', $gestion);
         if ($turno)   $q->where('grupo.nombre_turno', $turno);
 
         return [
             'Grupos Habilitados por Gestión',
-            ['ID', 'Gestión', 'Turno', 'Aula', 'Inscritos', 'Carrera'],
-            $q->orderBy('grupo.codigo_gestion')->orderBy('grupo.id')->get()
+            ['ID', 'Gestión', 'Turno', 'Aula', 'Cant. Inscritos', 'Cant. Docentes'],
+            $q->orderByRaw("SPLIT_PART(grupo.codigo_gestion, '-', 2) DESC, SPLIT_PART(grupo.codigo_gestion, '-', 1) DESC")
+            ->orderByRaw("CASE WHEN grupo.nombre_turno = 'mañana' THEN 0 WHEN grupo.nombre_turno = 'tarde' THEN 1 ELSE 2 END")
+            ->orderBy('grupo.id')
+            ->get()
         ];
     }
 
