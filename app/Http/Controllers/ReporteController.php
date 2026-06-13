@@ -15,25 +15,68 @@ class ReporteController extends Controller
     public function index(Request $request)
     {
         $gestiones = Gestion::orderByRaw("SPLIT_PART(codigo, '-', 2) DESC, SPLIT_PART(codigo, '-', 1) DESC")->get();
+        $carrera     = $request->input('carrera', '');
+        $carreraParts = $carrera ? explode('|', $carrera) : [];
+        $codigoCarrera   = $carreraParts[0] ?? null;
+        $planCarrera     = $carreraParts[1] ?? null;
+        $modalidadCarrera = $carreraParts[2] ?? null;
         $carreras = Carrera::orderBy('modalidad')->orderBy('nombre')->get();
         $materias  = DB::table('materia')->orderBy('nombre')->get();
         $turnos    = DB::table('turno')->orderByRaw("CASE WHEN nombre='mañana' THEN 0 WHEN nombre='tarde' THEN 1 ELSE 2 END")->get();
 
-        return view('reportes.index', compact('gestiones', 'carreras', 'materias', 'turnos'));
+        $tipoActual  = $request->input('tipo_reporte', '');
+        $gestion     = $request->input('gestion', '');
+        $carrera     = $request->input('carrera', '');
+        $turno       = $request->input('turno', '');
+        $materia     = $request->input('materia', '');
+        $fechaInicio = $request->input('fecha_inicio', '');
+        $fechaFin    = $request->input('fecha_fin', '');
+
+        $titulo  = '';
+        $columnas = [];
+        $filas   = collect();
+        $totalFilas = 0;
+
+        if ($tipoActual) {
+            [$titulo, $columnas, $todasFilas] = $this->obtenerDatos(
+                $tipoActual, $gestion, $codigoCarrera, $planCarrera, $modalidadCarrera, $turno, $materia, $fechaInicio, $fechaFin
+            );
+            $totalFilas = $todasFilas->count();
+            $page  = $request->input('page', 1);
+            $filas = new \Illuminate\Pagination\LengthAwarePaginator(
+                $todasFilas->forPage($page, 15),
+                $totalFilas,
+                15,
+                $page,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        }
+
+        return view('reportes.index', compact(
+            'gestiones', 'carreras', 'materias', 'turnos',
+            'tipoActual', 'gestion', 'carrera', 'turno', 'materia',
+            'fechaInicio', 'fechaFin', 'titulo', 'columnas', 'filas', 'totalFilas'
+        ));
     }
 
-    public function generarReporte(Request $request)
+    public function exportar(Request $request)
     {
-        $tipo    = $request->input('tipo_reporte');
-        $gestion = $request->input('gestion');
-        $carrera = $request->input('carrera');
-        $turno   = $request->input('turno');
-        $materia = $request->input('materia');
+        $tipo     = $request->input('tipo_reporte');
+        $gestion  = $request->input('gestion');
+        $carrera  = $request->input('carrera', '');
+        $carreraParts     = $carrera ? explode('|', $carrera) : [];
+        $codigoCarrera    = $carreraParts[0] ?? null;
+        $planCarrera      = $carreraParts[1] ?? null;
+        $modalidadCarrera = $carreraParts[2] ?? null;
+        $turno    = $request->input('turno');
+        $materia  = $request->input('materia');
         $fechaIni = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
         $formato  = $request->input('formato', 'pdf');
 
-        [$titulo, $columnas, $filas] = $this->obtenerDatos($tipo, $gestion, $carrera, $turno, $materia, $fechaIni, $fechaFin);
+        [$titulo, $columnas, $filas] = $this->obtenerDatos(
+            $tipo, $gestion, $codigoCarrera, $planCarrera, $modalidadCarrera, $turno, $materia, $fechaIni, $fechaFin
+        );
 
         if ($formato === 'excel') {
             return Excel::download(
@@ -42,6 +85,23 @@ class ReporteController extends Controller
             );
         }
 
+        if ($formato === 'pdf') {
+            $limite  = 1000;
+            $total   = $filas->count();
+            $cortado = $total > $limite;
+            $filas   = $filas->take($limite);
+
+            $pdf = Pdf::loadView('reportes.pdf', compact('titulo', 'columnas', 'filas', 'total', 'cortado'))
+                ->setPaper('a4', 'landscape')
+                ->setOption('dpi', 96)
+                ->setOption('default-font-size', 9);
+
+            return $pdf->download($this->nombreArchivo($tipo, 'pdf'));
+        }
+
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '512M');
+
         $pdf = Pdf::loadView('reportes.pdf', compact('titulo', 'columnas', 'filas'))
             ->setPaper('a4', 'landscape');
 
@@ -49,25 +109,25 @@ class ReporteController extends Controller
     }
 
     // -------------------------------------------------------------------
-    private function obtenerDatos($tipo, $gestion, $carrera, $turno, $materia, $fechaIni, $fechaFin): array
+    private function obtenerDatos($tipo, $gestion, $carrera, $plan, $modalidad, $turno, $materia, $fechaIni, $fechaFin): array
     {
         return match($tipo) {
-            'postulantes'         => $this->listaPostulantes($gestion, $carrera),
-            'aprobados'           => $this->listaAprobados($gestion, $carrera),
-            'reprobados'          => $this->listaReprobados($gestion, $carrera),
+            'postulantes'         => $this->listaPostulantes($gestion, $carrera, $plan, $modalidad),
+            'aprobados'           => $this->listaAprobados($gestion, $carrera, $plan, $modalidad),
+            'reprobados'          => $this->listaReprobados($gestion, $carrera, $plan, $modalidad),
             'promedios_materia'   => $this->promediosPorMateria($gestion),
             'estadisticas_materia'=> $this->estadisticasPorMateria($gestion),
             'docentes_grupo'      => $this->docentesPorGrupo($gestion, $turno),
             'grupos_aprobados'    => $this->gruposConMasAprobados($gestion),
             'recaudacion'         => $this->recaudacion($fechaIni, $fechaFin),
-            'promedios_generales' => $this->promediosGenerales($gestion),
+            'promedios_generales' => $this->promediosGenerales($gestion, $carrera, $plan, $modalidad),
             'grupos_habilitados'  => $this->gruposHabilitados($gestion, $turno),
             'asistencia'          => $this->listaAsistencia($gestion, $materia, $turno),
             default               => ['Reporte desconocido', [], collect()],
         };
     }
 
-    private function listaPostulantes($gestion, $carrera): array
+    private function listaPostulantes($gestion, $carrera, $plan, $modalidad): array
     {
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
@@ -101,7 +161,9 @@ class ReporteController extends Controller
             );
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
-        if ($carrera) $q->where('carrera.codigo', $carrera);
+        if ($carrera)   $q->where('carrera.codigo', $carrera);
+        if ($plan)      $q->where('carrera.plan', $plan);
+        if ($modalidad) $q->where('carrera.modalidad', $modalidad);
 
         return [
             'Lista de Postulantes',
@@ -110,7 +172,7 @@ class ReporteController extends Controller
         ];
     }
 
-    private function listaAprobados($gestion, $carrera): array
+    private function listaAprobados($gestion, $carrera, $plan, $modalidad): array
     {
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
@@ -120,12 +182,11 @@ class ReporteController extends Controller
                 ->on('postulante_carrera.plan_carrera', '=', 'carrera.plan')
                 ->on('postulante_carrera.modalidad_carrera', '=', 'carrera.modalidad');
             })
-            ->join('examen', 'postulante.codigo', '=', 'examen.codigo_postulante')
             ->select(
                 'postulante.codigo',
                 'datos_personales.ci',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
-                DB::raw("carrera.nombre || ' — ' || CASE WHEN postulante_carrera.opcion IS NULL THEN 'Lista de espera' ELSE 'Opción ' || postulante_carrera.opcion::text END as carrera_asignada"),
+                DB::raw("carrera.nombre || CASE WHEN carrera.modalidad = 'virtual' THEN ' (Virtual)' ELSE '' END || ' — ' || CASE WHEN postulante_carrera.opcion IS NULL THEN 'Lista de espera' ELSE 'Opción ' || postulante_carrera.opcion::text END as carrera_asignada"),
                 DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 1)::numeric, 2) as matematicas"),
                 DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 2)::numeric, 2) as fisica"),
                 DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 3)::numeric, 2) as ingles"),
@@ -139,11 +200,14 @@ class ReporteController extends Controller
                 'datos_personales.nombre',
                 'datos_personales.apellido',
                 'carrera.nombre',
-                'postulante_carrera.opcion'
+                'postulante_carrera.opcion',
+                'carrera.modalidad'
             );
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
-        if ($carrera) $q->where('carrera.codigo', $carrera);
+        if ($carrera)   $q->where('carrera.codigo', $carrera);
+        if ($plan)      $q->where('carrera.plan', $plan);
+        if ($modalidad) $q->where('carrera.modalidad', $modalidad);
 
         return [
             'Lista de Aprobados por Carrera',
@@ -152,30 +216,39 @@ class ReporteController extends Controller
         ];
     }
 
-    private function listaReprobados($gestion, $carrera): array
+    private function listaReprobados($gestion, $carrera, $plan, $modalidad): array
     {
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
             ->join('postulante_carrera', 'postulante.codigo', '=', 'postulante_carrera.codigo_postulante')
-            ->join('carrera', 'postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
-            ->join('examen', 'postulante.codigo', '=', 'examen.codigo_postulante')
+            ->join('carrera', function($j) {
+                $j->on('postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
+                ->on('postulante_carrera.plan_carrera', '=', 'carrera.plan')
+                ->on('postulante_carrera.modalidad_carrera', '=', 'carrera.modalidad');
+            })
             ->select(
+                'postulante.codigo',
                 'datos_personales.ci',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
-                'carrera.nombre as carrera',
-                DB::raw('AVG(examen.nota) as promedio')
+                DB::raw("carrera.nombre || CASE WHEN carrera.modalidad = 'virtual' THEN ' (Virtual)' ELSE '' END as carrera_elegida"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 1)::numeric, 2) as matematicas"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 2)::numeric, 2) as fisica"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 3)::numeric, 2) as ingles"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 4)::numeric, 2) as computacion"),
             )
+            ->where('postulante.estado', 'reprobado')
             ->where('postulante_carrera.opcion', 1)
-            ->groupBy('postulante.codigo', 'datos_personales.ci', 'datos_personales.nombre', 'datos_personales.apellido', 'carrera.codigo', 'carrera.nombre')
-            ->havingRaw('AVG(examen.nota) < 60');
+            ->groupBy('postulante.codigo', 'datos_personales.ci', 'datos_personales.nombre', 'datos_personales.apellido', 'carrera.codigo', 'carrera.nombre', 'carrera.modalidad');
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
-        if ($carrera) $q->where('carrera.codigo', $carrera);
+        if ($carrera)   $q->where('carrera.codigo', $carrera);
+        if ($plan)      $q->where('carrera.plan', $plan);
+        if ($modalidad) $q->where('carrera.modalidad', $modalidad);
 
         return [
             'Lista de Reprobados',
-            ['CI', 'Nombre Completo', 'Carrera', 'Promedio'],
-            $q->orderBy('datos_personales.apellido')->get()
+            ['Código', 'CI', 'Nombre Completo', 'Carrera Elegida (Primera Opción)', 'Matemáticas', 'Física', 'Inglés', 'Computación'],
+            $q->orderByDesc('postulante.codigo')->get()
         ];
     }
 
@@ -296,7 +369,7 @@ class ReporteController extends Controller
         ];
     }
 
-    private function promediosGenerales($gestion): array
+    private function promediosGenerales($gestion, $carrera, $plan, $modalidad): array
     {
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
@@ -313,6 +386,9 @@ class ReporteController extends Controller
             ->where('postulante_carrera.opcion', 1);
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
+        if ($carrera)   $q->where('carrera.codigo', $carrera);
+        if ($plan)      $q->where('carrera.plan', $plan);
+        if ($modalidad) $q->where('carrera.modalidad', $modalidad);
 
         return [
             'Promedios Generales',
