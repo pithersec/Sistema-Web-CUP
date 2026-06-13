@@ -119,7 +119,7 @@ class ReporteController extends Controller
             'promedios_materia'   => $this->promediosPorMateria($gestion),
             'estadisticas_materia'=> $this->estadisticasPorMateria($gestion),
             'docentes_grupo'      => $this->docentesPorGrupo($gestion, $turno),
-            'grupos_aprobados'    => $this->gruposConMasAprobados($gestion),
+            'grupos_aprobados'    => $this->gruposConMasAprobados($gestion, $turno),
             'recaudacion'         => $this->recaudacion($fechaIni, $fechaFin),
             'promedios_generales' => $this->promediosGenerales($gestion, $carrera, $plan, $modalidad),
             'grupos_habilitados'  => $this->gruposHabilitados($gestion, $turno),
@@ -358,7 +358,7 @@ class ReporteController extends Controller
         ];
     }
 
-    private function gruposConMasAprobados($gestion): array
+    private function gruposConMasAprobados($gestion, $turno): array
     {
         $q = DB::table('grupo')
             ->join('postulante', function($j) {
@@ -367,20 +367,24 @@ class ReporteController extends Controller
             })
             ->join('examen', 'postulante.codigo', '=', 'examen.codigo_postulante')
             ->select(
+                'grupo.codigo_gestion as gestion',
                 'grupo.id as grupo',
-                'grupo.nombre_turno as turno',
+                DB::raw("INITCAP(grupo.nombre_turno) as turno"),
                 'grupo.aula',
-                DB::raw('COUNT(DISTINCT CASE WHEN examen.nota >= 60 THEN postulante.codigo END) as aprobados'),
-                DB::raw('COUNT(DISTINCT postulante.codigo) as total')
-            );
+                DB::raw("COUNT(DISTINCT CASE WHEN postulante.estado = 'aprobado' THEN postulante.codigo END) as aprobados"),
+                DB::raw("COUNT(DISTINCT postulante.codigo) as total"),
+                DB::raw("ROUND((COUNT(DISTINCT CASE WHEN postulante.estado = 'aprobado' THEN postulante.codigo END)::numeric / NULLIF(COUNT(DISTINCT postulante.codigo), 0) * 100), 1)::text || '%' as porcentaje")
+            )
+            ->groupBy('grupo.id', 'grupo.nombre_turno', 'grupo.aula', 'grupo.codigo_gestion')
+            ->orderByDesc('aprobados');
 
         if ($gestion) $q->where('grupo.codigo_gestion', $gestion);
+        if ($turno)   $q->where('grupo.nombre_turno', $turno);
 
         return [
             'Grupos con Más Aprobados',
-            ['Grupo', 'Turno', 'Aula', 'Aprobados', 'Total'],
-            $q->groupBy('grupo.id', 'grupo.nombre_turno', 'grupo.aula', 'grupo.codigo_gestion')
-                ->orderByDesc('aprobados')->get()
+            ['Gestión', 'Grupo', 'Turno', 'Aula', 'Aprobados', 'Total', 'Porcentaje Respecto al Total'],
+            $q->get()
         ];
     }
 

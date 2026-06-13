@@ -370,7 +370,7 @@ const filtrosPorTipo = {
     promedios_materia:    ['filtro-gestion'],
     estadisticas_materia: ['filtro-gestion'],
     docentes_grupo:       ['filtro-gestion', 'filtro-turno'],
-    grupos_aprobados:     ['filtro-gestion'],
+    grupos_aprobados:     ['filtro-gestion', 'filtro-turno'],
     recaudacion:          ['filtro-fecha-ini', 'filtro-fecha-fin'],
     promedios_generales:  ['filtro-gestion', 'filtro-carrera'],
     grupos_habilitados:   ['filtro-gestion', 'filtro-turno'],
