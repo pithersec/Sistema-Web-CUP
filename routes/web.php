@@ -8,6 +8,7 @@ use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RendimientoController;
 use App\Http\Controllers\GrupoController;
@@ -178,6 +179,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/grupos/asignar-docente', [GrupoController::class, 'asignarDocente'])->name('grupos.asignarDocente');
     });
 
+    /*
+    |------------------------------------------------------------------
+    | CU-18: CONFIGURACIÓN DE PARÁMETROS
+    |------------------------------------------------------------------*/
+    Route::middleware('privilegio:configuracion.gestionar')->group(function () {
+        Route::get('/admin/parametros', [ParametroController::class, 'mostrarParametros'])->name('parametros.index');
+        Route::put('/admin/parametros', [ParametroController::class, 'modificarParametros'])->name('parametros.modificar');
+        Route::post('/admin/parametros/cerrar', [ParametroController::class, 'cerrarGestion'])->name('parametros.cerrar');
+        Route::post('/admin/parametros/abrir', [ParametroController::class, 'abrirGestion'])->name('parametros.abrir');
+    });
+
 
     /*
     |------------------------------------------------------------------
@@ -185,7 +197,7 @@ Route::middleware(['auth'])->group(function () {
     |------------------------------------------------------------------*/
     Route::middleware('privilegio:reportes.ver')->group(function () {
         Route::get('/admin/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-        Route::get('/admin/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
+        Route::post('/admin/reportes/generar', [ReporteController::class, 'generarReporte'])->name('reportes.generar');
     });
 
     /*

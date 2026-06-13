@@ -328,6 +328,12 @@
                 <span class="nav-icon">📊</span> Dashboard
             </a>
 
+            @if($user && $user->tienePrivilegio('configuracion.gestionar'))
+            <a href="{{ route('parametros.index') }}" class="nav-item {{ Request::is('admin/parametros*') ? 'active' : '' }}">
+                <span class="nav-icon">⚙️</span> Parámetros
+            </a>
+            @endif
+
             @if($user && $user->tienePrivilegio('reportes.ver'))
             <a href="{{ route('reportes.index') }}" class="nav-item {{ Request::is('admin/reportes*') ? 'active' : '' }}">
                 <span class="nav-icon">📄</span> Reportes
