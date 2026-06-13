@@ -330,16 +330,18 @@ class ReporteController extends Controller
         $q = DB::table('grupo')
             ->join('grupo_materia', function($j) {
                 $j->on('grupo.id', '=', 'grupo_materia.id_grupo')
-                    ->on('grupo.codigo_gestion', '=', 'grupo_materia.gestion_grupo');
+                ->on('grupo.codigo_gestion', '=', 'grupo_materia.gestion_grupo');
             })
             ->join('personal', 'grupo_materia.registro_personal', '=', 'personal.registro')
             ->join('datos_personales', 'personal.ci', '=', 'datos_personales.ci')
             ->join('materia', 'grupo_materia.id_materia', '=', 'materia.id')
             ->select(
+                'grupo.codigo_gestion as gestion',
                 'grupo.id as grupo',
-                'grupo.nombre_turno as turno',
+                DB::raw("INITCAP(grupo.nombre_turno) as turno"),
                 'grupo.aula',
                 'materia.nombre as materia',
+                'personal.registro',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as docente")
             );
 
@@ -348,8 +350,11 @@ class ReporteController extends Controller
 
         return [
             'Docentes por Grupo',
-            ['Grupo', 'Turno', 'Aula', 'Materia', 'Docente'],
-            $q->orderBy('grupo.id')->get()
+            ['Gestión', 'Grupo', 'Turno', 'Aula', 'Materia', 'Registro', 'Docente'],
+            $q->orderByRaw("SPLIT_PART(grupo.codigo_gestion, '-', 2) DESC, SPLIT_PART(grupo.codigo_gestion, '-', 1) DESC")
+            ->orderByRaw("CASE WHEN grupo.nombre_turno = 'mañana' THEN 0 WHEN grupo.nombre_turno = 'tarde' THEN 1 ELSE 2 END")
+            ->orderBy('grupo.id')
+            ->get()
         ];
     }
 
