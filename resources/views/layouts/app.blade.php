@@ -328,6 +328,12 @@
                 <span class="nav-icon">📊</span> Dashboard
             </a>
 
+            @if($user && $user->tienePrivilegio('reportes.ver'))
+            <a href="{{ route('reportes.index') }}" class="nav-item {{ Request::is('admin/reportes*') ? 'active' : '' }}">
+                <span class="nav-icon">📄</span> Reportes
+            </a>
+            @endif
+
             @if($user && $user->tienePrivilegio('bitacora.ver'))
             <a href="{{ route('bitacora.index') }}" class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}">
                 <span class="nav-icon">📋</span> Bitácora

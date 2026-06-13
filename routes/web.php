@@ -7,6 +7,7 @@ use App\Http\Controllers\ExamenController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\BitacoraController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RendimientoController;
 use App\Http\Controllers\GrupoController;
@@ -175,6 +176,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/grupos/generar', [GrupoController::class, 'generarGrupos'])->name('grupos.generar');
         Route::get('/admin/grupos/asignar-docente', [GrupoController::class, 'mostrarFormAsignarDocente'])->name('grupos.formDocente');
         Route::post('/admin/grupos/asignar-docente', [GrupoController::class, 'asignarDocente'])->name('grupos.asignarDocente');
+    });
+
+
+    /*
+    |------------------------------------------------------------------
+    | CU-10: REPORTES
+    |------------------------------------------------------------------*/
+    Route::middleware('privilegio:reportes.ver')->group(function () {
+        Route::get('/admin/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+        Route::post('/admin/reportes/generar', [ReporteController::class, 'generarReporte'])->name('reportes.generar');
     });
 
     /*
