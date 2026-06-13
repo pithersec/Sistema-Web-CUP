@@ -271,40 +271,57 @@ class ReporteController extends Controller
 
     private function promediosPorMateria($gestion): array
     {
-        $q = DB::table('examen')
-            ->join('materia', 'examen.id_materia', '=', 'materia.id')
-            ->join('postulante', 'examen.codigo_postulante', '=', 'postulante.codigo')
-            ->select('materia.nombre as materia', DB::raw('ROUND(AVG(examen.nota)::numeric, 2) as promedio'), DB::raw('COUNT(DISTINCT examen.codigo_postulante) as total'));
-
-        if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
+        $q = DB::table(DB::raw('(
+            SELECT e.id_materia, e.codigo_postulante,
+                SUM(e.nota * e.ponderacion / 100.0) as nota_final
+            FROM examen e
+            JOIN postulante p ON e.codigo_postulante = p.codigo
+            ' . ($gestion ? "WHERE p.gestion_grupo = '$gestion'" : '') . '
+            GROUP BY e.id_materia, e.codigo_postulante
+        ) as notas_finales'))
+            ->join('materia', 'notas_finales.id_materia', '=', 'materia.id')
+            ->select(
+                'materia.nombre as materia',
+                DB::raw('ROUND(AVG(notas_finales.nota_final)::numeric, 2) as promedio'),
+                DB::raw('COUNT(DISTINCT notas_finales.codigo_postulante) as total_estudiantes')
+            )
+            ->groupBy('materia.id', 'materia.nombre')
+            ->orderBy('materia.nombre');
 
         return [
             'Promedios por Materia',
-            ['Materia', 'Promedio', 'Total Estudiantes'],
-            $q->groupBy('materia.id', 'materia.nombre')->orderBy('materia.nombre')->get()
+            ['Materia', 'Promedio Final', 'Total Estudiantes'],
+            $q->get()
         ];
     }
 
     private function estadisticasPorMateria($gestion): array
     {
-        $q = DB::table('examen')
-            ->join('materia', 'examen.id_materia', '=', 'materia.id')
-            ->join('postulante', 'examen.codigo_postulante', '=', 'postulante.codigo')
+        $q = DB::table(DB::raw('(
+            SELECT e.id_materia, e.codigo_postulante,
+                SUM(e.nota * e.ponderacion / 100.0) as nota_final
+            FROM examen e
+            JOIN postulante p ON e.codigo_postulante = p.codigo
+            ' . ($gestion ? "WHERE p.gestion_grupo = '$gestion'" : '') . '
+            GROUP BY e.id_materia, e.codigo_postulante
+        ) as notas_finales'))
+            ->join('materia', 'notas_finales.id_materia', '=', 'materia.id')
             ->select(
                 'materia.nombre as materia',
-                DB::raw('ROUND(AVG(examen.nota)::numeric, 2) as promedio'),
-                DB::raw('MAX(examen.nota) as nota_max'),
-                DB::raw('MIN(examen.nota) as nota_min'),
-                DB::raw('COUNT(DISTINCT CASE WHEN examen.nota >= 60 THEN examen.codigo_postulante END) as aprobados'),
-                DB::raw('COUNT(DISTINCT CASE WHEN examen.nota < 60 THEN examen.codigo_postulante END) as reprobados')
-            );
-
-        if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
+                DB::raw('ROUND(AVG(notas_finales.nota_final)::numeric, 2) as promedio'),
+                DB::raw('ROUND(MAX(notas_finales.nota_final)::numeric, 2) as nota_max'),
+                DB::raw('ROUND(MIN(notas_finales.nota_final)::numeric, 2) as nota_min'),
+                DB::raw('COUNT(DISTINCT CASE WHEN notas_finales.nota_final >= 60 THEN notas_finales.codigo_postulante END) as aprobados'),
+                DB::raw('COUNT(DISTINCT CASE WHEN notas_finales.nota_final < 60 THEN notas_finales.codigo_postulante END) as reprobados'),
+                DB::raw('COUNT(DISTINCT notas_finales.codigo_postulante) as total_estudiantes')
+            )
+            ->groupBy('materia.id', 'materia.nombre')
+            ->orderBy('materia.nombre');
 
         return [
             'Estadísticas por Materia',
-            ['Materia', 'Promedio', 'Máx', 'Mín', 'Aprobados', 'Reprobados'],
-            $q->groupBy('materia.id', 'materia.nombre')->orderBy('materia.nombre')->get()
+            ['Materia', 'Promedio Final', 'Nota Máxima', 'Nota Mínima', 'Aprobados', 'Reprobados', 'Total'],
+            $q->get()
         ];
     }
 
