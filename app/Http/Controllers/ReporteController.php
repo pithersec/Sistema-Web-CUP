@@ -115,25 +115,40 @@ class ReporteController extends Controller
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
             ->join('postulante_carrera', 'postulante.codigo', '=', 'postulante_carrera.codigo_postulante')
-            ->join('carrera', 'postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
+            ->join('carrera', function($j) {
+                $j->on('postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
+                ->on('postulante_carrera.plan_carrera', '=', 'carrera.plan')
+                ->on('postulante_carrera.modalidad_carrera', '=', 'carrera.modalidad');
+            })
             ->join('examen', 'postulante.codigo', '=', 'examen.codigo_postulante')
             ->select(
+                'postulante.codigo',
                 'datos_personales.ci',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
-                'carrera.nombre as carrera',
-                DB::raw('AVG(examen.nota) as promedio')
+                DB::raw("carrera.nombre || ' — ' || CASE WHEN postulante_carrera.opcion IS NULL THEN 'Lista de espera' ELSE 'Opción ' || postulante_carrera.opcion::text END as carrera_asignada"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 1)::numeric, 2) as matematicas"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 2)::numeric, 2) as fisica"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 3)::numeric, 2) as ingles"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 4)::numeric, 2) as computacion"),
             )
-            ->where('postulante_carrera.opcion', 1)
-            ->groupBy('postulante.codigo', 'datos_personales.ci', 'datos_personales.nombre', 'datos_personales.apellido', 'carrera.codigo', 'carrera.nombre')
-            ->havingRaw('AVG(examen.nota) >= 60');
+            ->where('postulante.estado', 'aprobado')
+            ->where('postulante_carrera.asignada', true)
+            ->groupBy(
+                'postulante.codigo',
+                'datos_personales.ci',
+                'datos_personales.nombre',
+                'datos_personales.apellido',
+                'carrera.nombre',
+                'postulante_carrera.opcion'
+            );
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
         if ($carrera) $q->where('carrera.codigo', $carrera);
 
         return [
             'Lista de Aprobados por Carrera',
-            ['CI', 'Nombre Completo', 'Carrera', 'Promedio'],
-            $q->orderBy('datos_personales.apellido')->get()
+            ['Código', 'CI', 'Nombre Completo', 'Carrera y Opción Asignada', 'Matemáticas', 'Física', 'Inglés', 'Computación'],
+            $q->orderByDesc('postulante.codigo')->get()
         ];
     }
 
