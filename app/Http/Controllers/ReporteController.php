@@ -116,12 +116,11 @@ class ReporteController extends Controller
             'postulantes'         => $this->listaPostulantes($gestion, $carrera, $plan, $modalidad, $estado),
             'aprobados'           => $this->listaAprobados($gestion, $carrera, $plan, $modalidad),
             'reprobados'          => $this->listaReprobados($gestion, $carrera, $plan, $modalidad),
-            'promedios_materia'   => $this->promediosPorMateria($gestion),
             'estadisticas_materia'=> $this->estadisticasPorMateria($gestion),
             'docentes_grupo'      => $this->docentesPorGrupo($gestion, $turno),
             'grupos_aprobados'    => $this->gruposConMasAprobados($gestion, $turno),
             'recaudacion'         => $this->recaudacion($fechaIni, $fechaFin),
-            'promedios_generales' => $this->promediosGenerales($gestion, $carrera, $plan, $modalidad),
+            'promedios_generales' => $this->promediosGenerales($gestion, $estado),
             'grupos_habilitados'  => $this->gruposHabilitados($gestion, $turno),
             'asistencia'          => $this->listaAsistencia($gestion, $materia, $turno),
             default               => ['Reporte desconocido', [], collect()],
@@ -275,32 +274,6 @@ class ReporteController extends Controller
         ];
     }
 
-    private function promediosPorMateria($gestion): array
-    {
-        $q = DB::table(DB::raw('(
-            SELECT e.id_materia, e.codigo_postulante,
-                SUM(e.nota * e.ponderacion / 100.0) as nota_final
-            FROM examen e
-            JOIN postulante p ON e.codigo_postulante = p.codigo
-            ' . ($gestion ? "WHERE p.gestion_grupo = '$gestion'" : '') . '
-            GROUP BY e.id_materia, e.codigo_postulante
-        ) as notas_finales'))
-            ->join('materia', 'notas_finales.id_materia', '=', 'materia.id')
-            ->select(
-                'materia.nombre as materia',
-                DB::raw('ROUND(AVG(notas_finales.nota_final)::numeric, 2) as promedio'),
-                DB::raw('COUNT(DISTINCT notas_finales.codigo_postulante) as total_estudiantes')
-            )
-            ->groupBy('materia.id', 'materia.nombre')
-            ->orderBy('materia.nombre');
-
-        return [
-            'Promedios por Materia',
-            ['Materia', 'Promedio Final', 'Total Estudiantes'],
-            $q->get()
-        ];
-    }
-
     private function estadisticasPorMateria($gestion): array
     {
         $q = DB::table(DB::raw('(
@@ -419,32 +392,45 @@ class ReporteController extends Controller
         ];
     }
 
-    private function promediosGenerales($gestion, $carrera, $plan, $modalidad): array
+    private function promediosGenerales($gestion, $estado): array
     {
         $q = DB::table('postulante')
             ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
-            ->join('postulante_carrera', 'postulante.codigo', '=', 'postulante_carrera.codigo_postulante')
-            ->join('carrera', 'postulante_carrera.codigo_carrera', '=', 'carrera.codigo')
-            ->join('examen', 'postulante.codigo', '=', 'examen.codigo_postulante')
             ->select(
+                'postulante.codigo',
                 'datos_personales.ci',
                 DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
-                'carrera.nombre as carrera',
-                DB::raw('ROUND(AVG(examen.nota)::numeric, 2) as promedio'),
-                DB::raw("CASE WHEN AVG(examen.nota) >= 60 THEN 'Aprobado' ELSE 'Reprobado' END as estado")
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 1)::numeric, 2) as matematicas"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 2)::numeric, 2) as fisica"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 3)::numeric, 2) as ingles"),
+                DB::raw("ROUND((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 4)::numeric, 2) as computacion"),
+                DB::raw("ROUND(((
+                    COALESCE((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 1), 0) +
+                    COALESCE((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 2), 0) +
+                    COALESCE((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 3), 0) +
+                    COALESCE((SELECT SUM(e2.nota * e2.ponderacion / 100.0) FROM examen e2 WHERE e2.codigo_postulante = postulante.codigo AND e2.id_materia = 4), 0)
+                ) / 4.0)::numeric, 2) as promedio_final"),
+                DB::raw("INITCAP(postulante.estado) as estado")
             )
-            ->where('postulante_carrera.opcion', 1);
+            ->where(function($q) {
+                $q->where('postulante.estado', 'aprobado')
+                ->orWhere('postulante.estado', 'reprobado')
+                ->orWhere(function($q2) {
+                    $q2->where('postulante.estado', 'inscrito')
+                        ->where('postulante.gestion_grupo', '!=', '2-2026');
+                });
+            });
 
         if ($gestion) $q->where('postulante.gestion_grupo', $gestion);
-        if ($carrera)   $q->where('carrera.codigo', $carrera);
-        if ($plan)      $q->where('carrera.plan', $plan);
-        if ($modalidad) $q->where('carrera.modalidad', $modalidad);
+        if ($estado) $q->where('postulante.estado', $estado);
 
         return [
             'Promedios Generales',
-            ['CI', 'Nombre Completo', 'Carrera', 'Promedio', 'Estado'],
-            $q->groupBy('postulante.codigo', 'datos_personales.ci', 'datos_personales.nombre', 'datos_personales.apellido', 'carrera.nombre')
-                ->orderBy('datos_personales.apellido')->get()
+            ['Código', 'CI', 'Nombre Completo', 'Matemáticas', 'Física', 'Inglés', 'Computación', 'Promedio Final', 'Estado'],
+            $q->orderByRaw("SUBSTRING(postulante.codigo, 2, 4) DESC")
+            ->orderByRaw("SUBSTRING(postulante.codigo, 1, 1) DESC")
+            ->orderByDesc('postulante.codigo')
+            ->get()
         ];
     }
 

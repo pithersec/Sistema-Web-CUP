@@ -203,7 +203,6 @@
                 'postulantes'          => ['📋', 'Lista de Postulantes'],
                 'aprobados'            => ['✅', 'Aprobados por Carrera'],
                 'reprobados'           => ['❌', 'Lista de Reprobados'],
-                'promedios_materia'    => ['📊', 'Promedios por Materia'],
                 'estadisticas_materia' => ['📈', 'Estadísticas por Materia'],
                 'docentes_grupo'       => ['👨‍🏫', 'Docentes por Grupo'],
                 'grupos_aprobados'     => ['🏆', 'Grupos con Más Aprobados'],
@@ -372,7 +371,7 @@ const filtrosPorTipo = {
     docentes_grupo:       ['filtro-gestion', 'filtro-turno'],
     grupos_aprobados:     ['filtro-gestion', 'filtro-turno'],
     recaudacion:          ['filtro-fecha-ini', 'filtro-fecha-fin'],
-    promedios_generales:  ['filtro-gestion', 'filtro-carrera'],
+    promedios_generales:  ['filtro-gestion', 'filtro-estado'],
     grupos_habilitados:   ['filtro-gestion', 'filtro-turno'],
     asistencia:           ['filtro-gestion', 'filtro-materia', 'filtro-turno'],
 };
