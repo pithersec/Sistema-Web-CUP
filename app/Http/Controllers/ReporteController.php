@@ -391,14 +391,15 @@ class ReporteController extends Controller
     private function recaudacion($fechaIni, $fechaFin): array
     {
         $q = DB::table('pago')
+            ->join('postulante', 'postulante.id_pago', '=', 'pago.id')
+            ->join('datos_personales', 'postulante.ci', '=', 'datos_personales.ci')
             ->select(
+                'postulante.codigo',
+                DB::raw("datos_personales.nombre || ' ' || datos_personales.apellido as nombre_completo"),
                 'pago.id',
                 'pago.concepto',
-                'pago.monto',
-                'pago.moneda',
-                'pago.estado',
-                'pago.fecha',
-                'pago.id_transaccion'
+                DB::raw("pago.moneda || ' ' || pago.monto::text as monto"),
+                DB::raw("TO_CHAR(pago.fecha, 'DD/MM/YYYY HH24:MI:SS') as fecha"),
             )
             ->where('pago.estado', 'completado');
 
@@ -406,8 +407,8 @@ class ReporteController extends Controller
         if ($fechaFin) $q->whereDate('pago.fecha', '<=', $fechaFin);
 
         return [
-            'Reporte de Recaudación por Pagos',
-            ['ID', 'Concepto', 'Monto', 'Moneda', 'Estado', 'Fecha', 'ID Transacción'],
+            'Registro de Pagos',
+            ['Código', 'Nombre Completo', 'ID Pago', 'Concepto', 'Monto', 'Fecha'],
             $q->orderByDesc('pago.fecha')->get()
         ];
     }

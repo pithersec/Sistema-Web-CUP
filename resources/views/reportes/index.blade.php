@@ -207,7 +207,7 @@
                 'estadisticas_materia' => ['📈', 'Estadísticas por Materia'],
                 'docentes_grupo'       => ['👨‍🏫', 'Docentes por Grupo'],
                 'grupos_aprobados'     => ['🏆', 'Grupos con Más Aprobados'],
-                'recaudacion'          => ['💰', 'Recaudación por Pagos'],
+                'recaudacion'          => ['💰', 'Registro de Pagos'],
                 'promedios_generales'  => ['📉', 'Promedios Generales'],
                 'grupos_habilitados'   => ['📅', 'Grupos Habilitados por Gestión'],
                 'asistencia'           => ['📝', 'Lista de Asistencia'],
