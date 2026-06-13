@@ -5,9 +5,11 @@ RUN apt-get update && apt-get install -y \
     libgd-dev \
     libpng-dev \
     libjpeg-dev \
+    libfreetype6-dev \
     libpq-dev \
     unzip \
     git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install zip gd pdo pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
