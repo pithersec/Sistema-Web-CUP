@@ -8,7 +8,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap');
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         :root {
             --azul: #0d3b6e;
@@ -32,11 +36,13 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.45);
             z-index: 99;
         }
 
-        .sidebar-overlay.active { display: block; }
+        .sidebar-overlay.active {
+            display: block;
+        }
 
         /* ── SIDEBAR ── */
         .sidebar {
@@ -64,16 +70,18 @@
         }
 
         .sidebar-header p {
-            color: rgba(255,255,255,0.6);
+            color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
             margin-top: 2px;
         }
 
-        .nav-section { padding: 16px 0; }
+        .nav-section {
+            padding: 16px 0;
+        }
 
         .nav-label {
             font-size: 10px;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
             padding: 0 16px;
@@ -81,7 +89,7 @@
             margin-top: 6px;
         }
 
-        .nav-section > .nav-label:first-child {
+        .nav-section>.nav-label:first-child {
             margin-top: 0;
         }
 
@@ -90,7 +98,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px 16px;
-            color: rgba(255,255,255,0.75);
+            color: rgba(255, 255, 255, 0.75);
             font-size: 13px;
             cursor: pointer;
             border-left: 3px solid transparent;
@@ -98,17 +106,21 @@
         }
 
         .nav-item:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             color: white;
         }
 
         .nav-item.active {
-            background: rgba(255,255,255,0.12);
+            background: rgba(255, 255, 255, 0.12);
             color: white;
             border-left-color: var(--rojo);
         }
 
-        .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+        .nav-icon {
+            font-size: 15px;
+            width: 18px;
+            text-align: center;
+        }
 
         /* ── MAIN ── */
         .main {
@@ -124,7 +136,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         }
 
         .topbar-left {
@@ -180,14 +192,17 @@
             font-weight: 600;
         }
 
-        .username { }
+        .username {}
 
         .content {
             flex: 1;
             display: flex;
-            flex-direction: column;  /* ← agregar */
-            align-items: flex-start; /* ← cambiar de center */
-            justify-content: flex-start; /* ← cambiar de center */
+            flex-direction: column;
+            /* ← agregar */
+            align-items: flex-start;
+            /* ← cambiar de center */
+            justify-content: flex-start;
+            /* ← cambiar de center */
             padding: 28px;
         }
 
@@ -195,7 +210,7 @@
         .modal {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
             padding: 48px 52px;
             text-align: center;
             max-width: 420px;
@@ -204,7 +219,8 @@
         }
 
         .icon-circle {
-            width: 72px; height: 72px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             background: #fde8e8;
             display: flex;
@@ -228,29 +244,40 @@
             margin-bottom: 32px;
         }
 
-        .modal p strong { color: var(--azul); }
+        .modal p strong {
+            color: var(--azul);
+        }
 
-        .buttons { display: flex; gap: 12px; }
+        .buttons {
+            display: flex;
+            gap: 12px;
+        }
 
         .btn-cancel {
-            flex: 1; padding: 12px;
+            flex: 1;
+            padding: 12px;
             border: 1.5px solid var(--gris-claro);
             border-radius: 6px;
             background: white;
             color: var(--gris);
             font-family: 'Source Sans 3', sans-serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             text-align: center;
         }
 
         .btn-confirm {
-            flex: 1; padding: 12px;
-            border: none; border-radius: 6px;
-            background: var(--rojo); color: white;
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: var(--rojo);
+            color: white;
             font-family: 'Source Sans 3', sans-serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
         }
 
@@ -263,18 +290,28 @@
             text-align: left;
         }
 
-        .session-info p { font-size: 12px; color: var(--gris); margin-bottom: 0; }
-        .session-info strong { color: var(--azul); }
+        .session-info p {
+            font-size: 12px;
+            color: var(--gris);
+            margin-bottom: 0;
+        }
+
+        .session-info strong {
+            color: var(--azul);
+        }
 
         /* ── RESPONSIVE MOBILE ── */
         @media (max-width: 768px) {
 
-            body { flex-direction: column; }
+            body {
+                flex-direction: column;
+            }
 
             /* Sidebar se convierte en drawer */
             .sidebar {
                 position: fixed;
-                top: 0; left: 0;
+                top: 0;
+                left: 0;
                 height: 100vh;
                 transform: translateX(-100%);
             }
@@ -284,18 +321,26 @@
             }
 
             /* Mostrar hamburguesa */
-            .hamburger { display: flex; }
+            .hamburger {
+                display: flex;
+            }
 
             /* Ocultar nombre usuario en móvil */
-            .username { display: none; }
+            .username {
+                display: none;
+            }
 
             .topbar {
                 padding: 12px 16px;
             }
 
-            .topbar h1 { font-size: 15px; }
+            .topbar h1 {
+                font-size: 15px;
+            }
 
-            .content { padding: 16px; }
+            .content {
+                padding: 16px;
+            }
 
             .modal {
                 padding: 32px 24px;
@@ -329,40 +374,54 @@
             </a>
 
             @if($user && $user->tienePrivilegio('reportes.ver'))
-            <a href="{{ route('reportes.index') }}" class="nav-item {{ Request::is('admin/reportes*') ? 'active' : '' }}">
+            <a href="{{ route('reportes.index') }}"
+                class="nav-item {{ Request::is('admin/reportes*') ? 'active' : '' }}">
                 <span class="nav-icon">📄</span> Reportes
             </a>
             @endif
 
             @if($user && $user->tienePrivilegio('bitacora.ver'))
-            <a href="{{ route('bitacora.index') }}" class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}">
+            <a href="{{ route('bitacora.index') }}"
+                class="nav-item {{ Request::is('admin/bitacora*') ? 'active' : '' }}">
                 <span class="nav-icon">📋</span> Bitácora
             </a>
             @endif
+            {{-- NUEVO: BANDEJA DE RECLAMOS PARA ADMINISTRACIÓN --}}
+            {{-- @if($user && $user->tienePrivilegio('reclamos.ver')) --}}
+            <a href="{{ url('/admin/reclamos') }}"
+                class="nav-item {{ Request::is('admin/reclamos*') ? 'active' : '' }}">
+                <span class="nav-icon">✉️</span> Atender Reclamos
+            </a>
+            {{-- @endif --}}
+
 
             {{-- P3 · GESTIÓN ADMINISTRATIVA --}}
             <div class="nav-label">P3 · Gestión Administrativa</div>
 
             @if($user && $user->tienePrivilegio('postulantes.ver'))
-            <a href="{{ route('postulantes.index') }}" class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}">
+            <a href="{{ route('postulantes.index') }}"
+                class="nav-item {{ Request::is('admin/postulantes*') ? 'active' : '' }}">
                 <span class="nav-icon">👥</span> Postulantes
             </a>
             @endif
 
             @if($user && $user->tienePrivilegio('carreras.ver'))
-            <a href="{{ route('carreras.index') }}" class="nav-item {{ Request::is('admin/carreras*') ? 'active' : '' }}">
+            <a href="{{ route('carreras.index') }}"
+                class="nav-item {{ Request::is('admin/carreras*') ? 'active' : '' }}">
                 <span class="nav-icon">🎓</span> Carreras y Cupos
             </a>
             @endif
 
             @if($user && $user->tienePrivilegio('personal.ver'))
-            <a href="{{ route('personal.index') }}" class="nav-item {{ Request::is('admin/personal*') ? 'active' : '' }}">
+            <a href="{{ route('personal.index') }}"
+                class="nav-item {{ Request::is('admin/personal*') ? 'active' : '' }}">
                 <span class="nav-icon">👨‍🏫</span> Personal
             </a>
             @endif
 
             @if($user && $user->tienePrivilegio('usuarios.ver'))
-            <a href="{{ route('usuarios.index') }}" class="nav-item {{ Request::is('admin/usuarios*') || Request::is('admin/perfiles*') ? 'active' : '' }}">
+            <a href="{{ route('usuarios.index') }}"
+                class="nav-item {{ Request::is('admin/usuarios*') || Request::is('admin/perfiles*') ? 'active' : '' }}">
                 <span class="nav-icon">👤</span> Usuarios y Perfiles
             </a>
             @endif
@@ -377,13 +436,15 @@
             @endif
 
             @if($user && $user->tienePrivilegio('notas.ver'))
-            <a href="{{ route('notas.index') }}" class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
+            <a href="{{ route('notas.index') }}"
+                class="nav-item {{ Request::is('docente/registrar-notas*') ? 'active' : '' }}">
                 <span class="nav-icon">📝</span> Exámenes
             </a>
             @endif
 
             @if($user && $user->tienePrivilegio('rendimiento.ver'))
-            <a href="{{ route('rendimiento.index') }}" class="nav-item {{ Request::is('rendimiento*') ? 'active' : '' }}">
+            <a href="{{ route('rendimiento.index') }}"
+                class="nav-item {{ Request::is('rendimiento*') ? 'active' : '' }}">
                 <span class="nav-icon">📈</span> Rendimiento Académico
             </a>
             @endif
@@ -392,7 +453,8 @@
 
             <div style="border-top: 1px solid rgba(255,255,255,0.15); margin: 8px 0;"></div>
 
-            <a href="{{ url('/logout-confirm') }}" class="nav-item {{ Request::is('logout-confirm*') ? 'active' : '' }}">
+            <a href="{{ url('/logout-confirm') }}"
+                class="nav-item {{ Request::is('logout-confirm*') ? 'active' : '' }}">
                 <span class="nav-icon">🚪</span> Cerrar Sesión
             </a>
         </div>
@@ -440,4 +502,5 @@
     </script>
 
 </body>
+
 </html>

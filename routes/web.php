@@ -106,6 +106,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/postulantes/{codigo}/baja', [PostulanteController::class, 'darBaja'])->name('postulantes.baja');
     });
 
+    
+
     /*
     |------------------------------------------------------------------
     | MÓDULO DOCENTE / EVALUACIÓN
@@ -197,3 +199,35 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/bitacora/{id}', [BitacoraController::class, 'obtenerDetalle'])->name('bitacora.show');
     });
 });
+use App\Http\Controllers\ReclamoController;
+
+// ==========================================================================
+// 1. VISTAS Y PROCESOS PÚBLICOS (Para el Postulante Externo)
+// ==========================================================================
+// Muestra el formulario con la tabla interactiva abajo
+Route::get('/reclamos', [ReclamoController::class, 'listarReclamos'])->name('reclamos.publico');
+// Procesa el guardado por AJAX del formulario
+Route::post('/reclamos/guardar', [ReclamoController::class, 'crearReclamo'])->name('reclamos.store');
+
+
+// ==========================================================================
+// 2. VISTAS PROTEGIDAS (Para el Administrador / Personal interno)
+// ==========================================================================
+Route::middleware(['auth'])->group(function () {
+
+    // Privilegio para VER la bandeja de entrada administrativa
+    Route::middleware('privilegio:reclamos.ver')->group(function () {
+        Route::get('/admin/reclamos', [ReclamoController::class, 'listarReclamos'])->name('admin.reclamos.index'); 
+        Route::get('/admin/reclamos/{id}', [ReclamoController::class, 'mostrarReclamo'])->name('admin.reclamos.show');
+    });
+
+    // Privilegio para RESOLVER y cambiar el estado del reclamo
+    Route::middleware('privilegio:reclamos.atender')->group(function () {
+        Route::put('/admin/reclamos/{id}/actualizar', [ReclamoController::class, 'actualizarReclamo'])->name('admin.reclamos.update');
+    });
+
+});
+// Cambia 'reclamos.publico' por 'reclamos.create' si esta ruta va directo al formulario limpio
+Route::get('/reclamos', [ReclamoController::class, 'listarReclamos'])->name('reclamos.create');
+// ASÍ DEBE ESTAR: La ruta admin general debe ir al Dashboard, NO a los reclamos
+Route::get('/admin', [DashboardController::class, 'index'])->name('dashboard');

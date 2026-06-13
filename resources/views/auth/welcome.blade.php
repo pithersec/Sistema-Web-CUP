@@ -34,7 +34,7 @@
             justify-content: center;
             padding-top: 40px 16px;
             background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-                url('{{ asset('img/ficct_.jfif') }}');
+            url('{{ asset("img/ficct_.jfif") }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -85,7 +85,7 @@
             object-fit: contain;
             margin: 0 auto 24px;
             display: block;
-            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4));
         }
 
         .hero h1 {
@@ -96,7 +96,7 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             opacity: 1;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
             margin-bottom: 6px;
         }
 
@@ -110,7 +110,7 @@
 
         .hero .facultad {
             color: rgba(255, 255, 255, 0.85);
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
             font-size: 16px;
             margin-bottom: 8px;
         }
@@ -126,7 +126,7 @@
         .hero .descripcion {
             color: rgba(255, 255, 255, 0.9);
             font-size: 17px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
             line-height: 1.6;
             margin-bottom: 24px;
             max-width: 520px;
@@ -233,7 +233,7 @@
                 margin-top: 24px;
                 padding: 12px 0 20px;
             }
-        
+
             .acceso-personal {
                 position: relative;
                 top: auto;
@@ -241,20 +241,58 @@
                 text-align: center;
                 margin-bottom: 16px;
             }
-        
+
             .hero h2 {
                 font-size: 20px;
             }
-        
+
             .cards {
                 flex-direction: column;
                 align-items: center;
             }
-        
+
             .card {
                 width: 100%;
                 max-width: 340px;
             }
+        }
+
+        .reclamo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+
+            width: 530px;
+            /* ancho */
+            padding: 1px;
+            /* espacio interno */
+
+            margin: 20px auto;
+            /* separación y centrado */
+
+            text-align: center;
+        }
+
+        .reclamo-card h2 {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .reclamo-card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .reclamo-btn {
+            display: inline-block;
+            background: orange;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -279,7 +317,8 @@
         <div class="divider"></div>
 
         <p class="descripcion">
-            Plataforma de gestión del Curso Preuniversitario. Si eres un nuevo postulante, inicia tu proceso de preinscripción aquí.
+            Plataforma de gestión del Curso Preuniversitario. Si eres un nuevo postulante, inicia tu proceso de
+            preinscripción aquí.
         </p>
 
         <div class="cards">
@@ -297,6 +336,22 @@
                 <span class="card-btn">Consultar</span>
             </a>
         </div>
+        <div class="reclamo-card">
+            <div>
+                <div style="font-size:10px;padding:0;margin:0;">⚠️</div>
+                <h2 style="font-size:10px;padding:0;margin:0;">Presentar Reclamo</h2>
+                <p style="font-size:10px;padding:0;margin:0;">¿Tienes algún inconveniente con tu proceso? Envía un
+                    reclamo
+                    formal aquí.
+                </p>
+            </div>
+            <a href="{{ route('reclamos.create') }}"
+                class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 text-center uppercase tracking-wider text-sm"
+                style="font-size:10px; padding:1px 1px;color:rgb(0, 234, 255);">
+                REDACTAR RECLAMO
+            </a>
+        </div>
+
     </div>
 
     <p class="footer">FICCT · UAGRM · Sistema CUP © 2026</p>
