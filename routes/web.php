@@ -12,6 +12,7 @@ use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RendimientoController;
 use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\AsistenciaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -209,6 +210,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('privilegio:bitacora.ver')->group(function () {
         Route::get('/admin/bitacora', [BitacoraController::class, 'listarEventos'])->name('bitacora.index');
         Route::get('/admin/bitacora/{id}', [BitacoraController::class, 'obtenerDetalle'])->name('bitacora.show');
+    });
+
+    // Dentro del grupo auth o del middleware que ya uses
+    Route::middleware(['auth', 'privilegio:asistencia.registrar'])->group(function () {
+        Route::get('/asistencia', [AsistenciaController::class, 'mostrarAsistencia'])->name('asistencia.index');
+        Route::post('/asistencia', [AsistenciaController::class, 'registrarAsistencia'])->name('asistencia.registrar');
     });
 });
 use App\Http\Controllers\ReclamoController;

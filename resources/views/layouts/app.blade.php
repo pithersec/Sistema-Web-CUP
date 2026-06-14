@@ -449,6 +449,13 @@
             </a>
             @endif
 
+            @if($user && $user->tienePrivilegio('asistencia.registrar'))
+            <a href="{{ route('asistencia.index') }}"
+                class="nav-item {{ Request::is('asistencia*') ? 'active' : '' }}"
+                <span class="nav-icon">✅</span> Asistencia
+            </a>
+            @endif
+
             {{-- NUEVO: BANDEJA DE RECLAMOS PARA ADMINISTRACIÓN --}}
             {{-- @if($user && $user->tienePrivilegio('reclamos.ver')) --}}
             <a href="{{ url('/admin/reclamos') }}"
