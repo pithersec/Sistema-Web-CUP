@@ -29,6 +29,7 @@
             background: #f0f4f8;
             display: flex;
             min-height: 100vh;
+            align-items: stretch;
         }
 
         /* ── OVERLAY (solo móvil) ── */
@@ -48,7 +49,6 @@
         .sidebar {
             width: 220px;
             background: var(--azul);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
@@ -77,6 +77,7 @@
 
         .nav-section {
             padding: 16px 0;
+            flex: 1;
         }
 
         .nav-label {
@@ -314,6 +315,7 @@
                 left: 0;
                 height: 100vh;
                 transform: translateX(-100%);
+                overflow-y: auto;
             }
 
             .sidebar.open {

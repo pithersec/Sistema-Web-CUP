@@ -239,7 +239,3 @@ Route::middleware(['auth'])->group(function () {
     });
 
 });
-// Cambia 'reclamos.publico' por 'reclamos.create' si esta ruta va directo al formulario limpio
-Route::get('/reclamos', [ReclamoController::class, 'listarReclamos'])->name('reclamos.create');
-// ASÍ DEBE ESTAR: La ruta admin general debe ir al Dashboard, NO a los reclamos
-Route::get('/admin', [DashboardController::class, 'index'])->name('dashboard');

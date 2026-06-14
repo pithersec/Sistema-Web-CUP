@@ -262,15 +262,10 @@
             backdrop-filter: blur(12px);
             border: 1.5px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-
-            width: 530px;
-            /* ancho */
+            width: 100%;
+            max-width: 530px;
             padding: 1px;
-            /* espacio interno */
-
             margin: 20px auto;
-            /* separación y centrado */
-
             text-align: center;
         }
 
