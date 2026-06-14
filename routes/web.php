@@ -199,7 +199,7 @@ Route::middleware(['auth'])->group(function () {
     |------------------------------------------------------------------*/
     Route::middleware('privilegio:reportes.ver')->group(function () {
         Route::get('/admin/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-        Route::post('/admin/reportes/generar', [ReporteController::class, 'generarReporte'])->name('reportes.generar');
+        Route::get('/admin/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
     });
 
     /*

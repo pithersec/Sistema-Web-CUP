@@ -29,6 +29,11 @@ class ReclamoController extends Controller
      */
     public function crearReclamo(Request $request)
     {
+
+        $request->merge([
+            'codigo_postulante' => trim($request->input('codigo_postulante'))
+        ]);
+
         // 1. Validamos que los datos obligatorios no estén vacíos
         $validator = \Validator::make($request->all(), [
             'codigo_postulante' => 'required|string|exists:postulante,codigo',
@@ -59,14 +64,6 @@ class ReclamoController extends Controller
                 'estado'            => 'pendiente'
             ]);
 
-            // 3. Registramos la acción correspondiente en la Bitácora
-            Bitacora::create([
-                'ip'         => $request->ip(),
-                'accion'     => "Inserción: Se registró un nuevo reclamo interactivo con ID {$reclamo->id}.",
-                'fecha_hora' => now(),
-                'id_usuario' => Auth::id() ?? null
-            ]);
-
             // Respondemos éxito total
             return response()->json([
                 'success' => true,
@@ -74,12 +71,11 @@ class ReclamoController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Error en crearReclamo: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'errors' => ['Ocurrió un error crítico en el servidor al guardar el reclamo.']
-            ], 500);
-        }
+    return response()->json([
+        'success' => false,
+        'errors' => [$e->getMessage()]
+    ], 500);
+}
     }
 
     // ==========================================================================

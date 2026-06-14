@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Sistema CUP FICCT - Reclamos</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
@@ -95,7 +96,6 @@
             </div>
 
             <form id="formCrearReclamo" class="p-5 space-y-6">
-                @csrf
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Código :</label>
                     <input type="text" name="codigo_postulante" id="input_codigo"
@@ -153,11 +153,12 @@
                 const formData = new FormData(this);
     
                 // AQUÍ: Cambiado a /reclamo para que coincida exactamente con tu controlador
-                fetch("/reclamo", {
+                fetch("/reclamos/guardar", {
                     method: "POST",
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }
                 })
                 .then(response => response.json())
