@@ -340,7 +340,7 @@
                     formal aquí.
                 </p>
             </div>
-            <a href="{{ route('reclamos.create') }}"
+            <a href="{{ route('reclamos.publico') }}"
                 class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 text-center uppercase tracking-wider text-sm"
                 style="font-size:10px; padding:1px 1px;color:rgb(0, 234, 255);">
                 REDACTAR RECLAMO
