@@ -78,6 +78,12 @@
         </div>
         @endif
 
+        @if(request('msg'))
+        <div style="background:#d4f5e2; color:#1a7a3c; padding:14px 16px; border-radius:8px; margin-bottom:20px; font-size:14px; font-weight:600;">
+            ✓ {{ request('msg') }}
+        </div>
+        @endif
+
         {{-- BÚSQUEDA --}}
         <div class="card">
             <div class="card-header"><h2>🔍 Buscar Postulante</h2></div>

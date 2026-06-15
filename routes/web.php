@@ -38,7 +38,7 @@ Route::get('/preinscripcion/exito', function () {
 })->name('preinscripcion.exito');
 
 // CU-04: Pago
-Route::get('/pago/exitoso', [PagoController::class, 'pagoExitoso'])->name('pago.exitoso');
+Route::post('/pago/exitoso', [PagoController::class, 'pagoExitoso'])->name('pago.exitoso');
 Route::get('/pago/{codigo}', [PagoController::class, 'mostrarPago'])->name('pago.index');
 Route::post('/pago/{codigo}/iniciar', [PagoController::class, 'iniciarPago'])->name('pago.iniciar');
 Route::post('/pago/webhook', [PagoController::class, 'pagoWebhook'])->name('pago.webhook');

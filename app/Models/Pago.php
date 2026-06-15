@@ -18,7 +18,7 @@ class Pago extends Model
         'moneda',
     ];
 
-    protected $casts = ['fecha' => 'date', 'monto' => 'decimal:2'];
+    protected $casts = ['fecha' => 'datetime', 'monto' => 'decimal:2'];
 
     public function postulantes()
     {
