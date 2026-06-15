@@ -390,7 +390,15 @@
             @endif
 
             {{-- P3 · GESTIÓN ADMINISTRATIVA --}}
+            @if(
+                ($user && $user->tienePrivilegio('postulantes.ver')) ||
+                ($user && $user->tienePrivilegio('carreras.ver')) ||
+                ($user && $user->tienePrivilegio('personal.ver')) ||
+                ($user && $user->tienePrivilegio('usuarios.ver')) ||
+                ($user && $user->tienePrivilegio('configuracion.gestionar'))
+            )
             <div class="nav-label">P3 · Gestión Administrativa</div>
+            @endif
 
             @if($user && $user->tienePrivilegio('postulantes.ver'))
             <a href="{{ route('postulantes.index') }}"
@@ -427,7 +435,14 @@
             @endif
 
             {{-- P2 · GESTIÓN ACADÉMICA --}}
+            @if(
+                ($user && $user->tienePrivilegio('grupos.ver')) ||
+                ($user && $user->tienePrivilegio('notas.ver')) ||
+                ($user && $user->tienePrivilegio('rendimiento.ver')) ||
+                ($user && $user->tienePrivilegio('asistencia.registrar'))
+            )
             <div class="nav-label">P2 · Gestión Académica</div>
+            @endif
 
             @if($user && $user->tienePrivilegio('grupos.ver'))
             <a href="{{ route('grupos.index') }}" class="nav-item {{ Request::is('admin/grupos*') ? 'active' : '' }}">
@@ -451,18 +466,18 @@
 
             @if($user && $user->tienePrivilegio('asistencia.registrar'))
             <a href="{{ route('asistencia.index') }}"
-                class="nav-item {{ Request::is('asistencia*') ? 'active' : '' }}"
+                class="nav-item {{ Request::is('asistencia*') ? 'active' : '' }}">
                 <span class="nav-icon">✅</span> Asistencia
             </a>
             @endif
 
             {{-- NUEVO: BANDEJA DE RECLAMOS PARA ADMINISTRACIÓN --}}
-            {{-- @if($user && $user->tienePrivilegio('reclamos.ver')) --}}
+            @if($user && $user->tienePrivilegio('reclamos.ver'))
             <a href="{{ url('/admin/reclamos') }}"
                 class="nav-item {{ Request::is('admin/reclamos*') ? 'active' : '' }}">
                 <span class="nav-icon">✉️</span> Atender Reclamos
             </a>
-            {{-- @endif --}}
+            @endif
 
             @endauth
 

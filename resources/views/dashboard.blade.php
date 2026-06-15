@@ -33,17 +33,47 @@
     .kpi-label { font-size: 11px; color: #5a5a5a; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; margin-top: 4px; }
 
     .section-title { font-family: 'Merriweather', serif; color: #0d3b6e; font-size: 15px; margin-bottom: 14px; font-weight: 700; }
-    .paquetes-fila { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 8px; }
+    .paquetes-fila { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 8px; align-items: start; }
     .paquete-card { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
     .paquete-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; transition: background 0.15s; }
     .paquete-header:hover { background: #f8fafc; }
     .paquete-title { font-size: 13px; font-weight: 700; color: #0d3b6e; }
     .paquete-sub { font-size: 11px; color: #888; margin-top: 2px; }
     .paquete-chevron { font-size: 12px; color: #aaa; transition: transform 0.2s; display: inline-block; }
-    .paquete-body { border-top: 1px solid #e2e8f0; padding: 12px 18px; }
-    .cu-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f4f8; font-size: 12.5px; color: #333; }
+    .paquete-body { padding: 0 18px; display: none;}
     .cu-item:last-child { border-bottom: none; }
     .cu-id { font-size: 10px; font-weight: 700; color: white; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+
+    .cu-item { 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 10px; 
+        padding: 7px 0; 
+        border-bottom: 1px solid #f0f4f8; 
+        font-size: 12.5px; 
+        color: #333; 
+        flex-wrap: wrap;
+        cursor: pointer;
+    }
+    .cu-text { flex: 1; }
+    .cu-chevron { font-size: 14px; color: #aaa; transition: transform 0.2s; margin-left: auto; }
+    .cu-privs { 
+        display: none; 
+        width: 100%; 
+        padding: 6px 0 2px 0; 
+        display: none;
+        flex-wrap: wrap; 
+        gap: 5px; 
+    }
+    .priv-badge { 
+        font-size: 10px; 
+        background: #f0f4f8; 
+        color: #5a5a5a; 
+        padding: 2px 8px; 
+        border-radius: 10px; 
+        font-family: monospace;
+        border: 1px solid #e2e8f0;
+    }
 
     @media (max-width: 768px) {
         .cards-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -118,11 +148,31 @@
                 </div>
                 <span class="paquete-chevron">▼</span>
             </div>
-            <div class="paquete-body" style="display:none;">
-                <div class="cu-item"><span class="cu-id" style="background:#1a5fa8;">CU-03</span> Realizar preinscripción</div>
-                <div class="cu-item"><span class="cu-id" style="background:#1a5fa8;">CU-04</span> Realizar pago</div>
-                <div class="cu-item"><span class="cu-id" style="background:#1a5fa8;">CU-05</span> Consultar estado de admisión</div>
-                <div class="cu-item"><span class="cu-id" style="background:#1a5fa8;">CU-06</span> Presentar reclamo</div>
+            <div class="paquete-body">
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#1a5fa8;">CU-03</span>
+                    <span class="cu-text">Realizar preinscripción</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Postulantes</span><span class="priv-badge">Editar Postulantes</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#1a5fa8;">CU-04</span>
+                    <span class="cu-text">Realizar pago</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Postulantes</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#1a5fa8;">CU-05</span>
+                    <span class="cu-text">Consultar estado de admisión</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Postulantes</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#1a5fa8;">CU-06</span>
+                    <span class="cu-text">Presentar reclamo</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Gestionar Reclamos</span></div>
+                </div>
             </div>
         </div>
 
@@ -134,12 +184,37 @@
                 </div>
                 <span class="paquete-chevron">▼</span>
             </div>
-            <div class="paquete-body" style="display:none;">
-                <div class="cu-item"><span class="cu-id" style="background:#2c038b;">CU-07</span> Registrar notas</div>
-                <div class="cu-item"><span class="cu-id" style="background:#2c038b;">CU-08</span> Consultar rendimiento académico</div>
-                <div class="cu-item"><span class="cu-id" style="background:#2c038b;">CU-11</span> Generar asignación de grupos</div>
-                <div class="cu-item"><span class="cu-id" style="background:#2c038b;">CU-12</span> Atender reclamos</div>
-                <div class="cu-item"><span class="cu-id" style="background:#2c038b;">CU-20</span> Gestionar asistencia</div>
+            <div class="paquete-body">
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#2c038b;">CU-07</span>
+                    <span class="cu-text">Registrar notas</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Exámenes</span><span class="priv-badge">Registrar Notas</span><span class="priv-badge">Editar Notas</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#2c038b;">CU-08</span>
+                    <span class="cu-text">Consultar rendimiento académico</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Rendimiento Académico</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#2c038b;">CU-11</span>
+                    <span class="cu-text">Generar asignación de grupos</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Grupos</span><span class="priv-badge">Asignar Grupos</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#2c038b;">CU-12</span>
+                    <span class="cu-text">Atender reclamos</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Gestionar Reclamos</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#2c038b;">CU-20</span>
+                    <span class="cu-text">Gestionar asistencia</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Registrar Asistencia</span></div>
+                </div>
             </div>
         </div>
 
@@ -151,13 +226,43 @@
                 </div>
                 <span class="paquete-chevron">▼</span>
             </div>
-            <div class="paquete-body" style="display:none;">
-                <div class="cu-item"><span class="cu-id" style="background:#0891b2;">CU-13</span> Gestionar postulantes</div>
-                <div class="cu-item"><span class="cu-id" style="background:#0891b2;">CU-14</span> Gestionar personal</div>
-                <div class="cu-item"><span class="cu-id" style="background:#0891b2;">CU-15</span> Gestionar carreras y cupos</div>
-                <div class="cu-item"><span class="cu-id" style="background:#0891b2;">CU-16</span> Gestionar usuarios y perfiles</div>
-                <div class="cu-item"><span class="cu-id" style="background:#0891b2;">CU-17</span> Cargar cuentas masivas</div>
-                <div class="cu-item"><span class="cu-id" style="background:#0891b2;">CU-18</span> Configurar parámetros</div>
+            <div class="paquete-body">
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#0891b2;">CU-13</span>
+                    <span class="cu-text">Gestionar postulantes</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Postulantes</span><span class="priv-badge">Editar Postulantes</span><span class="priv-badge">Dar de Baja Postulantes</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#0891b2;">CU-14</span>
+                    <span class="cu-text">Gestionar personal</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Personal</span><span class="priv-badge">Registrar Personal</span><span class="priv-badge">Editar Personal</span><span class="priv-badge">Desactivar Personal</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#0891b2;">CU-15</span>
+                    <span class="cu-text">Gestionar carreras y cupos</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Carreras</span><span class="priv-badge">Editar Cupos</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#0891b2;">CU-16</span>
+                    <span class="cu-text">Gestionar usuarios y perfiles</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Usuarios</span><span class="priv-badge">Editar Usuarios</span><span class="priv-badge">Gestionar Perfiles</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#0891b2;">CU-17</span>
+                    <span class="cu-text">Cargar cuentas masivas</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Cargar Cuentas Masivas</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#0891b2;">CU-18</span>
+                    <span class="cu-text">Configurar parámetros</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Configurar Parámetros</span><span class="priv-badge">Ver Gestiones</span><span class="priv-badge">Gestionar Gestiones</span><span class="priv-badge">Gestionar Materias</span></div>
+                </div>
             </div>
         </div>
 
@@ -169,12 +274,37 @@
                 </div>
                 <span class="paquete-chevron">▼</span>
             </div>
-            <div class="paquete-body" style="display:none;">
-                <div class="cu-item"><span class="cu-id" style="background:#f39c12;">CU-01</span> Iniciar sesión</div>
-                <div class="cu-item"><span class="cu-id" style="background:#f39c12;">CU-02</span> Cerrar sesión</div>
-                <div class="cu-item"><span class="cu-id" style="background:#f39c12;">CU-09</span> Consultar indicadores estadísticos</div>
-                <div class="cu-item"><span class="cu-id" style="background:#f39c12;">CU-10</span> Generar reportes</div>
-                <div class="cu-item"><span class="cu-id" style="background:#f39c12;">CU-19</span> Consultar bitácora</div>
+            <div class="paquete-body">
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#f39c12;">CU-01</span>
+                    <span class="cu-text">Iniciar sesión</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Acceso Total</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#f39c12;">CU-02</span>
+                    <span class="cu-text">Cerrar sesión</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Acceso Total</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#f39c12;">CU-09</span>
+                    <span class="cu-text">Consultar indicadores estadísticos</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Reportes</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#f39c12;">CU-10</span>
+                    <span class="cu-text">Generar reportes</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Reportes</span></div>
+                </div>
+                <div class="cu-item" onclick="toggleCU(this)">
+                    <span class="cu-id" style="background:#f39c12;">CU-19</span>
+                    <span class="cu-text">Consultar bitácora</span>
+                    <span class="cu-chevron">›</span>
+                    <div class="cu-privs"><span class="priv-badge">Ver Bitácora</span></div>
+                </div>
             </div>
         </div>
 
@@ -186,8 +316,25 @@
         const body = header.nextElementSibling;
         const chevron = header.querySelector('.paquete-chevron');
         const isOpen = body.style.display === 'block';
-        body.style.display = isOpen ? 'none' : 'block';
-        chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+
+        if (!isOpen) {
+            body.style.display = 'block';
+            body.style.padding = '12px 18px';
+            body.style.borderTop = '1px solid #e2e8f0';
+            chevron.style.transform = 'rotate(180deg)';
+        } else {
+            body.style.display = 'none';
+            body.style.padding = '0 18px';
+            body.style.borderTop = '0';
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+    function toggleCU(item) {
+        const privs = item.querySelector('.cu-privs');
+        const chevron = item.querySelector('.cu-chevron');
+        const isOpen = privs.style.display === 'flex';
+        privs.style.display = isOpen ? 'none' : 'flex';
+        chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
     }
 </script>
 @endsection
