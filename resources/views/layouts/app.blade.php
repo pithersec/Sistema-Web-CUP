@@ -439,7 +439,8 @@
                 ($user && $user->tienePrivilegio('grupos.ver')) ||
                 ($user && $user->tienePrivilegio('notas.ver')) ||
                 ($user && $user->tienePrivilegio('rendimiento.ver')) ||
-                ($user && $user->tienePrivilegio('asistencia.registrar'))
+                ($user && $user->tienePrivilegio('asistencia.registrar')) ||
+                ($user && $user->tienePrivilegio('reclamos.gestionar'))
             )
             <div class="nav-label">P2 · Gestión Académica</div>
             @endif
@@ -472,8 +473,8 @@
             @endif
 
             {{-- NUEVO: BANDEJA DE RECLAMOS PARA ADMINISTRACIÓN --}}
-            @if($user && $user->tienePrivilegio('reclamos.ver'))
-            <a href="{{ url('/admin/reclamos') }}"
+            @if($user && $user->tienePrivilegio('reclamos.gestionar'))
+            <a href="{{ route('admin.reclamos.index') }}"
                 class="nav-item {{ Request::is('admin/reclamos*') ? 'active' : '' }}">
                 <span class="nav-icon">✉️</span> Atender Reclamos
             </a>
